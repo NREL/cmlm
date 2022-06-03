@@ -88,6 +88,11 @@ if (args.flamelet) :
     for filename in files:
         tb.update(task=filename)
         data[filename] = pd.read_csv(filename)
+        for column in data[filename].columns:
+            if column.startswith('Y_'):
+                data[filename][column[2:]] = data[filename][column]
+                data[filename].drop(column, axis=1)
+        data[filename]['T (K)'] = data[filename]['T']
     tb.finalize()
 
 elif (args.s3d):

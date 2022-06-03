@@ -24,7 +24,7 @@ if not os.path.exists(savepath): os.makedirs(savepath)
 
 # Create and fill container for various options
 md = nh.metadata(savepath)
-md.directory_raw  = 'data/strained_flames_phi1_allTP_kmeans_100000.npz' # data directory
+md.directory_raw  = 'data/test_strained_data.npz' # data directory
 md.network = (100,100)                                                  # network structure
 md.loss_alpha  = 0.01                                                   # regularization parameter
 md.nmanivars = 2                                                        # dimensionality of manifold

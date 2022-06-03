@@ -1,4 +1,4 @@
-Simple example of Co-optimized ML Manifolds - using strained 1D flames for training
+Simple example of Co-optimized ML Manifolds - using strained 1D flames for training. You can skip Steps 1 and 2 if desired (a formatted training data is included in the Repo)
 
 ### REQUIREMENTS ###
 Python 3

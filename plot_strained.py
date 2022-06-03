@@ -44,7 +44,7 @@ for subdir in ['raw-pca-2', 'raw-cmlm-2', 'raw-fgm-2']:
     md.load()
 
     dir1 = md.directory_raw
-    dir2 = 'data/strained_flames_phi1_allTP_kmeans_100000.npz'
+    dir2 = 'data/test_strained_data.npz'
 
     print('Loading data from :\n{}'.format(dir1))
     nsamples_rawf, trn_rawf, tst_rawf, scalers = nh.load_and_scale_data(dir1,
