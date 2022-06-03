@@ -1,0 +1,26 @@
+Simple example of Co-optimized ML Manifolds - using strained 1D flames for training
+
+### REQUIREMENTS ###
+Python 3
+Cantera
+Pytorch
+Pandas
+Numpy
+Scikit-Learn
+SHERPA: https://parameter-sherpa.readthedocs.io/en/latest/gettingstarted/installation.html
+
+### STEP 1 ###
+run cantera to generate training data. This script solves a bunch of 1D flames at varied
+strain rate:
+
+python get_strained_data.py
+
+Or to run in parallel, e.g. on an interactivee node on Eagle:
+
+srun -n 36 python get_strained_data.py
+
+### Step 2 ###
+Process the data to the form required by the ML scripts
+
+python gen_trn_tst_data.py -i "strained_flames/strained*.csv" -o data/test_strained_data -f -g POSF10325 -m random
+
