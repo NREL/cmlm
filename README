@@ -24,3 +24,12 @@ Process the data to the form required by the ML scripts
 
 python gen_trn_tst_data.py -i "strained_flames/strained*.csv" -o data/test_strained_data -f -g POSF10325 -m random
 
+### Step 3 ###
+Train the network (run on GPU node on Eagle or change use_GPU in script to False
+
+python train_models_strained_flames_raw.py
+
+### Step 4 ###
+make some plots
+
+python plot_strained.py
