@@ -55,21 +55,25 @@ class netstruct_loss:
 # Simple fully connected ANN
 # input layer -> N*( FC LeakyReLU ) -> ouput
 class PredictionNet(nn.Module):
-    def __init__(self, Nred, H, D_out, manidef=None, Nvar=None):
+    def __init__(self, Nred, H, D_out, manidef=None, Nvar=None, manibiases=None):
         super().__init__()
 
         self.net_type = 'PredictionNet'
 
         if manidef is not None:
             manidef = torch.as_tensor(manidef, dtype=torch.float)
-            self.D_in = manidef.shape[0]
+            self.D_in, self.Nmani = manidef.shape
+            self.Npass = Nred - self.Nmani
 
-        if Nvar is 'all' : Nvar = Nred - Npass
-        self.inputs = {'Nred':Nred, 'H':H, 'D_out':D_out, 'manidef':manidef, 'Nvar':Nvar}
-        
+        if manibiases is None:
+            manibiases = torch.zeros(self.Nmani ,dtype=torch.float)
+
+        self.inputs = {'Nred':Nred, 'H':H, 'D_out':D_out, 'manidef':manidef, 'manibiases':manibiases, 'Nvar':Nvar}
+
         nh = len(H)-1
 
         if Nvar is None : Nvar = 0
+
         self.inp = nn.Linear(Nred+Nvar, H[0])
 
         self.nh = nh
@@ -86,12 +90,12 @@ class PredictionNet(nn.Module):
         
     # Calculates only the manifold variables
     def manifold(self, x):
-        return torch.matmul(x[:,:self.D_in], self.inputs['manidef'])
+        return torch.matmul(x[:,:self.D_in], self.inputs['manidef']) + self.inputs['manibiases']
 
     # Calculates manifold variables and variances if applicable
     def calc_manifold(self, x):
         D_in = self.D_in
-        out1 = torch.matmul(x[:,:D_in], self.inputs['manidef'])
+        out1 = torch.matmul(x[:,:D_in], self.inputs['manidef']) + self.inputs['manibiases']
 
         # Manifold variable variances (xi_var)
         if self.inputs['Nvar'] is not None:
@@ -121,6 +125,34 @@ class PredictionNet(nn.Module):
 
     def get_inputs(self):
         return copy.deepcopy(self.inputs)
+
+# ========================================================================
+# Create a prediction net that takes in and spits out unscaled data
+#
+def unscale_prediction_net(PredNet, scalers):
+    # Get parameters from existing net that uses scaled inputs/outputs
+    params = PredNet.get_inputs()
+    statedict = PredNet.state_dict()
+
+    # Change the input parameters so raw inputs can be provided
+    print(params['Nvar'])
+    if params['Nvar'] is not None and params['Nvar'] != 0:
+        raise RuntimeError("Unscaling prediction nets is not yet supported when variances are used")
+    if params['Nred'] != params['manidef'].shape[1]:
+        raise RuntimeError("Unscaling prediction nets is not yet supported when pass through variables are used")
+    params['manidef']    = (params['manidef'].T / torch.Tensor(scalers['inp'].scale_)).T
+    params['manibiases'] = -torch.matmul(params['manidef'].T,torch.Tensor(scalers['inp'].mean_))
+
+    # Change output layer parameters so unscaled outputs are delivered
+    statedict['output.2.weight'] = (statedict['output.2.weight'].T * torch.Tensor(scalers['out'].scale_)).T
+    statedict['output.2.bias'] *= torch.Tensor(scalers['out'].scale_)
+    statedict['output.2.bias'] += torch.Tensor(scalers['out'].mean_)
+
+    # Create and return a network with the modified parameters
+    UnscaledNet = PredictionNet(**params)
+    UnscaledNet.load_state_dict(statedict)
+    UnscaledNet.eval()
+    return UnscaledNet
     
 # ========================================================================
 # Co-optimied Machine Learned Manifolds network structure
@@ -235,6 +267,7 @@ def get_manifold_net(PredNet, reinit=False, Npass = 0):
 
     params = PredNet.get_inputs()
     ManiDef = params.pop('manidef')
+    params.pop('manibiases')
     nvarin, nmanivar = ManiDef.shape
     if nmanivar + Npass != params['Nred']:
         raise RuntimeError("Dimension of manifold does not match input dimension of Prediction net")

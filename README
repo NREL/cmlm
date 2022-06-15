@@ -9,27 +9,57 @@ Numpy
 Scikit-Learn
 SHERPA: https://parameter-sherpa.readthedocs.io/en/latest/gettingstarted/installation.html
 
+-------------------- Premixed Flames Case ---------------------
+
 ### STEP 1 ###
 run cantera to generate training data. This script solves a bunch of 1D flames at varied
 strain rate:
 
-python get_strained_data.py
+    python get_strained_data.py
 
 Or to run in parallel, e.g. on an interactivee node on Eagle:
 
-srun -n 36 python get_strained_data.py
+    srun -n 36 python get_strained_data.py
 
 ### Step 2 ###
 Process the data to the form required by the ML scripts
 
-python gen_trn_tst_data.py -i "strained_flames/strained*.csv" -o data/test_strained_data -f -g POSF10325 -m random
+    python gen_trn_tst_data.py -i "strained_flames/strained*.csv" -o data/test_strained_data -f -g POSF10325 -m random
 
 ### Step 3 ###
-Train the network (run on GPU node on Eagle or change use_GPU in script to False
+Train the network (run on GPU node on Eagle or change use_GPU in script to False)
 
-python train_models_strained_flames_raw.py
+    python train_models_strained_flames_raw.py
 
 ### Step 4 ###
 make some plots
 
-python plot_strained.py
+    python plot_strained.py
+
+
+
+-------------------- Autoignition Case ---------------------
+
+### Step 1 ###
+Run a bunch of 0D reactor cases with different equivalence ratios (fuel/air ratios) to generate data:
+
+    python gen_trn_tst_data.py -i "autoignition/a*csv" -f -o data/test_autoignition_data -m patternfile -p "50_P"  -g CH4
+
+### Step 2 ###
+Process the data to the form required by the ML scripts
+
+    python gen_trn_tst_data.py -i "autoignition/a*csv" -f -o data/test_autoignition_data -m patternfile -p "50_P"  -g CH4
+
+### Step 3 ###
+Train the network (run on GPU node on Eagle or change use_GPU in script to False)
+
+    python train_models_autoignition.py
+
+### Step 4 ###
+Plot the network outputs
+
+    python plot_autoignition.py
+
+### Create a table of the data for comparison to the network
+
+    python compile_2D_table.py

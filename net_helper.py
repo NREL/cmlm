@@ -97,8 +97,6 @@ def load_and_scale_data(directory,
     print('Training data set has {} samples'.format(nsamples))
     print('Testing  data set has {} samples'.format(len(tstdata.index)))
 
-    print(np.array(trndata.columns))
-    
     # Split data into subsets
     trn_data = {}
     tst_data = {}
