@@ -174,6 +174,67 @@ class metadata:
             print(val)
             print('')
         return ('End container')
+        
+    def save_net_info(self, fname, varname_converter=None):
+        """Save to metadata file readable by PelePhysics."""
+        
+        def insert_line_breaks(strs, breakpoint=100, prefix_len=11):
+            
+            nchars = prefix_len
+            ins_points = []
+            
+            for i in range(len(strs)):
+                nchars += len(strs[i]) + 1
+                if nchars >= breakpoint-1:
+                    ins_points.append(i)
+                    nchars = prefix_len + len(strs[i]) + 1
+                    
+            for i in range(len(ins_points)):
+                strs.insert(ins_points[i]+i, '\\\n'+' '*(prefix_len-1))
+        
+        with open(fname, 'w') as file:
+            
+            print("# Name of the neural network model", file=file)
+            print(f"model_name = {self.model_name}", file=file)
+            ndim = len(self.passvars) + self.nmanivars
+            print("# Number of input dimensions", file=file)
+            print(f"ndim = {ndim}", file=file)
+            nvar = len(self.predictvars)
+            print("# Number of output dimensions", file=file)
+            print(f"nvar = {nvar}", file=file)
+            print("# Number of manifold parameters", file=file)
+            print(f"nmanpar = {self.nmanivars}", file=file)
+            
+            dimnames = list(map(varname_converter, self.passvars))
+            dimnames += [f'xi{i}' for i in range(self.nmanivars)]
+            dimnamelist = dimnames.copy()
+            insert_line_breaks(dimnames)
+            dimnames = ' '.join(dimnames)
+            print("# Names of input variables", file=file)
+            print(f"dimnames = {dimnames}", file=file)
+            
+            varnames = list(map(varname_converter, self.predictvars))
+            insert_line_breaks(varnames)
+            varnames = ' '.join(varnames)
+            print("# Names of output variables", file=file)
+            print(f"varnames = {varnames}", file=file)
+            
+            print("# Definitions of input variables", file=file)
+            
+            for i in range(len(self.passvars)):
+                
+                pardef = dimnamelist[i]
+                print(f"def_{dimnamelist[i]} = {pardef}", file=file)
+                
+            for i in range(len(self.passvars), len(dimnamelist)):
+                
+                weights = map(str, self.xidefs[i-len(self.passvars)])
+                pardef = zip(weights, '*'*len(self.trainvars), map(varname_converter, self.trainvars))
+                pardef = ["".join(x) for x in pardef]
+                lhs = f"def_{dimnamelist[i]}"
+                insert_line_breaks(pardef, prefix_len=len(lhs)+3)
+                pardef = ' '.join(pardef)
+                print(f"{lhs} = {pardef}", file=file)
 
 # handle pytorch data
 def vh(data, dev=torch.device("cpu"), dtype=torch.float):

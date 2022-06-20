@@ -24,6 +24,7 @@ if not os.path.exists(savepath): os.makedirs(savepath)
 
 # Create and fill container for various options
 md = nh.metadata(savepath)
+md.model_name = "1d_strained_flame"
 md.directory_raw  = 'data/test_strained_data.npz' # data directory
 md.network = (100,100)                                                  # network structure
 md.loss_alpha  = 0.01                                                   # regularization parameter
@@ -60,9 +61,12 @@ md.passvars = np.array(['eint (J/kg)','rho (kg/m3)'])
 md.passvars = np.array([])
 
 # Variables that get predicted by the prediction net
-md.predictvars = np.array(['CO2','H2','N2','CO','O2','H2O',md.fuel,'OH','CH2O','HO2',
-                           'RR_H2O','RR_H2','RR_CO2','RR_CO', 'RR_'+md.fuel, 'RR_OH', 'RR_O2', 
-                           'T (K)'])
+# md.predictvars = np.array(['CO2','H2','N2','CO','O2','H2O', md.fuel,'OH','CH2O','HO2',
+#                            'RR_H2O','RR_H2','RR_CO2','RR_CO', 'RR_'+md.fuel, 'RR_OH', 'RR_O2', 
+#                            'RR_N2', 'T (K)', 'density'])
+                           
+md.predictvars = np.array(list(md.trainvars) + list(map(lambda s: 'RR_'+s, md.trainvars)) +
+        ['CH2O', 'H2O', 'T (K)', 'density'])
 
 # Print all inputs and save to file
 print('**** Inputs for training networks ****\n', md, '\n\n')
@@ -181,3 +185,21 @@ for label in ['FGM','PCA','CMLM']:
 print('****Overall MSEs****\n')
 finaldata = pd.DataFrame({'Training':md.trnloss, 'Testing':md.tstloss})
 print(finaldata)
+
+# Save net
+cpt_net.to(device("cpu"))
+pred_net = mrn.manifold2prediction(cpt_net)
+torch.jit.script(pred_net).save("net.pt")
+
+# Save metadata in PelePhysics-readable format
+def munge_varname(s):
+    
+    s = s.split()[0].upper()
+    if s.startswith("RR_"):
+        return "SRC_" + s[3:]
+    if s == 'DENSITY':
+        return 'RHO'
+    return s
+    
+md.xidefs = xidefs_cpt.T
+md.save_net_info("net_info.txt", varname_converter=munge_varname)

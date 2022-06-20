@@ -24,6 +24,7 @@ if not os.path.exists(savepath): os.makedirs(savepath)
 
 # Create and fill container for various options
 md = nh.metadata(savepath)
+md.model_name = '0d_autoignition'
 md.directory_raw  = 'data/test_autoignition_data.npz' # data directory
 md.network = (100,100)                                                  # network structure
 md.loss_alpha  = 0.01                                                   # regularization parameter
@@ -179,3 +180,16 @@ for label in ['FGM','PCA','CMLM']:
 print('****Overall MSEs****\n')
 finaldata = pd.DataFrame({'Training':md.trnloss, 'Testing':md.tstloss})
 print(finaldata)
+
+# Save net
+cpt_net.to(device("cpu"))
+pred_net = mrn.manifold2prediction(cpt_net)
+torch.jit.script(pred_net).save("net.pt")
+
+# Save metadata in PelePhysics-readable format
+def munge_varname(s):
+    s = s.split()[0].upper()
+    return s
+    
+md.xidefs = xidefs_cpt.T
+md.save_net_info("net_info.txt", varname_converter=munge_varname)    
