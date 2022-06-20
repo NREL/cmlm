@@ -118,6 +118,7 @@ def write_chemtable_binary(filename, ctable, tablename, tformat='Pele'):
 
         # Data
         for col in ctable.columns:
+            assert ctable.dtypes[col] == np.float64, "Chemtable data type must be float64"
             fi.write(ctable[col].to_numpy().tobytes())
 
     

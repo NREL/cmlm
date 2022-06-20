@@ -43,7 +43,7 @@ make some plots
 ### Step 1 ###
 Run a bunch of 0D reactor cases with different equivalence ratios (fuel/air ratios) to generate data:
 
-    python gen_trn_tst_data.py -i "autoignition/a*csv" -f -o data/test_autoignition_data -m patternfile -p "50_P"  -g CH4
+    python get_autoignition_data.py
 
 ### Step 2 ###
 Process the data to the form required by the ML scripts

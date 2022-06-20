@@ -48,11 +48,15 @@ for filename in files:
 assert min(np.diff(Zvals)) > 0 # Zvals must increase monotonically
 Cgrid = np.array(alldata[np.argmax(Cmax)].index) 
 dfindex = pd.MultiIndex.from_product([Zvals, Cgrid], names = ['ZMIX','PROG'])
-interpdata = pd.DataFrame(index=dfindex, columns=keep_vars)
+interpdata = pd.DataFrame(index=dfindex, columns=keep_vars, dtype=np.float64)
 for Zval,data in zip(Zvals,alldata):
     for column in keep_vars:
         interpdata[column][Zval] = np.interp(Cgrid, data.index, data[column])
 
 # Save
-ctable_tools.write_chemtable_binary(outfile, interpdata, "AUTOIGNITION")
+ctable_tools.write_chemtable_binary(outfile, interpdata, "AUTOIGNITION", "Pele")
 ctable_tools.print_chemtable(interpdata)
+
+# Verify saved data can be read correctly
+newtable, name = ctable_tools.read_chemtable_binary(outfile)
+assert interpdata.equals(newtable), "Loaded table does not match saved, saving did not work properly"
