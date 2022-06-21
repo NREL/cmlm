@@ -184,6 +184,7 @@ print(finaldata)
 # Save net
 cpt_net.to(device("cpu"))
 pred_net = mrn.manifold2prediction(cpt_net)
+pred_net = mrn.unscale_prediction_net(pred_net, md.scalers)
 torch.jit.script(pred_net).save("net.pt")
 
 # Save metadata in PelePhysics-readable format
