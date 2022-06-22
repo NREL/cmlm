@@ -135,7 +135,6 @@ def unscale_prediction_net(PredNet, scalers):
     statedict = PredNet.state_dict()
 
     # Change the input parameters so raw inputs can be provided
-    print(params['Nvar'])
     if params['Nvar'] is not None and params['Nvar'] != 0:
         raise RuntimeError("Unscaling prediction nets is not yet supported when variances are used")
     if params['Nred'] != params['manidef'].shape[1]:
@@ -173,7 +172,7 @@ class ManifoldReductionNet(nn.Module):
         if Nvar is None:
             self.calc_manifold = self.calc_manifold_novar
             NvarTmp = 0
-        elif Nvar is 'all':
+        elif Nvar == 'all':
             Nvar = Nred - Npass
         elif Nvar > Nred - Npass or Nvar < 0 :
             raise RuntimeError("Invalid number of variances specified")
