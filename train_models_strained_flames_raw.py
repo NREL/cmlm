@@ -202,5 +202,6 @@ def munge_varname(s):
         return 'RHO'
     return s
     
-md.xidefs = xidefs_cpt.T
+md.xidefs = pred_net.inputs['manidef'].T
+md.manibiases = pred_net.inputs['manibiases']
 md.save_net_info("net_info.txt", varname_converter=munge_varname)

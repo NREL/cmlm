@@ -33,7 +33,7 @@ md.save_chk = False                                                     # save n
 md.fuel = 'CH4'                                                         # Fuel species 
 
 # Whether or not to use SHERPA population-based training for hyperparameter optimization
-md.use_sherpa = False                                                 
+md.use_sherpa = False                                               
 # Net training options - for SHERPA population based (expensive)
 if md.use_sherpa:
     md.batchsize = [512,1024,2048,4096,8192,16384]
@@ -192,5 +192,6 @@ def munge_varname(s):
     s = s.split()[0].upper()
     return s
     
-md.xidefs = xidefs_cpt.T
+md.xidefs = pred_net.inputs['manidef'].T
+md.manibiases = pred_net.inputs['manibiases']
 md.save_net_info("net_info.txt", varname_converter=munge_varname)    

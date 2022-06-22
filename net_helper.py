@@ -235,6 +235,10 @@ class metadata:
                 insert_line_breaks(pardef, prefix_len=len(lhs)+3)
                 pardef = ' '.join(pardef)
                 print(f"{lhs} = {pardef}", file=file)
+                
+            print("# Biases to be used calculating input variables", file=file)
+            manibiases = ' '.join(map(lambda mb: str(mb.item()), self.manibiases))
+            print(f"manibiases = {manibiases}", file=file)
 
 # handle pytorch data
 def vh(data, dev=torch.device("cpu"), dtype=torch.float):
