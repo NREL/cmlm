@@ -228,7 +228,7 @@ class metadata:
                 
             for i in range(len(self.passvars), len(dimnamelist)):
                 
-                weights = map(str, self.xidefs[i-len(self.passvars)])
+                weights = map(lambda w: str(w.item()), self.xidefs[i-len(self.passvars)])
                 pardef = zip(weights, '*'*len(self.trainvars), map(varname_converter, self.trainvars))
                 pardef = ["".join(x) for x in pardef]
                 lhs = f"def_{dimnamelist[i]}"
