@@ -30,10 +30,10 @@ md.network = (100,100)                                                  # networ
 md.loss_alpha  = 0.01                                                   # regularization parameter
 md.nmanivars = 2                                                        # dimensionality of manifold
 md.save_chk = False                                                     # save network at every epoch when training
-md.fuel = 'CH4'                                                         # Fuel species 
+md.fuel = 'CH4'                                                         # Fuel species
 
 # Whether or not to use SHERPA population-based training for hyperparameter optimization
-md.use_sherpa = False                                               
+md.use_sherpa = False
 # Net training options - for SHERPA population based (expensive)
 if md.use_sherpa:
     md.batchsize = [512,1024,2048,4096,8192,16384]
@@ -52,7 +52,7 @@ else:
     md.nsibs = 1 ## FIXME
     md.reduce_lr = 3
     md.stop_no_progress = 10
-    
+
 # Variables that the manifold variables may be linear combinations of
 md.trainvars = np.array(['Y-CO2','Y-H2','Y-N2','Y-CO','Y-O2','Y-H2O','Y-'+md.fuel,'Y-OH'])
 
@@ -61,8 +61,22 @@ md.passvars = np.array([])
 
 # Variables that get predicted by the prediction net
 md.predictvars = np.array(['Y-CO2','Y-H2','Y-N2','Y-CO','Y-O2','Y-H2O','Y-'+md.fuel,'Y-OH','Y-CH2O','Y-HO2',
-                           'SRC_H2O','SRC_H2','SRC_CO2','SRC_CO', 'SRC_'+md.fuel, 'SRC_OH', 'SRC_O2', 
+                           'SRC_H2O','SRC_H2','SRC_CO2','SRC_CO', 'SRC_'+md.fuel, 'SRC_OH', 'SRC_O2',
                            'T','RHO','DIFF','VISC'])
+
+# Map source terms to species
+src_term_map = [[],[]]
+for ispec, spec in enumerate(md.trainvars):
+    found = 0
+    for ipv, predictvar in enumerate(md.predictvars):
+        if predictvar.startswith('SRC_') and spec.replace('Y-','') == predictvar[len('SRC_'):]:
+            src_term_map[0].append(ispec)
+            src_term_map[1].append(ipv)
+            found += 1
+    if found == 0:
+        print("WARNING: Source not found for species " + spec)
+    if found > 1:
+        raise RuntimeError("Multiple source terms found for species " + spec)
 
 # Print all inputs and save to file
 print('**** Inputs for training networks ****\n', md, '\n\n')
@@ -112,6 +126,7 @@ nmv = min(md.nmanivars,xidefs_flt.shape[1])
 
 # Initialize network and function to extract network inputs frokm loaded data structures
 flt_net = mrn.PredictionNet(nmv+npassvars,md.network,nout, manidef=xidefs_flt[:,:nmv])
+
 def get_invars_flt(dataset):
     return flt_net.calc_manifold(torch.as_tensor(np.concatenate((dataset['inp'], dataset['pass']),1),dtype=torch.float))
 
@@ -184,14 +199,15 @@ print(finaldata)
 # Save net
 cpt_net.to(device("cpu"))
 pred_net = mrn.manifold2prediction(cpt_net)
-pred_net = mrn.unscale_prediction_net(pred_net, md.scalers)
+pred_net = mrn.unscale_prediction_net(pred_net, md.scalers, compute_mani_source=True, src_term_map=src_term_map)
+md.predictvars = np.concatenate((md.predictvars, ['SRC_xi{}'.format(idx) for idx in range(md.nmanivars)]))
 torch.jit.script(pred_net).save("net.pt")
 
 # Save metadata in PelePhysics-readable format
 def munge_varname(s):
-    s = s.split()[0].upper()
+    s = s.split()[0] #.upper()
     return s
-    
+
 md.xidefs = pred_net.inputs['manidef'].T
 md.manibiases = pred_net.inputs['manibiases']
-md.save_net_info("net_info.txt", varname_converter=munge_varname)    
+md.save_net_info("net_info.txt", varname_converter=munge_varname)

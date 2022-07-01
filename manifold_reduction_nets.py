@@ -50,7 +50,7 @@ class netstruct_loss:
             for param in params:
                 loss += torch.norm(param,1)
         return self.lam1 * self.calc_ramp(epoch) * loss
-        
+
 # ========================================================================
 # Simple fully connected ANN
 # input layer -> N*( FC LeakyReLU ) -> ouput
@@ -87,7 +87,7 @@ class PredictionNet(nn.Module):
         self.output = nn.Sequential(
             nn.LeakyReLU(), nn.BatchNorm1d(H[-1]), nn.Linear(H[-1], D_out)
         )
-        
+
     # Calculates only the manifold variables
     def manifold(self, x):
         return torch.matmul(x[:,:self.D_in], self.inputs['manidef']) + self.inputs['manibiases']
@@ -108,15 +108,15 @@ class PredictionNet(nn.Module):
             # Passed through variables (passvars)
             out3 = x[:,D_in+D_in**2:]
             return torch.cat((out1, out2, out3),1)
-        
+
         else:
             out3 = x[:,D_in:]
             return torch.cat((out1, out3),1)
-        
+
     # Wrapper around forward for compatibility reasons:
     def mapfrom_manifold(self,x):
         out = self.forward(x)
-    
+
     def forward(self, x):
         out = self.inp(x)
         out = self.hidden(out)
@@ -129,7 +129,7 @@ class PredictionNet(nn.Module):
 # ========================================================================
 # Create a prediction net that takes in and spits out unscaled data
 #
-def unscale_prediction_net(PredNet, scalers):
+def unscale_prediction_net(PredNet, scalers, compute_mani_source=False, src_term_map=None):
     # Get parameters from existing net that uses scaled inputs/outputs
     params = PredNet.get_inputs()
     statedict = PredNet.state_dict()
@@ -147,12 +147,22 @@ def unscale_prediction_net(PredNet, scalers):
     statedict['output.2.bias'] *= torch.Tensor(scalers['out'].scale_)
     statedict['output.2.bias'] += torch.Tensor(scalers['out'].mean_)
 
+    # Add outputs for the manifold parameter source terms
+    if compute_mani_source:
+        params['D_out'] += params['Nred']
+        new_weights = torch.matmul(params['manidef'][src_term_map[0],:].T,
+                                   statedict['output.2.weight'][src_term_map[1],:])
+        new_biases  = torch.matmul(params['manidef'][src_term_map[0],:].T,
+                                   statedict['output.2.bias'][src_term_map[1]])
+        statedict['output.2.weight'] = torch.cat((statedict['output.2.weight'], new_weights))
+        statedict['output.2.bias'  ] = torch.cat((statedict['output.2.bias'  ], new_biases ))
+
     # Create and return a network with the modified parameters
     UnscaledNet = PredictionNet(**params)
     UnscaledNet.load_state_dict(statedict)
     UnscaledNet.eval()
     return UnscaledNet
-    
+
 # ========================================================================
 # Co-optimied Machine Learned Manifolds network structure
 # input layer -> linear manifold reduction layer ->  N*( FC LeakyReLU ) -> ouput
@@ -163,9 +173,9 @@ def unscale_prediction_net(PredNet, scalers):
 class ManifoldReductionNet(nn.Module):
     def __init__(self, D_in, Nred, H, D_out, Npass=0, Nvar =None):
         super().__init__()
-        
+
         self.net_type = 'ManifoldReductionNet'
-        
+
         # Set things up for the right number of variances
         self.calc_manifold = self.calc_manifold_wvar
         NvarTmp = Nvar
@@ -176,15 +186,15 @@ class ManifoldReductionNet(nn.Module):
             Nvar = Nred - Npass
         elif Nvar > Nred - Npass or Nvar < 0 :
             raise RuntimeError("Invalid number of variances specified")
-            
+
         self.inputs = {'D_in':D_in, 'Nred':Nred, 'H':H, 'D_out':D_out, 'Npass':Npass, 'Nvar':Nvar}
         self.nh = len(H)-1
 
         # Set up the layers
         self.manifold = nn.Linear(D_in, Nred-Npass, bias=False)
-        
+
         self.inp = nn.Linear(Nred + NvarTmp,H[0])
-        
+
         layers = OrderedDict()
         for i in range(self.nh):
             layers["relu" + str(i)] = nn.LeakyReLU()
@@ -202,7 +212,7 @@ class ManifoldReductionNet(nn.Module):
         # No variances
         out3 = xin[:,D_in:] # Pass through variables
         return torch.cat((out1, out3),1)
-            
+
     def calc_manifold_wvar(self,xin):
         # xin: Yfilt, YcorrelationMatrix, passvars
         # output is manifold: xi_filt, passvars, xi_var
@@ -223,7 +233,7 @@ class ManifoldReductionNet(nn.Module):
 
         # Passed through variables (passvars)
         out3 = xin[:,D_in+D_in**2:]
-        
+
         return torch.cat((out1, out2, out3),1)
 
     def mapfrom_manifold(self,xmani):
@@ -231,7 +241,7 @@ class ManifoldReductionNet(nn.Module):
         out = self.hidden(out)
         out = self.output(out)
         return out
-        
+
     def forward(self, xin):
         out = self.calc_manifold(xin)
         out = self.mapfrom_manifold(out)
@@ -239,11 +249,11 @@ class ManifoldReductionNet(nn.Module):
 
     def get_inputs(self):
         return copy.deepcopy(self.inputs)
-    
+
 # ========================================================================
 # Extract the prediction net (nonlinear portion) from a manifold reduction net
 def manifold2prediction(ManiNet):
-    
+
     statedict = ManiNet.state_dict()
     ManiDef = copy.deepcopy(statedict['manifold.weight'])
     for key in list(statedict.keys()):
@@ -256,12 +266,12 @@ def manifold2prediction(ManiNet):
     PredNet = PredictionNet(**params)
     PredNet.load_state_dict(statedict)
     PredNet.eval()
-    
+
     return PredNet
 
 # ========================================================================
 # Use a prediction net to create a reduction net
-# 
+#
 def get_manifold_net(PredNet, reinit=False, Npass = 0):
 
     params = PredNet.get_inputs()
@@ -276,11 +286,11 @@ def get_manifold_net(PredNet, reinit=False, Npass = 0):
     statedict = ManiNet.state_dict()
     statedict['manifold.weight'] = torch.as_tensor(ManiDef.T,dtype=torch.float)
     if not reinit:
-        statedict_Pred = PredNet.state_dict() 
+        statedict_Pred = PredNet.state_dict()
         for key in statedict_Pred.keys():
             statedict[key] = statedict_Pred[key]
     ManiNet.load_state_dict(statedict)
-    
+
     return ManiNet
 
 # ========================================================================
@@ -327,9 +337,9 @@ def train_net(XTrain, YTrain, Xval, Yval, model,
 
     if return_full_hist:
         hist = dict(zip(['val_loss','trn_loss','wgt_loss','lr','bs'],[[],[],[],[],[]]))
-            
+
     for epoch in range(nepochs):
-        
+
         model.train()
         permutation = randperm(nsamples)
 
@@ -340,7 +350,7 @@ def train_net(XTrain, YTrain, Xval, Yval, model,
             batch_x, batch_y = Xt[indices], Yt[indices]
             ypred = model(batch_x)
             loss = lossfunc(ypred, batch_y) + wgtlossfunc(model,epoch)
-            
+
             # Zero gradients, perform a backward pass, and update the weights.
             optimizer.zero_grad()
             loss.backward()
@@ -348,9 +358,9 @@ def train_net(XTrain, YTrain, Xval, Yval, model,
 
         # Compute the validation loss and print
         model.eval()
-        val_loss = lossfunc(model(Xv), Yv).item() 
+        val_loss = lossfunc(model(Xv), Yv).item()
         trn_loss = lossfunc(model(Xt), Yt).item()
-        wgt_loss = wgtlossfunc(model,epoch) 
+        wgt_loss = wgtlossfunc(model,epoch)
 
         if return_full_hist:
             hist['val_loss'].append(float(val_loss))
@@ -358,10 +368,10 @@ def train_net(XTrain, YTrain, Xval, Yval, model,
             hist['wgt_loss'].append(float(wgt_loss))
             hist['lr'].append(float(learning_rate))
             hist['bs'].append(int(batchsize))
-            
+
         print("Epoch [{0:d}/{1:d}], Training loss {2:.4e}, Validation loss: {3:.4e}, Weight loss: {4:.4e}".format(
                 epoch + 1, nepochs, (trn_loss), (val_loss), wgt_loss),flush=True)
-        
+
         # Stop or reduce learning rate if reduction of loss has stalled
         if stop_no_progress > 0 :
             # If improving, do nothing
@@ -398,10 +408,10 @@ def train_net(XTrain, YTrain, Xval, Yval, model,
 
         if save_chk is not False:
             save_checkpoint(model, optimizer, os.path.join(save_chk, 'chk' +str(epoch) + '.npz') , verbose= False)
-                
+
     optimizer.load_state_dict(best_optim)
     model.load_state_dict(best_model)
-        
+
     if return_full_hist:
         return mintrnloss, minloss, hist
     else:
@@ -448,7 +458,7 @@ def copy_net(model, keep_manidef=True):
 
     if model.net_type == 'PredictionNet':
         new_model = PredictionNet(**model.inputs)
-        
+
     elif model.net_type == 'ManifoldReductionNet':
         new_model = ManifoldReductionNet(**model.inputs)
         if keep_manidef:
@@ -456,16 +466,16 @@ def copy_net(model, keep_manidef=True):
             old_statedict = model.state_dict()
             new_statedict['manifold.weight'] = old_statedict['manifold.weight']
             new_model.load_state_dict(new_statedict)
-            
+
     elif model.net_type == 'PCANet':
         new_model = PCANet(**model.inputs)
 
     elif model.net_type == 'FilteredManifoldReductionNet':
         new_model = FilteredManifoldReductionNet(**model.inputs)
-        
+
     else:
         raise RuntimeError('Cannot copy this type of network')
-        
+
     return new_model
 
 # ========================================================================
@@ -487,7 +497,7 @@ def train_net_sherpa(XTrain, YTrain, Xval, Yval, model_in,
 
     # make the output directory:
     if not os.path.exists(savepath): os.makedirs(savepath)
-    
+
     parameters = [sherpa.Continuous('lr', learning_rate, scale='log'),
                   sherpa.Ordinal('batchsize', batchsize)]
     algorithm = sherpa.algorithms.PopulationBasedTraining(population_size = nsiblings,
@@ -510,7 +520,7 @@ def train_net_sherpa(XTrain, YTrain, Xval, Yval, model_in,
         axBL.set_yscale('log')
         axBR.set_yscale('log')
         cmap = plt.get_cmap('tab20')
-        
+
     study = sherpa.Study(parameters=parameters,
                          algorithm=algorithm,
                          lower_is_better=True)
@@ -523,7 +533,7 @@ def train_net_sherpa(XTrain, YTrain, Xval, Yval, model_in,
     Xv = Variable(torch.as_tensor(Xval,dtype=torch.float).to(device=dev))
     Yv = Variable(torch.as_tensor(Yval,dtype=torch.float).to(device=dev))
     lossfunc = lossfunc.to(device = dev)
-        
+
     for trial in study:
         # Get the parameters
         generation   = trial.parameters['generation']
@@ -533,7 +543,7 @@ def train_net_sherpa(XTrain, YTrain, Xval, Yval, model_in,
         batchsize    = int(trial.parameters['batchsize'])
         print ("Starting trial {} in generation {}:     lr = {:8.4e}   bs = {:6n}"
                .format(trial.id, generation,learningrate,batchsize))
-        
+
         # Get the model and optimizer and load if necessary
         model = copy_net(model_in)
         optimizer = optim.Adam(model.parameters(), lr=learningrate, amsgrad=True)
@@ -544,7 +554,7 @@ def train_net_sherpa(XTrain, YTrain, Xval, Yval, model_in,
         GEN[trial.id] = generation; BS[trial.id] = batchsize; LR[trial.id] = learningrate
         model.to(device=dev)
         if save_chk is not False: save_chk = savepath
-        TL[trial.id], VL[trial.id], hist[trial.id] = train_net(Xt, Yt, Xv, Yv, model, 
+        TL[trial.id], VL[trial.id], hist[trial.id] = train_net(Xt, Yt, Xv, Yv, model,
                                                      batchsize=batchsize, nepochs=nepochs, dev=dev,
                                                      lossfunc = lossfunc, learning_rate=learningrate,
                                                      wgtlossfunc = wgtlossfunc, ondev=True,
@@ -554,14 +564,14 @@ def train_net_sherpa(XTrain, YTrain, Xval, Yval, model_in,
         save_checkpoint(model, optimizer, os.path.join(savepath, save_to + '.npz') , verbose= False)
         hist[trial.id] = pd.DataFrame(hist[trial.id])
         hist[trial.id].to_csv(os.path.join(savepath, save_to + '.csv'))
-        study.add_observation(trial=trial, objective=VL[trial.id], iteration=int(generation)) 
+        study.add_observation(trial=trial, objective=VL[trial.id], iteration=int(generation))
         study.finalize(trial=trial)
         study.save(output_dir = savepath)
- 
+
         if plot_dashboard is not None:
             child = trial.id
-            
-            hist[child].index += (GEN[child]-1)*nepochs+1 
+
+            hist[child].index += (GEN[child]-1)*nepochs+1
             if load_from != '':
                 ancestor = float(trial.parameters['lineage'].split(',')[0])
                 parent = int(load_from)
@@ -575,22 +585,17 @@ def train_net_sherpa(XTrain, YTrain, Xval, Yval, model_in,
             axTR.plot(hist[child].index,hist[child]['val_loss'], color=cmap(colorid))
             axBL.plot(hist[child].index,hist[child]['lr'], color=cmap(colorid))
             axBR.plot(hist[child].index,hist[child]['bs'], color=cmap(colorid))
-            plt.savefig(savepath + '/' + plot_dashboard + '.png')          
+            plt.savefig(savepath + '/' + plot_dashboard + '.png')
         if os.path.isfile('stop') :
             os.remove('stop')
-            break 
+            break
 
     best_trial = study.get_best_result()
     best_id = best_trial['Trial-ID']
     with open(os.path.join(savepath, 'best_trial.txt'),'w') as f:
         f.write("{}".format(best_id))
-    
+
     load_checkpoint(model_in, optimizer,
-                    os.path.join(savepath, str(best_trial['Trial-ID']) + '.npz'), verbose=False )  
-    
+                    os.path.join(savepath, str(best_trial['Trial-ID']) + '.npz'), verbose=False )
+
     return TL[best_id], VL[best_id]
-    
-    
-    
-    
-    
