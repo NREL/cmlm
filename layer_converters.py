@@ -1,16 +1,16 @@
-import pydoc
-import sys
 import torch
+import struct
 
-def output_help_to_file(filepath, request):
+def shapestr(t) -> str:
+    """
+    Get torch tensor and return shape string of format (sizes...). E.g. (3) for length 3, (2,100)
+    for 2x100 tensor.
+    """
     
-    f = open(filepath, 'w')
-    sys.stdout = f
-    pydoc.help(request)
-    f.close()
-    sys.stdout = sys.__stdout__
-    
+    return '(' + ','.join(map(str,t.shape)) + ')'
+
 class NodeCollection:
+    """Stores a collection of nodes in a Pytorch script module graph by name."""
     
     def __init__(self, nodes):
         
@@ -80,9 +80,11 @@ class NodeCollection:
     @property    
     def item_list_(self):
         
-        return list(self.items_)
+        return list(self.items_)        
+
 
 class ConvBase:
+    """Base class for converters from Pytorch script module to binary format."""
     
     def __init__(self, layer):
         
@@ -96,7 +98,15 @@ class ConvBase:
         
         return f"{self.__class__.__name__}({self.source})"
         
-    def convert(self):
+    def convert(self, strform: str, floatform: str, intform: str) -> bytes:
+        """
+        Convert to bytes object. Should start with name and format string. Arguments are the string
+        format to use (e.g. '64s' for 64-character string), the type of float, and the type of int.
+        See https://docs.python.org/3/library/struct.html#struct-format-strings for info on how to
+        specify the float and integer formats. The format string output by this function should give
+        a sequence of data types and shapes. For example, f(100,100)i(1)f(20) indicates that the
+        data consists of a 100x100 float array, a single integer, and then a length 20 float array.
+        """
         
         raise NotImplementedError(f"'{self.__class__}' does not implement convert() method.")
         
@@ -109,7 +119,17 @@ class LinearConv(ConvBase):
         
         self.weight = layer.weight
         self.bias = layer.bias
+    
+    def convert(self, strform, floatform, intform) -> bytes:
         
+        wt, bs = self.weight, self.bias
+        
+        b  = struct.pack(strform, 'Linear'.encode())
+        b += struct.pack(strform, f'f{shapestr(wt)}f{shapestr(bs)}'.encode())
+        b += struct.pack(floatform * wt.numel(), *wt.flatten())
+        b += struct.pack(floatform * bs.numel(), *bs.flatten())
+        
+        return b
 
 class LeakyReluConv(ConvBase):
     
@@ -122,6 +142,14 @@ class LeakyReluConv(ConvBase):
         
         self.neg_slope = nc._3.f('value')
         self.inplace = bool(nc._4.i('value'))
+        
+    def convert(self, strform, floatform, intform) -> str:
+        
+        b  = struct.pack(strform, 'LeakyReLU'.encode())
+        b += struct.pack(strform, 'f(1)'.encode())
+        b += struct.pack(floatform, self.neg_slope)
+        
+        return b
         
 class BatchNorm1dConv(ConvBase):
     
@@ -139,6 +167,19 @@ class BatchNorm1dConv(ConvBase):
         self.momentum = nc._39.f('value')
         self.eps = nc._40.f('value')
         
-        self.lin_weight = self.weight / torch.sqrt(self.running_var + self.eps)
-        self.lin_bias = - self.running_mean /  torch.sqrt(self.running_var + 1e-5) * self.weight \
+        self.actual_weight = self.weight / torch.sqrt(self.running_var + self.eps)
+        self.actual_bias = -self.running_mean /  torch.sqrt(self.running_var + 1e-5) * self.weight \
                 + self.bias
+                
+    def convert(self, strform, floatform, intform) -> str:
+        
+        # Use simplified form for now
+        wt = self.actual_weight
+        bs = self.actual_bias
+        
+        b  = struct.pack(strform, 'BatchNorm1d'.encode())
+        b += struct.pack(strform, f'f{shapestr(wt)}f{shapestr(bs)}'.encode())
+        b += struct.pack(floatform * wt.numel(), *wt.flatten())
+        b += struct.pack(floatform * bs.numel(), *bs.flatten())
+        
+        return b
