@@ -129,6 +129,7 @@ for ii in data.index[1:]:
 data.drop(index=dropvals, inplace=True)
 specRRdata.drop(index=dropvals, inplace=True)
 specYdata.drop(index=dropvals, inplace=True)
+specXdata.drop(index=dropvals, inplace=True)
 
 data["SRC_PROG"] = specRRdata[progvars].sum(axis=1)
 data.loc[0,"SRC_PROG"] = 0.0
