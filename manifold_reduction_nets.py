@@ -141,11 +141,14 @@ def unscale_prediction_net(PredNet, scalers, compute_mani_source=False, src_term
         raise RuntimeError("Unscaling prediction nets is not yet supported when pass through variables are used")
     params['manidef']    = (params['manidef'].T / torch.Tensor(scalers['inp'].scale_)).T
     params['manibiases'] = -torch.matmul(params['manidef'].T,torch.Tensor(scalers['inp'].mean_))
+    if not (scalers['inp'].with_mean):
+        params['manibiases'] = torch.zeros_like(params['manibiases'])
 
     # Change output layer parameters so unscaled outputs are delivered
     statedict['output.2.weight'] = (statedict['output.2.weight'].T * torch.Tensor(scalers['out'].scale_)).T
     statedict['output.2.bias'] *= torch.Tensor(scalers['out'].scale_)
-    statedict['output.2.bias'] += torch.Tensor(scalers['out'].mean_)
+    if (scalers['out'].with_mean):
+        statedict['output.2.bias'] += torch.Tensor(scalers['out'].mean_)
 
     # Add outputs for the manifold parameter source terms
     if compute_mani_source:
