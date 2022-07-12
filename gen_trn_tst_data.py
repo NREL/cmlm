@@ -41,6 +41,9 @@ parser.add_argument('-f','--flamelet',action='store_true',
 parser.add_argument('-s','--s3d',action='store_true',
                     help="Flag if input data is from S3D")
 
+parser.add_argument('-t','--table',action='store_true',
+                    help="Flag if input data is a chemtable")
+
 parser.add_argument('-v','--vfrac', default = None,
                     help="Minimum vfrac to keep for PeleC data")
 
@@ -65,10 +68,10 @@ parser.add_argument('-r','--ratio', dest='ratio', default=ratio, type=float,
 parser.add_argument('-k','--kmeans', default=kmeans, type=int,
                     help="Number of kmeans clusters if doing random partitioning (0=no kmeans) and subsampling")
 
-parser.add_argument('-p','--pattern', default=pattern, 
+parser.add_argument('-p','--pattern', default=pattern,
                     help="If using patternfile method, pattern to match to select the file(s)")
 
-parser.add_argument('-g','--fuelspec', default='CH4', 
+parser.add_argument('-g','--fuelspec', default='CH4',
                     help="If using patternfile method, pattern to match to select the file(s)")
 
 args = parser.parse_args()
@@ -93,6 +96,18 @@ if (args.flamelet) :
                 data[filename][column[2:]] = data[filename][column]
                 data[filename].drop(column, axis=1)
         data[filename]['T (K)'] = data[filename]['T']
+    tb.finalize()
+
+elif (args.table) :
+    import ctable_tools
+    files = sorted(glob.glob(args.infile))
+    if args.everyother:
+        files = files[::2]
+    data = {}
+    tb = timer.trackerbar(len(files))
+    for filename in files:
+        tb.update(task=filename)
+        data[filename], _ = ctable_tools.read_chemtable_binary(filename)
     tb.finalize()
 
 elif (args.s3d):
@@ -121,7 +136,7 @@ elif (args.s3d):
                                                if key != 'planes'})
             data[filename]['timestep'] = ii
     tb.finalize()
-    
+
 elif (args.npzfile):
     files = sorted(glob.glob(args.infile))
     if args.everyother:
@@ -140,7 +155,7 @@ else :
     files = npzfile['files']
     data = npzfile['data'][()]
 #raise RuntimeError
-            
+
 for ii, fi in enumerate(files):
     data[fi]['label'] = ii
 
@@ -155,7 +170,7 @@ if args.method == 'randomfile' or args.method == 'patternfile':
 
     if args.method == 'patternfile' :
         tstfiles = np.array([fi for fi in files if args.pattern in fi] )
-        
+
     tstdata = pd.concat([data[fi] for fi in tstfiles], ignore_index = True)
     trndata = pd.concat([data[fi] for fi in files if fi not in tstfiles], ignore_index = True)
 
@@ -165,7 +180,7 @@ if args.method == 'randomfile' or args.method == 'patternfile':
             chosenones = np.random.choice( ntrn, args.nsamples, replace = False)
             trndata = trndata.iloc[chosenones]
         ntst = len(tstdata.index)
-        nchoose = int((1-args.ratio)/args.ratio * args.nsamples) 
+        nchoose = int((1-args.ratio)/args.ratio * args.nsamples)
         if nchoose < ntst:
             chosenones = np.random.choice( ntst, nchoose, replace = False)
             tstdata = tstdata.iloc[chosenones]
@@ -212,8 +227,15 @@ elif args.method == 'random':
         #plt.clf()
         #plt.scatter(trndata['N2'], trndata['CO2']+trndata['CO']+trndata['H2O']+trndata['H2'],
         #            c=trndata['label'], s=0.4)
-        #plt.show()       
+        #plt.show()
         ti.stop_subtasks()
+elif args.method == 'everyother':
+    data = pd.concat(data.values(), ignore_index = True, sort = True)
+    ntot = len(data.index)
+    chosenones = np.arange(0,ntot,2)
+    trndata = data.iloc[chosenones]
+    tstdata = data.drop(index=chosenones)
+
 else :
     raise RuntimeError('Invalid method selected')
 

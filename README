@@ -63,3 +63,21 @@ Plot the network outputs
 ### Create a table of the data for comparison to the network
 
     python compile_2D_table.py
+
+
+-------------------- Premixed Flame Case ---------------------
+
+The script to generate testing and training data has been modified to it
+can read in chemtable files. So first, we generate a chemtable
+*set ```net_info_file = None``` in this file
+
+    python get_pmfdat_and_ctable.py
+
+    python gen_trn_tst_data.py -i "data/prem_drm19_phi1_p1_t298_allrxn.ctb" -t -o data/test_premixed_data -m everyother -g CH4
+
+    python train_models_premixed.py
+
+Now rerun the flame solver to generate the initial condition file for the network model
+*set ```net_info_file = cmlm_net_info.txt``` in this file
+
+    python get_pmfdat_and_ctable.py
