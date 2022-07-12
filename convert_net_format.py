@@ -8,6 +8,7 @@ import struct
 import layer_converters as lc
 
 net_file_help = "PyTorch neural network file (saved using TorchScript)."
+ndim_help = "Number of input dimensions for the model."
 out_file_help = """Output file to write the binary network to. Default is the input filename with 
         .pnn (for Pele neural network) as the extension."""
 strlen_help = "Fixed string length to use when writing the binary."
@@ -18,6 +19,7 @@ intform_help = """Integer format to use. Supply 'h' for 16-bit, 'i' for 32-bit, 
 
 parser = argparse.ArgumentParser()
 parser.add_argument('net_file', help=net_file_help)
+parser.add_argument('ndim', type=int, help=ndim_help)
 parser.add_argument('-o', '--out_file', default='', help=out_file_help)
 parser.add_argument('-sl', '--strlen', type=int, default=64, help=strlen_help)
 parser.add_argument('-ff', '--floatform', default='f', help=floatform_help)
@@ -71,8 +73,8 @@ for attr in lc.__dict__:
 
 with open(args.out_file, 'wb') as f:
     
-    # Write out info on string, float, and integer formats used
-    f.write(struct.pack('III', args.strlen, args.floatsize, args.intsize))
+    # Write out info on string, float, and integer formats used, and number of input dimensions
+    f.write(struct.pack('iiii', args.strlen, args.floatsize, args.intsize, args.ndim))
     
     for c in read_net(net):
         f.write(c.convert(f'{args.strlen}s', args.floatform, args.intform))
