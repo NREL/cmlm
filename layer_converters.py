@@ -143,7 +143,7 @@ class LeakyReluConv(ConvBase):
         self.neg_slope = nc._3.f('value')
         self.inplace = bool(nc._4.i('value'))
         
-    def convert(self, strform, floatform, intform) -> str:
+    def convert(self, strform, floatform, intform) -> bytes:
         
         b  = struct.pack(strform, 'LeakyReLU'.encode())
         b += struct.pack(strform, 'f(1)'.encode())
@@ -171,7 +171,7 @@ class BatchNorm1dConv(ConvBase):
         self.actual_bias = -self.running_mean /  torch.sqrt(self.running_var + 1e-5) * self.weight \
                 + self.bias
                 
-    def convert(self, strform, floatform, intform) -> str:
+    def convert(self, strform, floatform, intform) -> bytes:
         
         # Use simplified form for now
         wt = self.actual_weight
