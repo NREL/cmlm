@@ -2,12 +2,21 @@ import numpy as np
 import torch
 from torch import nn, optim, device, randperm
 from torch.autograd import Variable
-from collections import OrderedDict
+from collections import OrderedDict, namedtuple
 import copy
 import os
 import sherpa
 import pandas as pd
 import matplotlib.pyplot as plt
+
+# ========================================================================
+def combine_lossfuncs(*funcs):
+    
+    def combo(pred, actual):
+        
+        return sum(f(pred, actual) for f in funcs)
+        
+    return combo
 
 # ========================================================================
 # Determine the loss associated with the network structure
@@ -50,6 +59,57 @@ class netstruct_loss:
             for param in params:
                 loss += torch.norm(param,1)
         return self.lam1 * self.calc_ramp(epoch) * loss
+        
+# ========================================================================
+# Loss due to source terms having the wrong sign
+def sgn_loss(idx, alpha=1.0, beta=1e-10):
+    """
+    Alpha is the total loss for each incorrect sign where magnitude is > beta. Beta is the
+    linearity threshold.
+    """
+    
+    def lossfunc(pred, actual):
+        
+        t = pred[:, idx]*actual[:, idx]
+        return -alpha/beta * t.clamp(-beta, 0.0).sum() / t.numel()
+        
+    return lossfunc
+    
+def sgn_loss_mpar(idx, alpha=1.0, beta=1e-10):
+    """
+    Alpha is the total loss for each incorrect sign where magnitude is > beta. Beta is the
+    linearity threshold. This function acts on the manifold parameter sources, and not the
+    raw source terms.
+    """
+    
+    def lossfunc(pred, actual, model, scalers):
+        
+        # Unscaled net parameters
+        maniweights = model.unscaled_maniweights(scalers['inp'].scale_)
+        manibiases = model.unscaled_manibiases(scalers['inp'].mean_)
+        outscale = torch.Tensor(scalers['out'].scale_)
+        if scalers['out'].with_mean:
+            outbias = torch.Tensor(scalers['out'].mean_)
+        else:
+            outbias = 0.0
+            
+        pred = pred*outscale + outbias
+        actual = actual*outscale + outbias
+        
+        mask = idx < 0
+        pred_src = pred[:, idx]
+        pred_src[:, mask] = 0.0
+        actual_src = actual[:, idx]
+        actual_src[:, mask] = 0.0
+        
+        # Biases are length nmanipar
+        # Weights are nmanipar × ncomb
+        pred_src = (pred_src @ maniweights) + manibiases
+        actual_src = (actual_src @ maniweights) + manibiases
+        t = pred_src*actual_src
+        return -alpha/beta * t.clamp(-beta, 0.0).sum() / t.numel()
+        
+    return lossfunc
 
 # ========================================================================
 # Simple fully connected ANN
@@ -87,6 +147,26 @@ class PredictionNet(nn.Module):
         self.output = nn.Sequential(
             nn.LeakyReLU(), nn.BatchNorm1d(H[-1]), nn.Linear(H[-1], D_out)
         )
+        
+    def trainable_manifold(self):
+        
+        return False
+    
+    def set_unscaled_manidef(self, scaler_scale, scaler_mean, dev):
+        
+        self._maniweights = (self.inputs['manidef'].T / scaler_scale).T.to(device=dev)
+        # Assumes existing biases are 0
+        self._manibiases = -torch.matmul(self.inputs['manidef'].T, scaler_mean).to(device=dev)
+        
+    def unscaled_maniweights(self, scaler_scale, transpose=False):
+        
+        if transpose:
+            return self._maniweights.T
+        return self._maniweights
+        
+    def unscaled_manibiases(self, scaler_mean):
+        
+        return self._manibiases
 
     # Calculates only the manifold variables
     def manifold(self, x):
@@ -239,6 +319,22 @@ class ManifoldReductionNet(nn.Module):
 
         return torch.cat((out1, out2, out3),1)
 
+    def trainable_manifold(self):
+        
+        return True
+        
+    def unscaled_maniweights(self, scaler_scale, transpose=False):
+        
+        maniweights = self.manifold.parameters() / scaler_scale
+        if transpose:
+            return maniweights
+        return maniweights.T
+        
+    def unscaled_manibiases(self, scaler_mean):
+
+        # Assumes existing biases are 0
+        return -torch.matmul(self.manifold.parameters(), scaler_mean)
+        
     def mapfrom_manifold(self,xmani):
         out = self.inp(xmani)
         out = self.hidden(out)
@@ -302,6 +398,9 @@ def train_net(XTrain, YTrain, Xval, Yval, model,
               dev = device("cpu"),
               lossfunc = nn.MSELoss(),
               wgtlossfunc = netstruct_loss('none').calc_loss,
+              srclossfunc = None,
+              scalers = None,
+              calc_srcloss = False,
               batchsize = 1024,
               nepochs = 1000,
               learning_rate= 0.001,
@@ -326,6 +425,15 @@ def train_net(XTrain, YTrain, Xval, Yval, model,
         Yt = YTrain
         Xv = Xval
         Yv = Yval
+        
+    if calc_srcloss and not ondev:
+        if not model.trainable_manifold():
+            scaler_scale = torch.Tensor(scalers['inp'].scale_)
+            scaler_mean = torch.Tensor(scalers['inp'].mean_)
+            model.set_unscaled_manidef(scaler_scale, scaler_mean, dev)
+        for v in scalers.values():
+            v[0].to(device=dev)
+            v[1].to(device=dev)
 
     # Train the model
     nsamples = Xt.size()[0]
@@ -339,7 +447,7 @@ def train_net(XTrain, YTrain, Xval, Yval, model,
             param_group['lr'] = learning_rate
 
     if return_full_hist:
-        hist = dict(zip(['val_loss','trn_loss','wgt_loss','lr','bs'],[[],[],[],[],[]]))
+        hist = {k: [] for k in ['val_loss','trn_loss','wgt_loss','src_loss','lr','bs']}
 
     for epoch in range(nepochs):
 
@@ -353,6 +461,8 @@ def train_net(XTrain, YTrain, Xval, Yval, model,
             batch_x, batch_y = Xt[indices], Yt[indices]
             ypred = model(batch_x)
             loss = lossfunc(ypred, batch_y) + wgtlossfunc(model,epoch)
+            if calc_srcloss:
+                loss += srclossfunc(ypred, batch_y, model, scalers)
 
             # Zero gradients, perform a backward pass, and update the weights.
             optimizer.zero_grad()
@@ -364,16 +474,23 @@ def train_net(XTrain, YTrain, Xval, Yval, model,
         val_loss = lossfunc(model(Xv), Yv).item()
         trn_loss = lossfunc(model(Xt), Yt).item()
         wgt_loss = wgtlossfunc(model,epoch)
+        if calc_srcloss:
+            src_loss = srclossfunc(ypred, batch_y, model, scalers).item()
 
         if return_full_hist:
             hist['val_loss'].append(float(val_loss))
             hist['trn_loss'].append(float(trn_loss))
             hist['wgt_loss'].append(float(wgt_loss))
+            if calc_srcloss:
+                hist['src_loss'].append(float(src_loss))
             hist['lr'].append(float(learning_rate))
             hist['bs'].append(int(batchsize))
 
-        print("Epoch [{0:d}/{1:d}], Training loss {2:.4e}, Validation loss: {3:.4e}, Weight loss: {4:.4e}".format(
-                epoch + 1, nepochs, (trn_loss), (val_loss), wgt_loss),flush=True)
+        sumstr = "Epoch [{0:d}/{1:d}], Training loss {2:.4e}, Validation loss: {3:.4e}, Weight loss: {4:.4e}".format(
+                epoch + 1, nepochs, (trn_loss), (val_loss), wgt_loss)
+        if calc_srcloss:
+            sumstr += f", Src loss: {src_loss:.1e}"
+        print(sumstr, flush=True)
 
         # Stop or reduce learning rate if reduction of loss has stalled
         if stop_no_progress > 0 :
@@ -487,6 +604,9 @@ def train_net_sherpa(XTrain, YTrain, Xval, Yval, model_in,
                      dev = device("cpu"),
                      lossfunc = nn.MSELoss(),
                      wgtlossfunc = netstruct_loss('none').calc_loss,
+                     srclossfunc = None,
+                     scalers = None,
+                     calc_srcloss = False,
                      batchsize = [512, 1024, 2048, 4096, 8192, 16384, 32768],
                      learning_rate= [1e-6, 1e-2],
                      nepochs = 1,
@@ -535,7 +655,30 @@ def train_net_sherpa(XTrain, YTrain, Xval, Yval, model_in,
     Yt = Variable(torch.as_tensor(YTrain,dtype=torch.float).to(device=dev))
     Xv = Variable(torch.as_tensor(Xval,dtype=torch.float).to(device=dev))
     Yv = Variable(torch.as_tensor(Yval,dtype=torch.float).to(device=dev))
-    lossfunc = lossfunc.to(device = dev)
+    lossfunc = lossfunc.to(device = dev)      
+    
+    if calc_srcloss:
+        have_args = (srclossfunc is not None) and (scalers is not None)
+        assert have_args, "Must supply srclossfunc and scalers if calc_srcloss is True"
+        ScalerTuple = namedtuple("ScalerTuple", "scale_ mean_ with_mean")
+            
+        # CPU version
+        scaler_scale = torch.Tensor(scalers['inp'].scale_)
+        scaler_mean = torch.Tensor(scalers['inp'].mean_)
+        
+        # Move scalers to device
+        devscl = dict()
+        for k, v in scalers.items():
+            if scalers[k].with_mean:
+                devscl[k] = ScalerTuple(torch.Tensor(scalers[k].scale_).to(device=dev),
+                                        torch.Tensor(scalers[k].mean_ ).to(device=dev),
+                                        True)
+            else:
+                devscl[k] = (torch.Tensor(scalers[k].scale_).to(device=dev), None, False)        
+        scalers = devscl
+    else:
+        scaler_scale = None
+        scaler_mean = None
 
     for trial in study:
         # Get the parameters
@@ -549,6 +692,10 @@ def train_net_sherpa(XTrain, YTrain, Xval, Yval, model_in,
 
         # Get the model and optimizer and load if necessary
         model = copy_net(model_in)
+        
+        if calc_srcloss and not model.trainable_manifold():
+            model.set_unscaled_manidef(scaler_scale, scaler_mean, dev)
+            
         optimizer = optim.Adam(model.parameters(), lr=learningrate, amsgrad=True)
         if load_from != "":
             load_checkpoint(model, optimizer,
@@ -560,10 +707,11 @@ def train_net_sherpa(XTrain, YTrain, Xval, Yval, model_in,
         TL[trial.id], VL[trial.id], hist[trial.id] = train_net(Xt, Yt, Xv, Yv, model,
                                                      batchsize=batchsize, nepochs=nepochs, dev=dev,
                                                      lossfunc = lossfunc, learning_rate=learningrate,
-                                                     wgtlossfunc = wgtlossfunc, ondev=True,
-                                                     stop_no_progress=stop_no_progress, reduce_lr = reduce_lr,
-                                                     save_chk = save_chk, increase_bs=increase_bs,
-                                                     return_full_hist = True)
+                                                     wgtlossfunc = wgtlossfunc, srclossfunc=srclossfunc,
+                                                     scalers=scalers, calc_srcloss=calc_srcloss,
+                                                     ondev=True, stop_no_progress=stop_no_progress,
+                                                     reduce_lr = reduce_lr, save_chk = save_chk,
+                                                     increase_bs=increase_bs, return_full_hist = True)
         save_checkpoint(model, optimizer, os.path.join(savepath, save_to + '.npz') , verbose= False)
         hist[trial.id] = pd.DataFrame(hist[trial.id])
         hist[trial.id].to_csv(os.path.join(savepath, save_to + '.csv'))
