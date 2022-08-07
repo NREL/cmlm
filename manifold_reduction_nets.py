@@ -3,6 +3,7 @@ import torch
 from torch import nn, optim, device, randperm
 from torch.autograd import Variable
 from collections import OrderedDict, namedtuple
+from net_array import NetArray, MRNetArray
 import copy
 import os
 import sherpa
@@ -125,10 +126,12 @@ class PredictionNet(nn.Module):
             self.D_in, self.Nmani = manidef.shape
             self.Npass = Nred - self.Nmani
 
-        if manibiases is None:
+        if manibiases is None and manidef is not None:
             manibiases = torch.zeros(self.Nmani ,dtype=torch.float)
 
-        self.inputs = {'Nred':Nred, 'H':H, 'D_out':D_out, 'manidef':manidef, 'manibiases':manibiases, 'Nvar':Nvar}
+        self.inputs = {'Nred':Nred, 'H':H, 'D_out':D_out, 'manidef':manidef,
+                'manibiases':manibiases, 'Nvar':Nvar}
+        self.D_out = D_out
 
         nh = len(H)-1
 
@@ -202,14 +205,26 @@ class PredictionNet(nn.Module):
         out = self.hidden(out)
         out = self.output(out)
         return out
+        
+    def copy_state(self):
+        net = self.__class__(**self.inputs)
+        net.load_state_dict(self.state_dict())
+        return net
 
     def get_inputs(self):
         return copy.deepcopy(self.inputs)
+        
+    def unscaled(self, scalers, compute_mani_source=False, src_term_map=None, outslice=None):
+        return unscale_prediction_net(self, scalers, compute_mani_source, src_term_map, outslice)
+            
+    @property
+    def nout(self):
+        return self.D_out
 
 # ========================================================================
 # Create a prediction net that takes in and spits out unscaled data
 #
-def unscale_prediction_net(PredNet, scalers, compute_mani_source=False, src_term_map=None):
+def unscale_prediction_net(PredNet, scalers, compute_mani_source=False, src_term_map=None, outslice=None):
     # Get parameters from existing net that uses scaled inputs/outputs
     params = PredNet.get_inputs()
     statedict = PredNet.state_dict()
@@ -225,10 +240,18 @@ def unscale_prediction_net(PredNet, scalers, compute_mani_source=False, src_term
         params['manibiases'] = torch.zeros_like(params['manibiases'])
 
     # Change output layer parameters so unscaled outputs are delivered
-    statedict['output.2.weight'] = (statedict['output.2.weight'].T * torch.Tensor(scalers['out'].scale_)).T
-    statedict['output.2.bias'] *= torch.Tensor(scalers['out'].scale_)
+    if outslice is None:
+        outslice = slice(0, len(scalers['out'].scale_))
+    outscale = scalers['out'].scale_[outslice]
+    if scalers['out'].with_mean:
+        outmean = scalers['out'].mean_[outslice]
+    statedict['output.2.weight'] = (statedict['output.2.weight'].T * torch.Tensor(outscale)).T
+    statedict['output.2.bias'] *= torch.Tensor(outscale)
     if (scalers['out'].with_mean):
-        statedict['output.2.bias'] += torch.Tensor(scalers['out'].mean_)
+        statedict['output.2.bias'] += torch.Tensor(outmean)
+    
+    if src_term_map is not None:    
+        src_term_map = np.array([src_term_map[0], src_term_map[1]-outslice.start])
 
     # Add outputs for the manifold parameter source terms
     if compute_mani_source:
@@ -447,7 +470,11 @@ def train_net(XTrain, YTrain, Xval, Yval, model,
             param_group['lr'] = learning_rate
 
     if return_full_hist:
-        hist = {k: [] for k in ['val_loss','trn_loss','wgt_loss','src_loss','lr','bs']}
+        fields = ['val_loss','trn_loss','wgt_loss']
+        if calc_srcloss:
+            fields.append('src_loss')
+        fields += ['lr','bs']
+        hist = {k: [] for k in fields}
 
     for epoch in range(nepochs):
 
@@ -592,6 +619,15 @@ def copy_net(model, keep_manidef=True):
 
     elif model.net_type == 'FilteredManifoldReductionNet':
         new_model = FilteredManifoldReductionNet(**model.inputs)
+        
+    elif model.net_type == "NetArray":
+        new_model = NetArray(nets=[copy_net(net, keep_manidef) for net in model],
+                nouts=model.nout_iter(), **model.inputs)
+                
+    elif model.net_type == "MRNetArray":
+        new_model = MRNetArray(copy.deepcopy(model.manifold), 
+                nets=[copy_net(net, keep_manidef) for net in model],
+                nouts=model.nout_iter(), **model.inputs)
 
     else:
         raise RuntimeError('Cannot copy this type of network')
