@@ -96,9 +96,9 @@ class NetArray(torch.nn.Module):
 
         return self.forward(xin)
         
-    def _subnet_name(self, idx):
+    def _subnet_name(self, idx, dig=0):
         
-        return f"net{idx}"
+        return f"net{idx:0{dig}d}"
         
     def nout_iter(self):
         
@@ -225,8 +225,9 @@ class NetArray(torch.nn.Module):
         
         if not os.path.exists(dirname):
             os.makedirs(dirname)
+        dig = len(str(len(self)-1))
         for i in range(len(self)):
-            torch.jit.script(self[i]).save(os.path.join(dirname, self._subnet_name(i) + ".pt"))
+            torch.jit.script(self[i]).save(os.path.join(dirname, self._subnet_name(i, dig) + ".pt"))
         
 class MRNetArray(NetArray):
     """Container for NetArray that allows for learning of manifold reduction matrix."""
@@ -299,8 +300,7 @@ if __name__ == "__main__":
     from manifold_reduction_nets import PredictionNet
     
     netarr = NetArray(nets=[PredictionNet(2, [5, 5], 1)], nmv=2)
-    netarr.add(PredictionNet(2, [5, 5], 1))
-    netarr.add(PredictionNet(2, [5, 5], 1))
-    netarr.add(PredictionNet(2, [5, 5], 1))
+    for _ in range(15):
+        netarr.add(PredictionNet(2, [5, 5], 1))
     netarr.eval()
     print(netarr(torch.tensor([[1., 2.], [3., 4.]])))
