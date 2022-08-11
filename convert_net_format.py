@@ -2,6 +2,7 @@
 
 import os
 import sys
+import glob
 import argparse
 import torch
 import struct
@@ -16,6 +17,7 @@ floatform_help = """Floating point format to use. Supply 'e' for half-precision,
         single-precision, and 'd' for double-precision. Single-precision is the default."""
 intform_help = """Integer format to use. Supply 'h' for 16-bit, 'i' for 32-bit, and 'l' for 64-bit.
         Unsigned integers are not allowed."""
+array_help = """Save in format readable by Pele after the changes to support net arrays."""
 
 parser = argparse.ArgumentParser()
 parser.add_argument('net_file', help=net_file_help)
@@ -24,9 +26,18 @@ parser.add_argument('-o', '--out_file', default='', help=out_file_help)
 parser.add_argument('-sl', '--strlen', type=int, default=64, help=strlen_help)
 parser.add_argument('-ff', '--floatform', default='f', help=floatform_help)
 parser.add_argument('-if', '--intform', default='i', help=intform_help)
+parser.add_argument('-a', '--array', action='store_true', help=array_help)
 args = parser.parse_args(sys.argv[1:])
 
-net = torch.jit.load(args.net_file)
+if os.path.isdir(args.net_file):
+    files = glob.glob(os.path.join(args.net_file, '*.pt'))
+    nets = list(map(torch.jit.load, sorted(files)))
+else:
+    nets = [torch.jit.load(args.net_file)]
+    
+if len(nets) > 1 and not args.array:
+    raise ValueError(f"Provided with {len(nets)} nets. Must supply --array argument to write out"
+            + " array of nets.")
 
 if not args.out_file:
     basename = os.path.basename(args.net_file)
@@ -75,6 +86,17 @@ with open(args.out_file, 'wb') as f:
     
     # Write out info on string, float, and integer formats used, and number of input dimensions
     f.write(struct.pack('iiii', args.strlen, args.floatsize, args.intsize, args.ndim))
+    if args.array:
+        f.write(struct.pack('i', len(nets)))
     
-    for c in read_net(net):
-        f.write(c.convert(f'{args.strlen}s', args.floatform, args.intform))
+    for net in nets:
+
+        bytelist = []
+        
+        for c in read_net(net):
+            bytelist.append(c.convert(f'{args.strlen}s', args.floatform, args.intform))
+            
+        if args.array:
+            f.write(struct.pack('i', len(bytelist)))
+        for b in bytelist:
+            f.write(b)
