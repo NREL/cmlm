@@ -84,28 +84,35 @@ Now rerun the flame solver to generate the initial condition file for the networ
 
 -------------------- Additional Notes ---------------------
 ### Net Array
-The `train_models_autoignition_netarray.py` file has an example on how to set up and train a
-NetArray model (defined in the `net_array` module). The main differences in terms of usage from
-the single net case are that subnets must be added when or just after initializing the net to define
-the net array, and that the `save_torchscript` method should be used to save a net array. The keyword
-arguments might also differ from those for the other nets -- see the `__init__` method in the
-`NetArray` class. Note that `save_torchscript` saves a directory rather than a single file.
+The `train_models_autoignition_netarray.py` file has an example on how to
+set up and train a NetArray model (defined in the `net_array` module). The
+main differences in terms of usage from the single net case are that subnets
+must be added when or just after initializing the net to define
+the net array, and that the `save_torchscript` method should be
+used to save a net array. The keyword arguments might also differ from
+those for the other nets -- see the `__init__` method in the
+`NetArray` class. Note that `save_torchscript` saves a directory rather
+than a single file.
 
-The conversion script (`convert_net_format.py`) will work on saved net array directories. It requires
-the subnet file names to be sortable (with position in sorted filename list corresponding to the
-net's postion in the net array). The `NetArray` (and `MRNetArray`) classes do this by default. Note
-that one needs to supply the `--array` argument to the conversion script to convert a `NetArray` at
-present.
+The conversion script (`convert_net_format.py`) will work on saved net array
+directories. It requires the subnet file names to be sortable (with position
+in sorted filename list corresponding to the net's postion in the net array).
+The `NetArray` (and `MRNetArray`) classes do this by default. Note that one
+needs to supply the `--array` argument to the conversion script to convert a
+`NetArray` at present.
 
 ### Source Term Specific Loss Function
-The module `manifold_reduction_nets` now defines a pair of loss functions operating on species source
-terms and manifold source terms. The species source term loss function does not account for biases
-introduced by the scaling, so that will need to be added in. Whether the functions are correct or not
-is up for debate.
+The module `manifold_reduction_nets` now defines a pair of loss functions
+operating on species source terms and manifold source terms. The species
+source term loss function does not account for biases introduced by the
+scaling, so that will need to be added in. Whether the functions are
+correct or not is up for debate.
 
-The `train_models_autoignition_srcloss.py` script gives an example of including this loss function
-when training the model. It only does so for the FGM net (everything else is commented out).
+The `train_models_autoignition_srcloss.py` script gives an example of
+including this loss function when training the model. It only does so
+for the FGM net (everything else is commented out).
 
 ### Flamesheet Case
-Right now this just produces a simple net trained on a very small dataset. It was used for testing
-whether the FlameSheet test would run and comparing PyTorch vs. home-rolled net performance.
+Right now this just produces a simple net trained on a very small dataset.
+It was used for testing whether the FlameSheet test would run and comparing
+PyTorch vs. home-rolled net performance.
