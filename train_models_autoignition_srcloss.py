@@ -154,74 +154,74 @@ md.trnloss[label], md.tstloss[label] = mrn.train_net_sherpa(get_invars_flt(trn_r
                                                             savepath=savepath + '/'+label,
                                                             plot_dashboard='dashboard')
 
-#--- Train PCA+ANN model ---#
-label = 'raw-pca-'+ str(md.nmanivars)
-
-# run PCA to define manifold
-pca = PCA(n_components = md.nmanivars)
-components = pca.fit_transform(trn_raw['inp'])
-xidefs_pca = pca.components_.T
-
-# Initialize network and function to extract network inputs frokm loaded data structures
-pca_net = mrn.PredictionNet(md.nmanivars+npassvars,md.network,nout,manidef=xidefs_pca)
-def get_invars_pca(dataset):
-    return pca_net.calc_manifold(torch.as_tensor(np.concatenate((dataset['inp'], dataset['pass']),1),dtype=torch.float))
-
-# Train Network
-md.trnloss[label], md.tstloss[label] = mrn.train_net_sherpa(get_invars_pca(trn_raw),trn_raw['out'],
-                                                            get_invars_pca(tst_raw),tst_raw['out'],
-                                                            pca_net, lossfunc=lossfunc, dev=dev,
-                                                            nepochs=md.nepochs, ngenerations=md.ngens, nsiblings=md.nsibs,
-                                                            batchsize=md.batchsize, learning_rate=md.learningrate,
-                                                            reduce_lr=md.reduce_lr, stop_no_progress=md.stop_no_progress,
-                                                            savepath=savepath + '/'+label,
-                                                            plot_dashboard='dashboard')
-
-#--- Train Co-optimized ML Manifolds  model ---#
-label = 'raw-cmlm-'+ str(md.nmanivars)
-
-# Initialize network (using PCA definition) and function to extract network inputs frokm loaded data structures
-cpt_net = mrn.get_manifold_net(flt_net, reinit=True, Npass=npassvars)
-def get_invars_cpt(dataset):
-    return np.concatenate((dataset['inp'], dataset['pass']),1)
-
-# Train network
-md.trnloss[label], md.tstloss[label] = mrn.train_net_sherpa(get_invars_cpt(trn_raw),trn_raw['out'],
-                                                            get_invars_cpt(tst_raw),tst_raw['out'],
-                                                            cpt_net, lossfunc=lossfunc, dev=dev, wgtlossfunc=netlossfunc,
-                                                            nepochs=md.nepochs, ngenerations=md.ngens, nsiblings=md.nsibs,
-                                                            batchsize=md.batchsize, learning_rate=md.learningrate,
-                                                            reduce_lr=md.reduce_lr, stop_no_progress=md.stop_no_progress,
-                                                            savepath=savepath + '/'+label,
-                                                            plot_dashboard='dashboard', save_chk = md.save_chk)
-
-# Save and Print final results
-md.save()
-xidefs_cpt = cpt_net.state_dict()['manifold.weight'].cpu().numpy().T
-xidefs = {'FGM':xidefs_flt, 'PCA':xidefs_pca, 'CMLM':xidefs_cpt}
-
-print('\n****Manifold definitions for each method****\n')
-for label in ['FGM','PCA','CMLM']:
-    print(label)
-    print(pd.DataFrame(xidefs[label], columns=np.arange(md.nmanivars), index=md.trainvars))
-    print('')
-
-print('****Overall MSEs****\n')
-finaldata = pd.DataFrame({'Training':md.trnloss, 'Testing':md.tstloss})
-print(finaldata)
-
-# Save net
-cpt_net.to(device("cpu"))
-pred_net = mrn.manifold2prediction(cpt_net)
-pred_net = mrn.unscale_prediction_net(pred_net, md.scalers, compute_mani_source=True, src_term_map=src_term_map)
-md.predictvars = np.concatenate((md.predictvars, ['SRC_xi{}'.format(idx) for idx in range(md.nmanivars)]))
-torch.jit.script(pred_net).save("net.pt")
-
-# Save metadata in PelePhysics-readable format
-def munge_varname(s):
-    s = s.split()[0] #.upper()
-    return s
-
-md.xidefs = pred_net.inputs['manidef'].T
-md.manibiases = pred_net.inputs['manibiases']
-md.save_net_info("net_info.txt", varname_converter=munge_varname)
+# #--- Train PCA+ANN model ---#
+# label = 'raw-pca-'+ str(md.nmanivars)
+# 
+# # run PCA to define manifold
+# pca = PCA(n_components = md.nmanivars)
+# components = pca.fit_transform(trn_raw['inp'])
+# xidefs_pca = pca.components_.T
+# 
+# # Initialize network and function to extract network inputs frokm loaded data structures
+# pca_net = mrn.PredictionNet(md.nmanivars+npassvars,md.network,nout,manidef=xidefs_pca)
+# def get_invars_pca(dataset):
+#     return pca_net.calc_manifold(torch.as_tensor(np.concatenate((dataset['inp'], dataset['pass']),1),dtype=torch.float))
+# 
+# # Train Network
+# md.trnloss[label], md.tstloss[label] = mrn.train_net_sherpa(get_invars_pca(trn_raw),trn_raw['out'],
+#                                                             get_invars_pca(tst_raw),tst_raw['out'],
+#                                                             pca_net, lossfunc=lossfunc, dev=dev,
+#                                                             nepochs=md.nepochs, ngenerations=md.ngens, nsiblings=md.nsibs,
+#                                                             batchsize=md.batchsize, learning_rate=md.learningrate,
+#                                                             reduce_lr=md.reduce_lr, stop_no_progress=md.stop_no_progress,
+#                                                             savepath=savepath + '/'+label,
+#                                                             plot_dashboard='dashboard')
+# 
+# #--- Train Co-optimized ML Manifolds  model ---#
+# label = 'raw-cmlm-'+ str(md.nmanivars)
+# 
+# # Initialize network (using PCA definition) and function to extract network inputs frokm loaded data structures
+# cpt_net = mrn.get_manifold_net(flt_net, reinit=True, Npass=npassvars)
+# def get_invars_cpt(dataset):
+#     return np.concatenate((dataset['inp'], dataset['pass']),1)
+# 
+# # Train network
+# md.trnloss[label], md.tstloss[label] = mrn.train_net_sherpa(get_invars_cpt(trn_raw),trn_raw['out'],
+#                                                             get_invars_cpt(tst_raw),tst_raw['out'],
+#                                                             cpt_net, lossfunc=lossfunc, dev=dev, wgtlossfunc=netlossfunc,
+#                                                             nepochs=md.nepochs, ngenerations=md.ngens, nsiblings=md.nsibs,
+#                                                             batchsize=md.batchsize, learning_rate=md.learningrate,
+#                                                             reduce_lr=md.reduce_lr, stop_no_progress=md.stop_no_progress,
+#                                                             savepath=savepath + '/'+label,
+#                                                             plot_dashboard='dashboard', save_chk = md.save_chk)
+# 
+# # Save and Print final results
+# md.save()
+# xidefs_cpt = cpt_net.state_dict()['manifold.weight'].cpu().numpy().T
+# xidefs = {'FGM':xidefs_flt, 'PCA':xidefs_pca, 'CMLM':xidefs_cpt}
+# 
+# print('\n****Manifold definitions for each method****\n')
+# for label in ['FGM','PCA','CMLM']:
+#     print(label)
+#     print(pd.DataFrame(xidefs[label], columns=np.arange(md.nmanivars), index=md.trainvars))
+#     print('')
+# 
+# print('****Overall MSEs****\n')
+# finaldata = pd.DataFrame({'Training':md.trnloss, 'Testing':md.tstloss})
+# print(finaldata)
+# 
+# # Save net
+# cpt_net.to(device("cpu"))
+# pred_net = mrn.manifold2prediction(cpt_net)
+# pred_net = mrn.unscale_prediction_net(pred_net, md.scalers, compute_mani_source=True, src_term_map=src_term_map)
+# md.predictvars = np.concatenate((md.predictvars, ['SRC_xi{}'.format(idx) for idx in range(md.nmanivars)]))
+# torch.jit.script(pred_net).save("net.pt")
+# 
+# # Save metadata in PelePhysics-readable format
+# def munge_varname(s):
+#     s = s.split()[0] #.upper()
+#     return s
+# 
+# md.xidefs = pred_net.inputs['manidef'].T
+# md.manibiases = pred_net.inputs['manibiases']
+# md.save_net_info("net_info.txt", varname_converter=munge_varname)
