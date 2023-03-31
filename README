@@ -1,4 +1,5 @@
-Simple example of Co-optimized ML Manifolds - using strained 1D flames for training. You can skip Steps 1 and 2 if desired (a formatted training data is included in the Repo)
+This software repository contains several python scripts to perform various tasks associated with the
+Co-optimized Machine Learned Manifolds (CMLM) model, which is described in Perry, Henry de Frahan, and Yellapantula, CNF, 2022 (https://doi.org/10.1016/j.combustflame.2022.112286). This includes not only the code that defines the CMLM model, but also scripts to generate suitable training data, scripts to pre-process the data, scripts to train the CMLM model, and scripts to plot the output, as well as various other helper files. The scripts depend on several commonly used python libraries for data analysis and chemical reaction computations. The trained models that result from this tool are designed to work with the an interface being implemented in the Pele suite of reacting flow solvers (https://github.com/AMReX-Combustion).
 
 ### REQUIREMENTS ###
 Python 3
@@ -7,11 +8,18 @@ Pytorch
 Pandas
 Numpy
 Scikit-Learn
+Matplotlib
 SHERPA: https://parameter-sherpa.readthedocs.io/en/latest/gettingstarted/installation.html
 
--------------------- Premixed Flames Case ---------------------
+Additionally, to use Cantera to generate training data, it is necessary to download the drm19 (http://combustion.berkeley.edu/drm/) and HyChem Jet-A (https://web.stanford.edu/group/haiwanglab/HyChem/pages/download_cantera.html) chemical mechanisms and use Cantera's tools to convert to the appropriate format. Some data has been saved so the first example can be run without doing this.
+
+
+--------------------Strained Premixed Flames Case ---------------------
+
+For this example, the output of steps 1 and 2 (data generation and pre-processing) is saved and included already, so these steps may be skipped to focus only on training and analyzing the CMLM model.
 
 ### STEP 1 ###
+
 run cantera to generate training data. This script solves a bunch of 1D flames at varied
 strain rate:
 
