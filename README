@@ -124,3 +124,9 @@ for the FGM net (everything else is commented out).
 Right now this just produces a simple net trained on a very small dataset.
 It was used for testing whether the FlameSheet test would run and comparing
 PyTorch vs. home-rolled net performance.
+
+-------------------- Additional Details ---------------------
+
+Released under a BSD 3 clause license, see "LICENSE"
+
+NREL Software Record Number: SWR-23-41
