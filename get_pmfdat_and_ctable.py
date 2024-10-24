@@ -16,7 +16,6 @@ progvars = ["CO2","H2O","CO","H2"]
 ctable_specs = ["CO2","H2O","CO","H2","N2","O2","OH","CH4","HO2","CH2O"]
 outfile_prefix = 'data/prem_drm19_phi1_p1_t298'
 net_info_file = None
-net_info_file = "cmlm_net_info.txt"
 
 def load_info_file(filename):
     """Load neural net info file."""
