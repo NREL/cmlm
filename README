@@ -73,6 +73,35 @@ Plot the network outputs
     python compile_2D_table.py
 
 
+-------------------- Premixed Flame Case (2D C/Cvar Table) ---------------------
+
+A single script solves a single cantera PMF, then convolutes with a beta PDF
+and creates a chemtable.
+
+    python get_pmfdat_and_ctable_withvar.py
+
+This will generate the following files:
+
+    * prem_drm19_phi1_p1_t298.ctb
+      (2D chemtable file in Pele format, very similar to NGA format)
+
+    * prem_drm19_phi1_p1_t298.dat
+      Pele PMF data file (for detailed chemistry)
+
+    * prem_drm19_phi1_p1_t298_allrxn.ctb
+      Pele PMF data file (for manifold chemistry, but Cvar = 0 everywhere)
+
+    * prem_drm19_phi1_p1_t298_mani_filter1.875e-02.dat
+      Pele PMF data file (for manifold chemistry, filtered to get nonzero Cvar)
+
+You can print some data about the chemtable to make sure this worked:
+
+    python ctable_tools.py data/prem_drm19_phi1_p1_t298.ctb -p
+
+You can also create some plots (in the `plots/` directory):
+
+    python ctable_tools.py data/prem_drm19_phi1_p1_t298.ctb -sp justplot -o plots
+
 -------------------- Premixed Flame Case ---------------------
 
 The script to generate testing and training data has been modified to it
