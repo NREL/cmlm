@@ -223,6 +223,8 @@ if __name__ == "__main__":
 
         assert(plot_dims > 0 and plot_dims <= 2)
         assert(args.outputfile is not None)
+        if (not os.path.exists(args.outputfile)):
+            os.makedirs(args.outputfile)
         plt_vars = args.variables if args.variables is not None else ctable.columns
 
         import matplotlib.pyplot as plt
