@@ -8,7 +8,7 @@ import os
 ##### INPUTS #####
 
 # Setup and IO
-use_MPI = True
+use_MPI = False
 data_directory  = 'nonpremixed_flames'
 
 # Physical parameters & BCs
