@@ -209,19 +209,30 @@ PyTorch vs. home-rolled net performance.
 
 -------------------- Nonpremixed with variance  ---------------------
 
-Generate nonpremixed flamelets:
+Generate nonpremixed flamelets (make sure you don't already have
+a nonpremixed_flames/ directory - this doesn't like to overwrite).
+Also this will run for too long on it's own. Just let it go until it's
+done several flames traversing toward equilibrium (should be files
+with indices ~80 -> 117 in the nonpremixed_flames directory):
 
     python get_nonpremixed_flamelets.py
 
 Compile the table:
 
-    mpiexec -n 20 python compile_3D_table_nonpremixed.py 
+    mpiexec -n 20 python compile_3D_table_nonpremixed.py
 
 Make some plots of the table:
 
     python ctable_tools.py nonpremixed.ctb -sp "ZMIXVAR:0" -o plots
     python ctable_tools.py nonpremixed.ctb -sp "PROG:0.27" -o plots
 
+-------------------- Dependencies with Poetry  ---------------------
+
+1. Install poetry
+2. run `poetry update` from this directory
+3. prefix running pythion scripts with `poetry run`, e.g.:
+          poetry run python get_nonpremixed_flamelets.py
+4. Only manages dependencies for tables right now, not networks
 
 -------------------- Additional Details ---------------------
 

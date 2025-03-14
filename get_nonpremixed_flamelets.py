@@ -263,7 +263,7 @@ for ww, in cond_iterator:
     while True:
         n -= 1
         print()
-        print('HERE                                 WOOHOO ', n, alpha, delta_alpha)
+        print(n, alpha, delta_alpha)
         print()
         # Update relative strain rates
         delta_alpha = 0.4
