@@ -3,6 +3,7 @@ import sys
 import os
 import numpy as np
 import pandas as pd
+from scipy.interpolate import interpn
 
 def convert_chemtable_units(ctable,conversion='mks2cgs'):
     # MKS to CGS conversion factors
@@ -32,26 +33,11 @@ def convert_chemtable_units(ctable,conversion='mks2cgs'):
 
     return 0
 
-
-def print_chemtable(ctable):
-    print()
-    print("--- TABULATED FUNCTION ---")
-    print()
-    print("Dimensions ({}):".format(len(ctable.index.names)))
-    for ii, dim in enumerate(ctable.index.names):
-        print('    Dim: {:<2d} Name: {:<10s} Length: {}'.format(ii, dim, len(ctable.index.levels[ii])))
-        print('         Values:')
-        print(' '+' '.join([('         ' if ii%4==0 else '') +
-                            "{:16.8e}".format(val)
-                            + ('\n' if ii%4 ==3 else '')
-                            for ii,val in enumerate(ctable.index.levels[ii])]))
-    print()
-    print("Variables ({}):".format(len(ctable.columns)))
-    for ii,var in enumerate(ctable.columns):
-        print('    Var: {:<2d} Name: {:<10s} Min: {:16.8e} Max: {:16.8e}'.format(ii, var, np.min(ctable[var]), np.max(ctable[var])))
-    print()
+def print_chemtable(df, model_name=None):
+    print(TabulatedFunction(df, model_name=model_name))
 
 def read_chemtable_binary(filename, tformat='Pele', Ndim=None, Dimnames=None, verbose=0):
+
     # check inputs
     if tformat not in ["Pele", "NGA"]:
         raise RuntimeError("Invalid table format")
@@ -81,12 +67,6 @@ def read_chemtable_binary(filename, tformat='Pele', Ndim=None, Dimnames=None, ve
 
     ctable_index = pd.MultiIndex.from_product(reversed(grids),names=reversed(dim_names))
     ctable = pd.DataFrame(data,index=ctable_index,columns=var_names)
-
-    if verbose > 0:
-        print_chemtable(ctable)
-
-    if verbose> 1:
-        print(ctable)
 
     return ctable, model_name
 
@@ -153,7 +133,117 @@ def slice_table(ctable, slice_vars=None, slice_vals=None, slice_pairs=None):
         sliced_table.index = pd.MultiIndex.from_arrays([sliced_table.index])
     return sliced_table
 
+class TabulatedFunction(pd.DataFrame):
+
+    def __init__(self, table, model_name=None, verbose=0, # General inputs
+                 tformat='Pele', Ndim=None, Dimnames=None, # if reading from file
+                 index=None, columns=None, dtype=None, copy=None # pass to inherited dataframe constructor
+                 ):
+
+        if isinstance(table, str):
+            # if input is a string, treat as a path to a file to read
+            if verbose > 0:
+                print("Reading Table from file: ", table)
+            mydf, myname = read_chemtable_binary(table, tformat, Ndim, Dimnames, verbose)
+            super().__init__(mydf)
+            self.model_name = myname
+
+        else :
+            # otherwise, use the parent (DataFrame) constructor
+            if verbose > 0:
+                print("Creating chemtable from Pandas MultiIndex dataframe")
+            super().__init__(table, index=index, columns=columns, dtype=dtype, copy=copy)
+            self.model_name = model_name
+
+        # save verbosity and print some stuff if requested
+        self.verbose = verbose
+        if self.verbose > 0:
+            print("Successfully created table")
+            print(self)
+
+        # validate that we got something reasonable out - must have a MultiIndex DF of floats
+        if type(self.index) != pd.core.indexes.multi.MultiIndex:
+            raise RuntimeError("TabulatedFunction index must be a pandas multindex")
+        try:
+            self.astype(np.float64)
+        except ValueError:
+            raise ValueError("TabulatedFunction data must be floats")
+
+    def __str__(self):
+        out = "\n"
+        out += "--- TABULATED FUNCTION ---" + '\n'
+        out += "\n"
+        out += "Model Name: {} \n".format(self.model_name)
+        out += "\n"
+        out += "Dimensions ({}):".format(self.getNdim()) + '\n'
+        for ii, dim in enumerate(self.getDimNames()):
+            out += '    Dim: {:<2d} Name: {:<10s} Length: {}'.format(ii, dim, len(self.index.levels[ii])) + '\n'
+            out += '         Values:' + '\n'
+            out += ' '+' '.join([('         ' if ii%4==0 else '') +
+                            "{:16.8e}".format(val)
+                            + ('\n' if ii%4 ==3 else '')
+                            for ii,val in enumerate(self.index.levels[ii])]) + '\n'
+        out += '\n'
+        out += "Variables ({}):".format(len(self.columns)) + '\n'
+        for ii,var in enumerate(self.columns):
+            out += '    Var: {:<2d} Name: {:<10s} Min: {:16.8e} Max: {:16.8e}'.format(ii, var, np.min(self[var]), np.max(self[var])) + '\n'
+        out += '\n'
+        if self.verbose > 0:
+            out += super().__str__()
+        return(out)
+
+    def getNdim(self):
+        return len(self.index.names)
+
+    def getDimNames(self):
+        return self.index.names
+
+    def getDimSizes(self):
+        return [len(grid) for grid in self.index.levels]
+
+    def getMatrixData(self,var):
+        return self[var].to_numpy().reshape(self.getDimSizes())
+
+    def interpolate(self, var, vals=None, method="linear", **kwargs):
+
+        # vals is an array of variables in order
+        # each variable may be a scalar or an array of values
+        if vals is not None:
+            lookup = np.array(vals)
+
+        else :  # take vals from kwargs
+            lookup = []
+            for name in self.getDimNames():
+                if name not in kwargs.keys():
+                    raise RuntimeError("table dim <{}> not specified in interpolate functions".format(name))
+                lookup.append(kwargs[name])
+            lookup = np.array(lookup)
+
+        if lookup.shape[0] != self.getNdim():
+            raise RuntimeError("TabulatedFunction.interpolate(): number of vals passed must equal number of table dimensions")
+
+        out = interpn(self.index.levels, self.getMatrixData(var), lookup.T, method=method, bounds_error=False, fill_value=None)
+        return out.T
+
+
 if __name__ == "__main__":
+
+    # Arrays
+    ctable = TabulatedFunction("nonpremixed_hefa.ctb", verbose=2)
+    shape = (2,3,4)
+    valdict = {"PROG":0.3*np.ones(shape),"ZMIXVAR":0.0*np.ones(shape),"ZMIX":1.0*np.ones(shape)}
+    out = ctable.interpolate("T",**valdict)
+    print(out)
+    out = ctable.interpolate("T",[1.0*np.ones(shape),0.0*np.ones(shape),0.3*np.ones(shape)])
+    print(out)
+
+    # Scalars
+    print(ctable.interpolate("T",ZMIX=1.0,PROG=0.3,ZMIXVAR=0.0))
+    print(ctable.interpolate("T",[1.0,0.0,0.3]))
+
+    cats = TabulatedFunction("table.ctb", tformat='NGA', Ndim=4, verbose=2)
+    vals = cats.interpolate("T",**cats.index.to_frame())
+    print(np.min(vals == cats["T"]), vals)
 
     import argparse
     parser = argparse.ArgumentParser(description='Useful tools for interacting with chemtable files')
