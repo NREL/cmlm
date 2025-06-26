@@ -6,17 +6,16 @@ from collections import OrderedDict, namedtuple
 from net_array import NetArray, MRNetArray
 import copy
 import os
-import sherpa
 import pandas as pd
 import matplotlib.pyplot as plt
 
 # ========================================================================
 def combine_lossfuncs(*funcs):
-    
+
     def combo(pred, actual):
-        
+
         return sum(f(pred, actual) for f in funcs)
-        
+
     return combo
 
 # ========================================================================
@@ -60,7 +59,7 @@ class netstruct_loss:
             for param in params:
                 loss += torch.norm(param,1)
         return self.lam1 * self.calc_ramp(epoch) * loss
-        
+
 # ========================================================================
 # Loss due to source terms having the wrong sign
 def sgn_loss(idx, alpha=1.0, beta=1e-10):
@@ -68,23 +67,23 @@ def sgn_loss(idx, alpha=1.0, beta=1e-10):
     Alpha is the total loss for each incorrect sign where magnitude is > beta. Beta is the
     linearity threshold.
     """
-    
+
     def lossfunc(pred, actual):
-        
+
         t = pred[:, idx]*actual[:, idx]
         return -alpha/beta * t.clamp(-beta, 0.0).sum() / t.numel()
-        
+
     return lossfunc
-    
+
 def sgn_loss_mpar(idx, alpha=1.0, beta=1e-10):
     """
     Alpha is the total loss for each incorrect sign where magnitude is > beta. Beta is the
     linearity threshold. This function acts on the manifold parameter sources, and not the
     raw source terms.
     """
-    
+
     def lossfunc(pred, actual, model, scalers):
-        
+
         # Unscaled net parameters
         maniweights = model.unscaled_maniweights(scalers['inp'].scale_)
         manibiases = model.unscaled_manibiases(scalers['inp'].mean_)
@@ -93,23 +92,23 @@ def sgn_loss_mpar(idx, alpha=1.0, beta=1e-10):
             outbias = torch.Tensor(scalers['out'].mean_)
         else:
             outbias = 0.0
-            
+
         pred = pred*outscale + outbias
         actual = actual*outscale + outbias
-        
+
         mask = idx < 0
         pred_src = pred[:, idx]
         pred_src[:, mask] = 0.0
         actual_src = actual[:, idx]
         actual_src[:, mask] = 0.0
-        
+
         # Biases are length nmanipar
         # Weights are nmanipar × ncomb
         pred_src = (pred_src @ maniweights) + manibiases
         actual_src = (actual_src @ maniweights) + manibiases
         t = pred_src*actual_src
         return -alpha/beta * t.clamp(-beta, 0.0).sum() / t.numel()
-        
+
     return lossfunc
 
 # ========================================================================
@@ -150,25 +149,25 @@ class PredictionNet(nn.Module):
         self.output = nn.Sequential(
             nn.LeakyReLU(), nn.BatchNorm1d(H[-1]), nn.Linear(H[-1], D_out)
         )
-        
+
     def trainable_manifold(self):
-        
+
         return False
-    
+
     def set_unscaled_manidef(self, scaler_scale, scaler_mean, dev):
-        
+
         self._maniweights = (self.inputs['manidef'].T / scaler_scale).T.to(device=dev)
         # Assumes existing biases are 0
         self._manibiases = -torch.matmul(self.inputs['manidef'].T, scaler_mean).to(device=dev)
-        
+
     def unscaled_maniweights(self, scaler_scale, transpose=False):
-        
+
         if transpose:
             return self._maniweights.T
         return self._maniweights
-        
+
     def unscaled_manibiases(self, scaler_mean):
-        
+
         return self._manibiases
 
     # Calculates only the manifold variables
@@ -205,7 +204,7 @@ class PredictionNet(nn.Module):
         out = self.hidden(out)
         out = self.output(out)
         return out
-        
+
     def copy_state(self):
         net = self.__class__(**self.inputs)
         net.load_state_dict(self.state_dict())
@@ -213,10 +212,10 @@ class PredictionNet(nn.Module):
 
     def get_inputs(self):
         return copy.deepcopy(self.inputs)
-        
+
     def unscaled(self, scalers, compute_mani_source=False, src_term_map=None, outslice=None):
         return unscale_prediction_net(self, scalers, compute_mani_source, src_term_map, outslice)
-            
+
     @property
     def nout(self):
         return self.D_out
@@ -249,8 +248,8 @@ def unscale_prediction_net(PredNet, scalers, compute_mani_source=False, src_term
     statedict['output.2.bias'] *= torch.Tensor(outscale)
     if (scalers['out'].with_mean):
         statedict['output.2.bias'] += torch.Tensor(outmean)
-    
-    if src_term_map is not None:    
+
+    if src_term_map is not None:
         src_term_map = np.array([src_term_map[0], src_term_map[1]-outslice.start])
 
     # Add outputs for the manifold parameter source terms
@@ -343,21 +342,21 @@ class ManifoldReductionNet(nn.Module):
         return torch.cat((out1, out2, out3),1)
 
     def trainable_manifold(self):
-        
+
         return True
-        
+
     def unscaled_maniweights(self, scaler_scale, transpose=False):
-        
+
         maniweights = self.manifold.parameters() / scaler_scale
         if transpose:
             return maniweights
         return maniweights.T
-        
+
     def unscaled_manibiases(self, scaler_mean):
 
         # Assumes existing biases are 0
         return -torch.matmul(self.manifold.parameters(), scaler_mean)
-        
+
     def mapfrom_manifold(self,xmani):
         out = self.inp(xmani)
         out = self.hidden(out)
@@ -448,7 +447,7 @@ def train_net(XTrain, YTrain, Xval, Yval, model,
         Yt = YTrain
         Xv = Xval
         Yv = Yval
-        
+
     if calc_srcloss and not ondev:
         if not model.trainable_manifold():
             scaler_scale = torch.Tensor(scalers['inp'].scale_)
@@ -619,13 +618,13 @@ def copy_net(model, keep_manidef=True):
 
     elif model.net_type == 'FilteredManifoldReductionNet':
         new_model = FilteredManifoldReductionNet(**model.inputs)
-        
+
     elif model.net_type == "NetArray":
         new_model = NetArray(nets=[copy_net(net, keep_manidef) for net in model],
                 nouts=model.nout_iter(), **model.inputs)
-                
+
     elif model.net_type == "MRNetArray":
-        new_model = MRNetArray(copy.deepcopy(model.manifold), 
+        new_model = MRNetArray(copy.deepcopy(model.manifold),
                 nets=[copy_net(net, keep_manidef) for net in model],
                 nouts=model.nout_iter(), **model.inputs)
 
@@ -654,14 +653,21 @@ def train_net_sherpa(XTrain, YTrain, Xval, Yval, model_in,
                      save_chk =False,
                      increase_bs=False):
 
+    # Ensure we're not actually using SHERPA which is deprecated
+    assert ngenerations == 1, "Can't use SHERPA, ngenerations must be 1"
+    assert nsiblings == 1, "Can't use SHERPA, nsiblings must be 1"
+    assert len(batchsize) == 1, "Can't use SHERPA, provide only 1 batchsize"
+    assert learning_rate[0] == learning_rate[1], "Can't use SHERPA, provide only 1 learning_rate"
+
     # make the output directory:
     if not os.path.exists(savepath): os.makedirs(savepath)
 
-    parameters = [sherpa.Continuous('lr', learning_rate, scale='log'),
-                  sherpa.Ordinal('batchsize', batchsize)]
-    algorithm = sherpa.algorithms.PopulationBasedTraining(population_size = nsiblings,
-                                                          num_generations = ngenerations,
-                                                          perturbation_factors = (0.1,1,10) )
+    #parameters = [sherpa.Continuous('lr', learning_rate, scale='log'),
+    #              sherpa.Ordinal('batchsize', batchsize)]
+    #algorithm = sherpa.algorithms.PopulationBasedTraining(population_size = nsiblings,
+    #                                                      num_generations = ngenerations,
+    #                                                      perturbation_factors = (0.1,1,10) )
+
     if plot_dashboard is not None:
         fig = plt.figure(plot_dashboard,figsize=[12,4])
         axTL = plt.subplot(221)
@@ -680,9 +686,9 @@ def train_net_sherpa(XTrain, YTrain, Xval, Yval, model_in,
         axBR.set_yscale('log')
         cmap = plt.get_cmap('tab20')
 
-    study = sherpa.Study(parameters=parameters,
-                         algorithm=algorithm,
-                         lower_is_better=True)
+    #study = sherpa.Study(parameters=parameters,
+    #                     algorithm=algorithm,
+    #                     lower_is_better=True)
 
     TL={}; VL={}; BS={}; LR={}; GEN ={}; hist ={};
 
@@ -691,17 +697,17 @@ def train_net_sherpa(XTrain, YTrain, Xval, Yval, model_in,
     Yt = Variable(torch.as_tensor(YTrain,dtype=torch.float).to(device=dev))
     Xv = Variable(torch.as_tensor(Xval,dtype=torch.float).to(device=dev))
     Yv = Variable(torch.as_tensor(Yval,dtype=torch.float).to(device=dev))
-    lossfunc = lossfunc.to(device = dev)      
-    
+    lossfunc = lossfunc.to(device = dev)
+
     if calc_srcloss:
         have_args = (srclossfunc is not None) and (scalers is not None)
         assert have_args, "Must supply srclossfunc and scalers if calc_srcloss is True"
         ScalerTuple = namedtuple("ScalerTuple", "scale_ mean_ with_mean")
-            
+
         # CPU version
         scaler_scale = torch.Tensor(scalers['inp'].scale_)
         scaler_mean = torch.Tensor(scalers['inp'].mean_)
-        
+
         # Move scalers to device
         devscl = dict()
         for k, v in scalers.items():
@@ -710,37 +716,38 @@ def train_net_sherpa(XTrain, YTrain, Xval, Yval, model_in,
                                         torch.Tensor(scalers[k].mean_ ).to(device=dev),
                                         True)
             else:
-                devscl[k] = (torch.Tensor(scalers[k].scale_).to(device=dev), None, False)        
+                devscl[k] = (torch.Tensor(scalers[k].scale_).to(device=dev), None, False)
         scalers = devscl
     else:
         scaler_scale = None
         scaler_mean = None
 
-    for trial in study:
+    for trial in [0]:
         # Get the parameters
-        generation   = trial.parameters['generation']
-        load_from    = trial.parameters['load_from']
-        save_to      = trial.parameters['save_to']
-        learningrate = trial.parameters['lr']
-        batchsize    = int(trial.parameters['batchsize'])
+        generation   = 0
+        load_from    = ""
+        learningrate = learning_rate[0]
+        batchsize    = batchsize[0]
+        trialid      = trial
+        save_to      = str(trial)
         print ("Starting trial {} in generation {}:     lr = {:8.4e}   bs = {:6n}"
-               .format(trial.id, generation,learningrate,batchsize))
+               .format(trialid, generation,learningrate,batchsize))
 
         # Get the model and optimizer and load if necessary
         model = copy_net(model_in)
-        
+
         if calc_srcloss and not model.trainable_manifold():
             model.set_unscaled_manidef(scaler_scale, scaler_mean, dev)
-            
+
         optimizer = optim.Adam(model.parameters(), lr=learningrate, amsgrad=True)
         if load_from != "":
             load_checkpoint(model, optimizer,
                             os.path.join(savepath, load_from + '.npz'), verbose=False )
 
-        GEN[trial.id] = generation; BS[trial.id] = batchsize; LR[trial.id] = learningrate
+        GEN[trialid] = generation; BS[trialid] = batchsize; LR[trialid] = learningrate
         model.to(device=dev)
         if save_chk is not False: save_chk = savepath
-        TL[trial.id], VL[trial.id], hist[trial.id] = train_net(Xt, Yt, Xv, Yv, model,
+        TL[trialid], VL[trialid], hist[trialid] = train_net(Xt, Yt, Xv, Yv, model,
                                                      batchsize=batchsize, nepochs=nepochs, dev=dev,
                                                      lossfunc = lossfunc, learning_rate=learningrate,
                                                      wgtlossfunc = wgtlossfunc, srclossfunc=srclossfunc,
@@ -749,14 +756,14 @@ def train_net_sherpa(XTrain, YTrain, Xval, Yval, model_in,
                                                      reduce_lr = reduce_lr, save_chk = save_chk,
                                                      increase_bs=increase_bs, return_full_hist = True)
         save_checkpoint(model, optimizer, os.path.join(savepath, save_to + '.npz') , verbose= False)
-        hist[trial.id] = pd.DataFrame(hist[trial.id])
-        hist[trial.id].to_csv(os.path.join(savepath, save_to + '.csv'))
-        study.add_observation(trial=trial, objective=VL[trial.id], iteration=int(generation))
-        study.finalize(trial=trial)
-        study.save(output_dir = savepath)
+        hist[trialid] = pd.DataFrame(hist[trialid])
+        hist[trialid].to_csv(os.path.join(savepath, save_to + '.csv'))
+        #study.add_observation(trial=trial, objective=VL[trialid], iteration=int(generation))
+        #study.finalize(trial=trial)
+        #study.save(output_dir = savepath)
 
         if plot_dashboard is not None:
-            child = trial.id
+            child = trialid
 
             hist[child].index += (GEN[child]-1)*nepochs+1
             if load_from != '':
@@ -777,12 +784,11 @@ def train_net_sherpa(XTrain, YTrain, Xval, Yval, model_in,
             os.remove('stop')
             break
 
-    best_trial = study.get_best_result()
-    best_id = best_trial['Trial-ID']
+    best_id = 0
     with open(os.path.join(savepath, 'best_trial.txt'),'w') as f:
         f.write("{}".format(best_id))
 
     load_checkpoint(model_in, optimizer,
-                    os.path.join(savepath, str(best_trial['Trial-ID']) + '.npz'), verbose=False )
+                    os.path.join(savepath, str(best_id) + '.npz'), verbose=False )
 
     return TL[best_id], VL[best_id]
