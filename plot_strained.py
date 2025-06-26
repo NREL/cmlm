@@ -59,11 +59,7 @@ for subdir in ['raw-pca-2', 'raw-cmlm-2', 'raw-fgm-2']:
     outdata = {}
     md = nh.metadata(os.path.join(savepath))
     md.load()
-    trial_results = pd.read_csv(os.path.join(savepath, subdir, 'results.csv'))
-    trial_results = trial_results[trial_results['Status']=='COMPLETED']
-    trial_results = trial_results.sort_values(by='Objective')
-    ntrials = trial_results.shape[0]
-    trials = [str(trial) for trial in trial_results['Trial-ID'] ]
+    trials = ["0"]
     val_loss = []
     trn_loss = []
     for trial in trials[0:1]:
@@ -111,7 +107,7 @@ for subdir in ['raw-pca-2', 'raw-cmlm-2', 'raw-fgm-2']:
                 print(np.min(invars.detach().cpu().numpy(),axis=0))
                 print(np.max(invars.detach().cpu().numpy(),axis=0))
                 print(model.inputs['manidef'])
-            
+
             nh.convert_mol_mass(outpred)
             nh.convert_mol_mass(outtrue)
             nh.convert_mol_mass(outpred_trn)
@@ -124,7 +120,7 @@ for subdir in ['raw-pca-2', 'raw-cmlm-2', 'raw-fgm-2']:
                                parityvars=plotvars, varlims=varlims, lineage=str(order),
                                c1=colors.get_color(color='blue',shade='d') ,
                                c2=colors.get_color(color='blue',shade='l') )
-            
+
             invars = get_invars(tst_nom,model)
             outpred = (pd.DataFrame(md.scalers['out'].inverse_transform(model(invars).detach().cpu().numpy()), columns=md.predictvars))
             outtrue = (pd.DataFrame(md.scalers['out'].inverse_transform(tst_nom['out']                     ), columns=md.predictvars))
@@ -139,12 +135,12 @@ for subdir in ['raw-pca-2', 'raw-cmlm-2', 'raw-fgm-2']:
                 print(np.min(invars.detach().cpu().numpy(),axis=0))
                 print(np.max(invars.detach().cpu().numpy(),axis=0))
                 print(model.inputs['manidef'])
-            
+
             nh.convert_mol_mass(outpred)
             nh.convert_mol_mass(outtrue)
             nh.convert_mol_mass(outpred_trn)
             nh.convert_mol_mass(outtrue_trn)
-            
+
             if flip:
                 invars_trn[:,0] *=-1
                 invars[:,0] *= -1
@@ -152,6 +148,3 @@ for subdir in ['raw-pca-2', 'raw-cmlm-2', 'raw-fgm-2']:
             invars[:,1] *= -1
             nh.MakeManiPlots(filename, invars_trn[:,:md.nmanivars], outtrue_trn,
                              label='true', lineage=str(order), with_cb=True, modify_ticks=True)
-
-
-

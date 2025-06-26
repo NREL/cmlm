@@ -16,7 +16,7 @@ torch.manual_seed(42)
 np.random.seed(42)
 
 # options
-useGPU = True
+useGPU = False
 
 # directory where everything will be saved
 savepath = 'saved_networks/strained/'
@@ -30,10 +30,10 @@ md.network = (100,100)                                                  # networ
 md.loss_alpha  = 0.01                                                   # regularization parameter
 md.nmanivars = 2                                                        # dimensionality of manifold
 md.save_chk = False                                                     # save network at every epoch when training
-md.fuel = 'POSF10325'                                                   # Fuel species 
+md.fuel = 'POSF10325'                                                   # Fuel species
 
 # Whether or not to use SHERPA population-based training for hyperparameter optimization
-md.use_sherpa = False                                                 
+md.use_sherpa = False
 # Net training options - for SHERPA population based (expensive)
 if md.use_sherpa:
     md.batchsize = [512,1024,2048,4096,8192,16384]
@@ -52,7 +52,7 @@ else:
     md.nsibs = 1 ## FIXME
     md.reduce_lr = 3
     md.stop_no_progress = 10
-    
+
 # Variables that the manifold variables may be linear combinations of
 md.trainvars = np.array(['CO2','H2','N2','CO','O2','H2O',md.fuel,'OH'])
 
@@ -62,9 +62,9 @@ md.passvars = np.array([])
 
 # Variables that get predicted by the prediction net
 # md.predictvars = np.array(['CO2','H2','N2','CO','O2','H2O', md.fuel,'OH','CH2O','HO2',
-#                            'RR_H2O','RR_H2','RR_CO2','RR_CO', 'RR_'+md.fuel, 'RR_OH', 'RR_O2', 
+#                            'RR_H2O','RR_H2','RR_CO2','RR_CO', 'RR_'+md.fuel, 'RR_OH', 'RR_O2',
 #                            'RR_N2', 'T (K)', 'density'])
-                           
+
 md.predictvars = np.array(list(md.trainvars) + list(map(lambda s: 'RR_'+s, md.trainvars)) +
         ['CH2O', 'H2O', 'T (K)', 'density'])
 
@@ -194,14 +194,14 @@ torch.jit.script(pred_net).save("net.pt")
 
 # Save metadata in PelePhysics-readable format
 def munge_varname(s):
-    
+
     s = s.split()[0].upper()
     if s.startswith("RR_"):
         return "SRC_" + s[3:]
     if s == 'DENSITY':
         return 'RHO'
     return s
-    
+
 md.xidefs = pred_net.inputs['manidef'].T
 md.manibiases = pred_net.inputs['manibiases']
 md.save_net_info("net_info.txt", varname_converter=munge_varname)

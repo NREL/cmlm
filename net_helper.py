@@ -34,8 +34,9 @@ def convert_mol_mass(data):
            'OH' : 16.00 + 1.0079,
            'H2' : 2 * 1.0079,
            'CH4': 12.01 + 4*1.0079,
-           'H2O': 16.00 + 2 * 1.0079}
-    
+           'H2O': 16.00 + 2 * 1.0079,
+           'N2' : 2*14.01}
+
     for col in data.columns:
         if col.startswith('RR'):
             specname = col.split('_')[-1]
@@ -86,13 +87,13 @@ def load_and_scale_data(directory,
                                     if key != 'planes'})
             #for var in trndata.columns: print( var, np.min(trndata[var]), np.max(trndata[var]))
             tstdata = trndata.copy()
-        
+
     elif data_source == 'flamelet':
         trndata = pd.read_csv(directory)
         tstdata = pd.read_csv(directory)
     else:
         raise RuntimeError("invalid data source specification")
-    
+
     nsamples  = len(trndata.index)
     print('Training data set has {} samples'.format(nsamples))
     print('Testing  data set has {} samples'.format(len(tstdata.index)))
@@ -126,7 +127,7 @@ def load_and_scale_data(directory,
         return nsamples, trn_data, trndata['z (m)'], scalers
     else:
         return nsamples, trn_data, tst_data, scalers
-        
+
 def extract_variances(dataframe, trainvars, scaler):
     # Set up scaling information
     scales = dict(zip(trainvars,1.0/scaler.scale_))
@@ -134,7 +135,7 @@ def extract_variances(dataframe, trainvars, scaler):
         offsets = dict(zip(trainvars, -scaler.mean_/scaler.scale_))
     except:
         offsets = dict(zip(trainvars, np.zeros(len(trainvars))))
-        
+
     # Extract moments, verifying that all exist
     nmoments = len(trainvars) **2
     variances = np.zeros((len(dataframe.index), nmoments))
@@ -146,7 +147,7 @@ def extract_variances(dataframe, trainvars, scaler):
             variances[:,idex] = dataframe["~".join(reversed(moment))]
         else:
             raise RuntimeError("Moment " + "~".join(moment) + " not found in DataFrame")
-        
+
         variances[:,idex] = (scales[moment[0]]*scales[moment[1]]*variances[:,idex] +
                              scales[moment[0]]*offsets[moment[1]]*dataframe[moment[0]] +
                              scales[moment[1]]*offsets[moment[0]]*dataframe[moment[1]] +
@@ -166,7 +167,7 @@ class metadata:
     def save(self):
         np.savez(self.directory + '/metadata.npz',
                  dictionary = [self.__dict__,])
-        
+
     def __repr__(self):
         print('\n Metadata container with the following variables:\n')
         for key,val in self.__dict__.items():
@@ -174,26 +175,26 @@ class metadata:
             print(val)
             print('')
         return ('End container')
-        
+
     def save_net_info(self, fname, varname_converter=None):
         """Save to metadata file readable by PelePhysics."""
-        
+
         def insert_line_breaks(strs, breakpoint=100, prefix_len=11):
-            
+
             nchars = prefix_len
             ins_points = []
-            
+
             for i in range(len(strs)):
                 nchars += len(strs[i]) + 1
                 if nchars >= breakpoint-1:
                     ins_points.append(i)
                     nchars = prefix_len + len(strs[i]) + 1
-                    
+
             for i in range(len(ins_points)):
                 strs.insert(ins_points[i]+i, '\\\n'+' '*(prefix_len-1))
-        
+
         with open(fname, 'w') as file:
-            
+
             print("# Name of the neural network model", file=file)
             print(f"model_name = {self.model_name}", file=file)
             ndim = len(self.passvars) + self.nmanivars
@@ -204,7 +205,7 @@ class metadata:
             print(f"nvar = {nvar}", file=file)
             print("# Number of manifold parameters", file=file)
             print(f"nmanpar = {self.nmanivars}", file=file)
-            
+
             dimnames = list(map(varname_converter, self.passvars))
             dimnames += [f'xi{i}' for i in range(self.nmanivars)]
             dimnamelist = dimnames.copy()
@@ -212,22 +213,22 @@ class metadata:
             dimnames = ' '.join(dimnames)
             print("# Names of input variables", file=file)
             print(f"dimnames = {dimnames}", file=file)
-            
+
             varnames = list(map(varname_converter, self.predictvars))
             insert_line_breaks(varnames)
             varnames = ' '.join(varnames)
             print("# Names of output variables", file=file)
             print(f"varnames = {varnames}", file=file)
-            
+
             print("# Definitions of input variables", file=file)
-            
+
             for i in range(len(self.passvars)):
-                
+
                 pardef = dimnamelist[i]
                 print(f"def_{dimnamelist[i]} = {pardef}", file=file)
-                
+
             for i in range(len(self.passvars), len(dimnamelist)):
-                
+
                 weights = map(lambda w: str(w.item()), self.xidefs[i-len(self.passvars)])
                 pardef = zip(weights, '*'*len(self.trainvars), map(varname_converter, self.trainvars))
                 pardef = ["".join(x) for x in pardef]
@@ -235,7 +236,7 @@ class metadata:
                 insert_line_breaks(pardef, prefix_len=len(lhs)+3)
                 pardef = ' '.join(pardef)
                 print(f"{lhs} = {pardef}", file=file)
-                
+
             print("# Biases to be used calculating input variables", file=file)
             manibiases = ' '.join(map(lambda mb: str(mb.item()), self.manibiases))
             print(f"manibiases = {manibiases}", file=file)
@@ -253,7 +254,7 @@ def GetVarLims(var, lims=None, data=None, expandrange=True):
         raise RuntimeError("GetVarLims: must specify lims or data")
 
     get_from_data = True
-    
+
     if lims is not None:
         if var in lims.keys():
             minx, maxx = lims[var]
@@ -265,7 +266,7 @@ def GetVarLims(var, lims=None, data=None, expandrange=True):
         if expandrange:
             rwidth = maxx-minx
             center = (maxx + minx) /2
-            minx = center - 0.6*rwidth 
+            minx = center - 0.6*rwidth
             maxx = center + 0.6*rwidth
 
     return minx, maxx
@@ -274,20 +275,20 @@ def GetVarLims(var, lims=None, data=None, expandrange=True):
 def MakeManiDefPlots(outfile, md, model, lineage='', rescale=False, resign=False, with_legend=False, log=False):
 
     print('Making Mani Def plots')
-    
+
     labels = md.trainvars
     x = np.arange(len(labels))
-    width = 0.7/md.nmanivars 
+    width = 0.7/md.nmanivars
     offset = -0.5*(md.nmanivars - 1.0)
 
     figheight = 2 if not log else 2.5
     fig,ax = plt.subplots(figsize=(colors.twocol_figsize[0], figheight))
 
     scaleweights = model.inputs['manidef'].cpu().numpy().copy()
-    if rescale : scaleweights /= md.scalers['inp'].scale_[...,None] 
+    if rescale : scaleweights /= md.scalers['inp'].scale_[...,None]
     scaleweights /= np.max(np.abs(scaleweights),0)[None,...]
     # Below: multiply by -1 if max abs weight is negative
-    if resign : scaleweights *= np.diag(scaleweights[np.argmax(np.abs(scaleweights),0)] )[None,...]  
+    if resign : scaleweights *= np.diag(scaleweights[np.argmax(np.abs(scaleweights),0)] )[None,...]
 
     if log: scaleweights = np.abs(scaleweights)
 
@@ -324,13 +325,13 @@ def MakeManiDefPlots(outfile, md, model, lineage='', rescale=False, resign=False
         plt.close()
     plt.clf()
     plt.close()
-    
+
 # scatter plot in manifoldspace
-def MakeManiPlots(outfile, manivars, outdata=None, manivars2=None, outdata2=None, 
+def MakeManiPlots(outfile, manivars, outdata=None, manivars2=None, outdata2=None,
                   colorvars=['T (K)'], label='true', lineage='', nplot=20000, with_cb = False,
                   varlims=None, modify_ticks=True, filtered=False, c1='red', c2='black'):
     print('Making Mani Plots')
-    
+
     nsamples = manivars.shape[0]
     if nplot < nsamples:
         chosen = np.random.choice(nsamples,nplot)
@@ -342,7 +343,7 @@ def MakeManiPlots(outfile, manivars, outdata=None, manivars2=None, outdata2=None
             chosen2 = np.random.choice(nsamples2,nplot)
         else:
             chosen2 = np.arange(nsamples2)
-        
+
     if lineage is not '' : lineage = '_' + lineage
     for var in colorvars:
         plt.figure(figsize=(colors.twocol_figsize))
@@ -355,9 +356,9 @@ def MakeManiPlots(outfile, manivars, outdata=None, manivars2=None, outdata2=None
                         vmin=minc, vmax=maxc,s=0.4)
             plt.clim([minc,maxc])
 
-        else : 
+        else :
             plt.scatter(manivars[chosen,0],manivars[chosen,1],color=c1,s=0.4)
-                
+
         if manivars2 is not None:
             if outdata2 is not None:
                 plt.scatter(manivars2[chosen2,0],manivars2[chosen2,1],c=outdata2[var][chosen2],s=0.4)
@@ -371,7 +372,7 @@ def MakeManiPlots(outfile, manivars, outdata=None, manivars2=None, outdata2=None
         else:
             plt.xlabel(r'$\widetilde{\xi}_1$')
             plt.ylabel(r'$\widetilde{\xi}_2$')
-            
+
         if modify_ticks:
             plt.gca().xaxis.set_major_locator(ticker.MultipleLocator(2))
             plt.gca().yaxis.set_major_locator(ticker.MultipleLocator(2))
@@ -382,7 +383,7 @@ def MakeManiPlots(outfile, manivars, outdata=None, manivars2=None, outdata2=None
         lim = plt.gca().get_ylim()
         plt.ylim([lim[0] if lim[0] < -minlim else -minlim, lim[1] if lim[1] > minlim else minlim])
         #plt.gcf().tight_layout()
-        
+
         plt.gca().set_position(colors.twocol_figbounds)
         plt.savefig(outfile + '/mani_' + label + '_' + var.split(' ')[0]+ lineage+'.png', dpi=150)
         if with_cb:
@@ -397,7 +398,7 @@ def MakeManiPlots(outfile, manivars, outdata=None, manivars2=None, outdata2=None
         plt.clf()
         plt.close()
 
-def MakeParityPlotsVec(outfile, true_values_vec, pred_values_vec, 
+def MakeParityPlotsVec(outfile, true_values_vec, pred_values_vec,
                        parityvars=['T (K)'], filtered=False,
                        lineage='', nplot=20000, varlims=None,
                        colors_vec = ['r','k'], labels_vec=['Training','Validation'], val_labels=['Validation']):
@@ -407,7 +408,7 @@ def MakeParityPlotsVec(outfile, true_values_vec, pred_values_vec,
 
     for var in parityvars:
         plt.figure(var, figsize = colors.twocol_figsize)
-    
+
     for ii in range(len(true_values_vec)):
         nsamples = true_values_vec[ii].shape[0]
         if nplot < nsamples:
@@ -416,7 +417,7 @@ def MakeParityPlotsVec(outfile, true_values_vec, pred_values_vec,
             chosen = np.arange(nsamples)
 
         lab = ' - ' + labels_vec[ii] if labels_vec[ii] != '' else ''
-            
+
         for var in parityvars:
             plt.figure(var)
             r2 = r2_score(true_values_vec[ii][var], pred_values_vec[ii][var])
@@ -425,7 +426,7 @@ def MakeParityPlotsVec(outfile, true_values_vec, pred_values_vec,
 
     for var in parityvars:
         plt.figure(var)
-        
+
         handles, labels = plt.gca().get_legend_handles_labels()
         handles_val = [handle for handle, label in zip(handles, labels) if any([val_label in label for val_label in val_labels])]
         labels_val = [label for label in labels if any([val_label in label for val_label in val_labels])]
@@ -435,12 +436,12 @@ def MakeParityPlotsVec(outfile, true_values_vec, pred_values_vec,
         leg1 = plt.legend(handles_val, labels_val, frameon=False, loc='upper left', title= 'Validation',
                    scatterpoints=4, handlelength=0.9, handletextpad=0.2,
                    labelspacing=0.1,  fontsize='small', borderpad=0.05)
-        
+
         leg2 = plt.legend(handles_trn, labels_trn, frameon=False, loc='lower right', title='Training',
                    scatterpoints=4, handlelength=0.9, handletextpad=0.2,
                    labelspacing=0.1,  fontsize='small', borderpad=0.05)
         plt.gca().add_artist(leg1)
-        
+
         minx, maxx = GetVarLims(var, lims=varlims, data=true_values_vec[0])
         plt.xlim([minx,maxx])
         plt.ylim([minx,maxx])
@@ -452,7 +453,7 @@ def MakeParityPlotsVec(outfile, true_values_vec, pred_values_vec,
         plt.savefig(outfile + '/parity_' + var.split(' ')[0] + lineage + '.png', dpi=150)
         plt.clf()
         plt.close()
-            
+
 # scatter parity plot
 def MakeParityPlots(outfile,
                     true_out_tst, pred_out_tst,
@@ -462,20 +463,20 @@ def MakeParityPlots(outfile,
                     lab2='Training', lab1='Validation',
                     c2='k',c1='r', filtered=False):
     print('Making parity plots')
-    
+
     if true_out_trn is not None:
         nsamples_trn = true_out_trn.shape[0]
         if nplot < nsamples_trn:
             chosen_trn = np.random.choice(nsamples_trn,nplot)
         else:
             chosen_trn = np.arange(nsamples_trn)
-    
+
     nsamples_tst = true_out_tst.shape[0]
     if nplot < nsamples_tst:
         chosen_tst = np.random.choice(nsamples_tst,nplot)
     else:
         chosen_tst = np.arange(nsamples_tst)
-    
+
     if lineage is not '' : lineage = '_' + lineage
     for var in parityvars:
         plt.figure(figsize=(colors.twocol_figsize))
@@ -507,14 +508,14 @@ def MakeParityPlots(outfile,
 def MakeSlicePlots(outfile, data, slicevars, nmanivars=0, nvars=0, size=(832,832), name='',
                    lab='',varlims=None, with_cb=False, crop=0, figsize=(4,4), scalebar=None, filtered=False):
     print('Making slice plots')
-    
+
     # Attach column names if plotting manifold variables
     if nmanivars > 0:
         slicevars = ['xi_'+str(manivar+1) for manivar in range(nmanivars)]
         if nvars > 0:
             slicevars += ['xi_var_'+str(ivar+1) for ivar in range(nvars)]
         data = pd.DataFrame(data[:,:nmanivars+nvars].numpy(),columns=slicevars)
-    
+
     #name = name.split('/')[-1].split('_')[0] + '_'
     name = name.split('/')[-1].replace('.h5','_')
 
@@ -524,7 +525,7 @@ def MakeSlicePlots(outfile, data, slicevars, nmanivars=0, nvars=0, size=(832,832
             cropy = 0; cropx =0;
             res = plt.imshow(data[var].to_numpy().reshape(size)[:,:])
         elif isinstance(crop,int):
-            cropx = crop; cropy = crop 
+            cropx = crop; cropy = crop
             plotdata = data[var].to_numpy().reshape(size)[crop:-crop,crop:-crop]
             print('cropping to ', plotdata.shape)
             res = plt.imshow(plotdata)
@@ -568,15 +569,15 @@ def MakeSlicePlots(outfile, data, slicevars, nmanivars=0, nvars=0, size=(832,832
             plt.savefig(outfile +'/slice_'+ name + var.split(' ')[0] + '_' + lab + '_cb.png', dpi=150)
             plt.clf()
             plt.close()
-            
-            
+
+
         plt.savefig(outfile +'/slice_'+ name + var.split(' ')[0] + '_' + lab +'.png', dpi=150)
         plt.clf()
         plt.close()
 
 
-    
-                   
+
+
 if __name__ == "__main__":
     import sys
     fname = sys.argv[1]
