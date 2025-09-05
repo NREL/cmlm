@@ -5,6 +5,28 @@ import toml
 import sys
 import numpy as np
 
+# ------------------------------------------------------------------------- #
+# get_spray_nd_table.py
+#
+# Simple script to compute an ND chemtable for mixing of N liquid fuel
+# components with air, with N mixture fractions corresponding to the N fuels.
+#
+# Usage:
+# python get_spray_nd_table.py <input_file>
+# A sample input file "spray_nd.inp" is provided.
+
+# Notes on inputs:
+# - The fuel species must exist the provided Cantera mechanism. The
+#   `liquid_fuels_nonreacting` mechanism in PelePhysics is a good choice.
+# - The user provides a temperature of the liquid for each stream and
+#   enthalpy of vaporization, which are used to compute the gas phase
+#   temperature corresponding to vaporized liquid.
+# - The fuel stream may in principal themselves have multiple components
+#   (specified as Cantera format compositions), but mostly it makes sense
+#   to treat each component with a separate mixtyre fraction
+# ------------------------------------------------------------------------- #
+
+
 # Load inputs
 if len(sys.argv) != 2:
     raise RuntimeError("Invalid Usage: input file is single command line argument")
@@ -61,13 +83,11 @@ for comp in dfindex:
             strm_mass = min(remainder, comps[ii])
             remainder = remainder - strm_mass
             stream.mass = strm_mass
-            print(ii, comps, remainder)
         streams[0].mass = remainder
     nonzeromass = [stream.mass > 0.0 for stream in streams]
     mixture = np.sum(np.array(streams)[nonzeromass])
     df.loc[comp] = ([mixture.T, mixture.density, mixture.thermal_conductivity/mixture.cp, mixture.viscosity]
                 + [mixture.Y[mixture.species_index(spec.split(":")[0])] for spec in iphys["X_fuel"]])
-    print (df.loc[comp]["RHO"])
 
 ctable_tools.convert_chemtable_units(df, "mks2cgs")
 print(df)
