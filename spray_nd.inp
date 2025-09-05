@@ -1,16 +1,16 @@
 [phys]
-mechanism = "~/Software/PeleLMeXclean/Submodules/PelePhysics/Mechanisms/liquid_fuels_nonreacting/mechanism.yaml"
+mechanism = "mechanism.yaml"
 pressure = 101325 # Pa
 X_ox = "O2:0.21, N2:0.79"
 T_ox = 300 # K
-X_fuel = ["NC7H16:1.0"] # should all be pure components
+#X_fuel = ["NC7H16:1.0"] # should all be pure components
 #X_fuel = ["NC7H16:1.0", "NC10H22:1.0"] # should all be pure components
-#X_fuel = ["NC7H16:1.0", "NC10H22:1.0", "NC12H26:1.0"] # should all be pure components
+X_fuel = ["NC7H16:1.0", "NC10H22:1.0", "NC12H26:1.0"] # should all be pure components
 #X_fuel = ["NC7H16:1.0", "NC10H22:1.0", "NC12H26:1.0", "IC8H18:1.0"] # should all be pure components
 liqTfuel = [400.0, 500.0, 600.0, 700.0] # 1 per fuel, K
 deltaHvap = [300000, 330000, 340000, 300000] # 1 per fuel, J/kg
 
 [table]
 use_fmix = false
-grid = [20, 21, 22, 23] # must have N_fuels dimensions
-filename = "spray_1fuel.ctb"
+grid = [20, 21, 22] # must have N_fuels dimensions
+filename = "spray_3fuel.ctb"

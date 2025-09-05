@@ -9,6 +9,7 @@ def convert_chemtable_units(ctable,conversion='mks2cgs'):
     conversions = {'RHO':1.0e-3, #  kg m-3 -> g cm-3
                    'DIFF':10.0, # (rhoD) kg s-1 m-1 -> g s-1 cm-1
                    'VISC':10.0, # (dynamic) kg s-1 m-1 -> g s-1 cm-1
+		   'WBAR':0.001, #(molecular mass) kg/mol -> g/mol
                    'SRC_':1.0e-3, # source terms kg m-3 s-1 -> g cm-3 s-1
                    'T':1.0, # K -> K
                    'X':1.0e2, # m -> cm
