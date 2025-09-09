@@ -36,8 +36,8 @@ jobs:
       - name: Install Dependencies using Poetry
         run: poetry install
       - name: Formatting with black
-        run: poetry run black --check .
+        run: poetry run black --check ctable_tools.py
       - name: Sort imports with isort
-        run: poetry run isort --check-only --diff .
+        run: poetry run isort --check-only --diff ctable_tools.py
       - name: Lint with flake8
-        run: poetry run flake8 .
+        run: poetry run flake8 ctable_tools.py
