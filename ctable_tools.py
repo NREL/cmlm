@@ -1,6 +1,7 @@
+import os
 import struct
 import sys
-import os
+
 import numpy as np
 import pandas as pd
 from scipy.interpolate import interpn
