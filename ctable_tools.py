@@ -228,23 +228,6 @@ class TabulatedFunction(pd.DataFrame):
 
 if __name__ == "__main__":
 
-    # Arrays
-    ctable = TabulatedFunction("nonpremixed_hefa.ctb", verbose=2)
-    shape = (2,3,4)
-    valdict = {"PROG":0.3*np.ones(shape),"ZMIXVAR":0.0*np.ones(shape),"ZMIX":1.0*np.ones(shape)}
-    out = ctable.interpolate("T",**valdict)
-    print(out)
-    out = ctable.interpolate("T",[1.0*np.ones(shape),0.0*np.ones(shape),0.3*np.ones(shape)])
-    print(out)
-
-    # Scalars
-    print(ctable.interpolate("T",ZMIX=1.0,PROG=0.3,ZMIXVAR=0.0))
-    print(ctable.interpolate("T",[1.0,0.0,0.3]))
-
-    cats = TabulatedFunction("table.ctb", tformat='NGA', Ndim=4, verbose=2)
-    vals = cats.interpolate("T",**cats.index.to_frame())
-    print(np.min(vals == cats["T"]), vals)
-
     import argparse
     parser = argparse.ArgumentParser(description='Useful tools for interacting with chemtable files')
     parser.add_argument('inputfile',help='Table file to read', type=str)
