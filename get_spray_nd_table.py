@@ -89,6 +89,19 @@ for comp in dfindex:
     df.loc[comp] = ([mixture.T, mixture.density, mixture.thermal_conductivity/mixture.cp, mixture.mean_molecular_weight, mixture.viscosity]
                 + [mixture.Y[mixture.species_index(spec.split(":")[0])] for spec in iphys["X_fuel"]])
 
+#Meta data generation
+all_species_mwt = []            # List of list, species with molecular weights
+species_list = [spec.split(":")[0] for spec in iphys["X_fuel"]]
+species_idx_list = [mixture.species_index(sp) for sp in species_list]
+
+for i in range(len(species_list)):    
+    row_data = ["manifold."+species_list[i]+"_mwt",mixture.molecular_weights[species_idx_list[i]]]    
+    all_species_mwt.append(row_data)
+
+df_meta = pd.DataFrame(all_species_mwt, columns=['SpeciesNamesWithPrefix', 'Molecular_Weight'])
+df_meta.to_csv('Manifold_Metadata.txt', sep='=', header=False, index=False, encoding='ascii')
+
+
 ctable_tools.convert_chemtable_units(df, "mks2cgs")
 print(df)
 df["RHOinv"] = 1.0/df["RHO"]
