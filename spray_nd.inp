@@ -1,5 +1,5 @@
 [phys]
-mechanism = "mechanism.yaml"
+mechanism = "/path/to/PelePhysics/Mechanisms/liquid_fuels_nonreacting/mechanism.yaml"
 pressure = 101325 # Pa
 X_ox = "O2:0.21, N2:0.79"
 T_ox = 300 # K
@@ -14,3 +14,4 @@ deltaHvap = [300000, 330000, 340000, 300000] # 1 per fuel, J/kg
 use_fmix = false
 grid = [20, 21, 22] # must have N_fuels dimensions
 filename = "spray_3fuel.ctb"
+metadata_file = "manifold_metadata_3d.text"

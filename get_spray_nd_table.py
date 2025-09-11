@@ -90,21 +90,19 @@ for comp in dfindex:
                 + [mixture.Y[mixture.species_index(spec.split(":")[0])] for spec in iphys["X_fuel"]])
 
 #Meta data generation
-all_species_mwt = []            # List of list, species with molecular weights
 species_list = [spec.split(":")[0] for spec in iphys["X_fuel"]]
 species_idx_list = [mixture.species_index(sp) for sp in species_list]
 
-for i in range(len(species_list)):    
-    row_data = ["manifold."+species_list[i]+"_mwt",mixture.molecular_weights[species_idx_list[i]]]    
-    all_species_mwt.append(row_data)
-
-df_meta = pd.DataFrame(all_species_mwt, columns=['SpeciesNamesWithPrefix', 'Molecular_Weight'])
-df_meta.to_csv('Manifold_Metadata.txt', sep='=', header=False, index=False, encoding='ascii')
-
+with open(itable["metadata_file"], "w") as fi:
+    fi.write("manifold.has_species_mw = true\n")
+    for i in range(len(species_list)):
+        fi.write("manifold."+species_list[i]+"_mw = "+str(mixture.molecular_weights[species_idx_list[i]])+"\n")
+    fi.write("manifold.nominal_pressure_cgs = " + str(iphys["pressure"]*10.0))
 
 ctable_tools.convert_chemtable_units(df, "mks2cgs")
-print(df)
 df["RHOinv"] = 1.0/df["RHO"]
 df["lnRHO"] = np.log(np.array(df["RHO"]))
+ctable_tools.print_chemtable(df)
+print(df)
 
 ctable_tools.write_chemtable_binary(itable["filename"], df, "mixing-only")
