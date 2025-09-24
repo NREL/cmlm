@@ -66,7 +66,7 @@ else:
     dimnames = ["ZMIX"+str(ii) for ii in range(Nfuel)]
 
 dfindex = pd.MultiIndex.from_product(grids, names=dimnames)
-dfcols = ["T","RHO","DIFF","WBAR","VISC"]+["Y-"+spec.split(":")[0] for spec in iphys["X_fuel"]]
+dfcols = ["T","RHO","DIFF","WBAR","VISC","CP"]+["Y-"+spec.split(":")[0] for spec in iphys["X_fuel"]]
 df = pd.DataFrame(index=dfindex, columns=dfcols, dtype=np.float64)
 
 for comp in dfindex:
@@ -86,12 +86,23 @@ for comp in dfindex:
         streams[0].mass = remainder
     nonzeromass = [stream.mass > 0.0 for stream in streams]
     mixture = np.sum(np.array(streams)[nonzeromass])
-    df.loc[comp] = ([mixture.T, mixture.density, mixture.thermal_conductivity/mixture.cp, mixture.mean_molecular_weight, mixture.viscosity]
+    df.loc[comp] = ([mixture.T, mixture.density, mixture.thermal_conductivity/mixture.cp, mixture.mean_molecular_weight, mixture.viscosity,mixture.cp ]
                 + [mixture.Y[mixture.species_index(spec.split(":")[0])] for spec in iphys["X_fuel"]])
 
+#Meta data generation
+species_list = [spec.split(":")[0] for spec in iphys["X_fuel"]]
+species_idx_list = [mixture.species_index(sp) for sp in species_list]
+
+with open(itable["metadata_file"], "w") as fi:
+    fi.write("manifold.has_species_mw = true\n")
+    for i in range(len(species_list)):
+        fi.write("manifold."+species_list[i]+"_mw = "+str(mixture.molecular_weights[species_idx_list[i]])+"\n")
+    fi.write("manifold.nominal_pressure_cgs = " + str(iphys["pressure"]*10.0))
+
 ctable_tools.convert_chemtable_units(df, "mks2cgs")
-print(df)
 df["RHOinv"] = 1.0/df["RHO"]
 df["lnRHO"] = np.log(np.array(df["RHO"]))
+ctable_tools.print_chemtable(df)
+print(df)
 
 ctable_tools.write_chemtable_binary(itable["filename"], df, "mixing-only")
