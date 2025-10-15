@@ -18,6 +18,9 @@ scikit-learn = "^1.7.0"
 h5py = "^3.14.0"
 
 [tool.poetry.group.dev.dependencies]
+sphinx = ">=8.0"
+sphinx_rtd_theme = ">0.0"
+sphinxcontrib_bibtex = ">0.0"
 ipython = "^8.14.0"
 black = {version = "^24.3.0"}
 isort = "^5.12.0"
