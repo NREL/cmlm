@@ -230,7 +230,7 @@ Make some plots of the table:
 
 1. Install poetry
 2. run `poetry update` from this directory
-3. prefix running pythion scripts with `poetry run`, e.g.:
+3. prefix running python scripts with `poetry run`, e.g.:
           poetry run python get_nonpremixed_flamelets.py
 4. Only manages dependencies for tables right now, not networks
 

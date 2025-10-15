@@ -1,0 +1,64 @@
+name: documentation
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          pip install sphinx sphinx_rtd_theme myst_parser sphinxcontrib-bibtex
+
+      - name: Build docs
+        run: |
+          sphinx-build -b html -W docs _build
+
+      - name: Upload artifact (for PR preview or later steps)
+        uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: _build
+
+  deploy-docs:
+    if: github.event_name == 'push'
+    needs: build-docs
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: _build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          publish_branch: gh-pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: _build
+          force_orphan: true
