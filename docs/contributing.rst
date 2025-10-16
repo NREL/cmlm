@@ -41,6 +41,9 @@ Once all ``flake8`` messages have been addressed, the code will match the CMLM s
 
    Consistent application of these guidelines is a work in progress. Old code is being modified to match them over time; these guidelines will be required for all new contributions.
 
+Spelling must also be correct, which is verified for pull requests through a
+codespell action.
+
 Building the Documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
