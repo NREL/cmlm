@@ -31,13 +31,13 @@ To cite the use of the CMLM model or related neural network structures, use the 
 
 .. code-block:: none
 
-   Perry, B. A., de Frahan, M. T. H., & Yellapantula, S. (2022). Co-optimized machine-learned manifold models for large eddy simulation of turbulent combustion. Combustion and Flame, 244, 112286.
+   Perry, B. A., Henry de Frahan, M. T., & Yellapantula, S. (2022). Co-optimized machine-learned manifold models for large eddy simulation of turbulent combustion. Combustion and Flame, 244, 112286.
 
 .. code-block:: bibtex
 
    @article{perry2022co,
        title     = {Co-optimized machine-learned manifold models for large eddy simulation of turbulent combustion},
-       author    = {Perry, Bruce A and de Frahan, Marc T Henry and Yellapantula, Shashank},
+       author    = {Perry, Bruce A and {Henry de Frahan}, Marc T and Yellapantula, Shashank},
        journal   = {Combustion and Flame},
        volume    = {244},
        pages     = {112286},
