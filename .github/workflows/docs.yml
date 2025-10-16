@@ -3,9 +3,9 @@ name: documentation
 on:
   workflow_dispatch:
   push:
-    branches: [main]
+    branches: [development]
   pull_request:
-    branches: [main]
+    branches: [development]
 
 permissions:
   contents: write

@@ -1,5 +1,8 @@
 name: CMLM-CI
 
+permissions:
+  contents: read
+
 on:
    workflow_dispatch:
    push:
@@ -41,3 +44,22 @@ jobs:
         run: poetry run isort --check-only --diff ctable_tools.py
       # - name: Lint with flake8
       #   run: poetry run flake8 ctable_tools.py
+  Codespell:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone
+        uses: actions/checkout@v4
+        with:
+          submodules: false
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Dependencies
+        run: |
+          # Install Python packages
+          python -m pip install --upgrade pip
+          pip install codespell
+      - name: Run codespell
+        run: codespell ctable_tools.py docs/ --skip="*.bib,*.csv,*.pdf"
+        #run: codespell --skip="*.bib,*.csv,*.pdf"
