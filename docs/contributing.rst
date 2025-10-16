@@ -44,7 +44,7 @@ Once all ``flake8`` messages have been addressed, the code will match the CMLM s
 Building the Documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Thisi wordis not spelled correctly.
+keyboar
 
 Please document any new features! After adding some documentation, you can do a test rebuild of the HTML documentation pages by going to the ``docs/`` directory and running ::
 
