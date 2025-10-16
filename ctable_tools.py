@@ -7,7 +7,7 @@ from scipy.interpolate import interpn
 
 
 def convert_chemtable_units(ctable, conversion="mks2cgs"):
-    # MKS to CGS conversion factors BADLY SPELLED catterpillar
+    # MKS to CGS conversion factors
     conversions = {
         "RHO": 1.0e-3,  #  kg m-3 -> g cm-3
         "DIFF": 10.0,  # (rhoD) kg s-1 m-1 -> g s-1 cm-1
