@@ -14,7 +14,7 @@ Tabulated Models
 .. autosummary::
    :toctree: generated
 
-   ctable_tools
+   cmlm.ctable_tools
 
 General Utilities
 -----------------
@@ -22,5 +22,5 @@ General Utilities
 .. autosummary::
    :toctree: generated
 
-   input_file
-   timer
+   cmlm.utils.input_file
+   cmlm.utils.timer
