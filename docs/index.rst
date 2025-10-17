@@ -6,7 +6,7 @@ for LES of turbulent combustion that use neural networks. The included machine
 learning approaches were initially published in a `Combustion and Flame article <https://doi.org/10.1016/j.combustflame.2022.112286>`_.
 It also includes scripts for generating physics-based manifold models with
 tabulated chemistry data.
-This package generates models in a format usable by the `PeleLMeX <https://amrex-combustion.github.io/PeleLMeX/>`_ reacting flow solver, with much of the implementation done through the `PelePhyscs <https://github.com/AMReX-Combustion/PelePhysics>`_ library.
+This package generates models in a format usable by the `PeleLMeX <https://amrex-combustion.github.io/PeleLMeX/>`_ reacting flow solver, with much of the implementation done through the `PelePhysics <https://github.com/AMReX-Combustion/PelePhysics>`_ library.
 
 Head over to the :ref:`getting-started` page to see how to install and begin using CMLM.
 
