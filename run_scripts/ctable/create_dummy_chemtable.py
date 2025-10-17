@@ -20,8 +20,8 @@ ctable = pd.DataFrame(
     index=ctable_index,
     columns=["RHO", "T"] + ["SRC_" + dimname for dimname in dimnames],
 )
-dataT = np.zeros([ngrid**ndim, 2])
-ctableT = pd.DataFrame(dataT, index=ctable_index, columns=["DIFF", "VISC"])
+data_trans = np.zeros([ngrid**ndim, 2])
+ctable_trans = pd.DataFrame(data_trans, index=ctable_index, columns=["DIFF", "VISC"])
 
 # Populate some dummy data
 df = ctable.reset_index()
@@ -32,8 +32,8 @@ for idim in range(ndim):
     ctable["T"] += (idim + 1) * (data + 0.2 * data2)
     for dimname in dimnames:
         ctable["SRC_" + dimname] += (idim + 1) * (data + 0.3 * data2)
-    ctableT["DIFF"] += (idim + 1) * (data + 0.1 * data2)
-    ctableT["VISC"] += (idim + 1) * (data + 0.2 * data2)
+    ctable_trans["DIFF"] += (idim + 1) * (data + 0.1 * data2)
+    ctable_trans["VISC"] += (idim + 1) * (data + 0.2 * data2)
 
 # Save tables
 ctt.write_chemtable_binary(
@@ -42,7 +42,7 @@ ctt.write_chemtable_binary(
 
 ctt.write_chemtable_binary(
     f"{outfi_pref}_trans_{ndim}dim_{ngrid}grid",
-    ctableT,
+    ctable_trans,
     "DummyData",
     "Pele",
 )
@@ -52,4 +52,4 @@ print("Dummy EOS Table")
 print(ctable)
 print("\n ============ \n")
 print("Dummy Transport Table")
-print(ctableT)
+print(ctable_trans)
