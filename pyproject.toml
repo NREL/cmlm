@@ -43,7 +43,8 @@ dev = [
     "flake8-bugbear >= 22.12.6",
     "pep8-naming >= 0.12.1",
     "flake8-docstrings >= 1.7.0",
-    "flake8-use-fstring >= 1.4"
+    "flake8-use-fstring >= 1.4",
+    "codespell >= 2.4.0"
 ]
 
 [project.scripts]
