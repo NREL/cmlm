@@ -13,8 +13,10 @@ class TomlParmParse:
 
     Parameters
     ----------
-        file_name (string): path to input file
-        allow_cl_override (bool): if True, sys.argv[1] replaces `file_name`. Default True.
+        file_name: stirng
+            path to input file
+        allow_cl_override: bool, optional
+            if True, sys.argv[1] replaces `file_name`. Default True.
     """
 
     def __init__(self, file_name=None, allow_cl_override=True):
@@ -41,15 +43,19 @@ class TomlParmParse:
         """
         Look up a value from the input file, if not present use default.
 
-        Args
-        ----
-           prefix (string): section of TOML file
-           var (string): entry in TOML file
-           default (any type): default to use if entry not found
+        Parameters
+        ----------
+           prefix: string
+              section of TOML file
+           var: string
+              entry in TOML file
+           default: any type
+              default to use if entry not found
 
         Returns
         -------
-           any type: value from TOML file or default if not present
+           value: any type
+              value from TOML file or default if not present
         """
         if var in self.data[prefix].keys():
             return self.data[prefix][var]
@@ -60,14 +66,17 @@ class TomlParmParse:
         """
         Look up a value from the input file, if not present raise error.
 
-        Args
-        ----
-           prefix (string): section of TOML file
-           var (string): entry in TOML file
+        Parameters
+        ----------
+           prefix: string
+              section of TOML file
+           var: string
+              entry in TOML file
 
         Returns
         -------
-           any type: value from TOML file
+           value: any type
+              value from TOML file
         """
         if var in self.data[prefix].keys():
             return self.data[prefix][var]
