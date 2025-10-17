@@ -1,3 +1,19 @@
+"""
+Create sample chemtables with dummy data for testing purposes.
+
+Usage
+-----
+    python create_dummy_chemtable.py <input_file.toml>
+
+Notes
+-----
+    The input file is a TOML format file that specified the following:
+
+    - ndim (int): number of dimensions in table
+    - ngrid (int): number of grid points in each dimension
+    - outfile_prefix (string): path to save files
+"""
+
 import cmlm.ctable_tools as ctt
 from cmlm.utils import TomlParmParse
 import pandas as pd
