@@ -1,7 +1,7 @@
 Using CMLM
 ==========
 
-CMLM contains separate components: a library/API with support for both tabulated and neural network reduced-order manifold chemistyr models, and some handy-dandy scripts for interacting with data files.
+CMLM contains separate components: a library/API with support for both tabulated and neural network reduced-order manifold chemistry models, and some handy-dandy scripts for interacting with data files.
 
 Library/API
 -----------
@@ -9,7 +9,7 @@ Library/API
 TabulatedFunction
 ~~~~~~~~~~~~~~~~~
 
-The ``TabulatedFunction`` capability derives from a pandas MultiIndex FataFrame, with added capability for interpolation and for reading/writing binary files in the format expected by the Pele codes. Any data that exists as a pandas MultiIndex DataFrame can easily by converted into a
+The ``TabulatedFunction`` capability derives from a pandas MultiIndex DataFrame, with added capability for interpolation and for reading/writing binary files in the format expected by the Pele codes. Any data that exists as a pandas MultiIndex DataFrame can easily be converted into a
 tabulated function.
 
 More documentation on the API to come later.
