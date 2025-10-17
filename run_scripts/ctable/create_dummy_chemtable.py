@@ -1,5 +1,5 @@
 import cmlm.ctable_tools as ctt
-import cmlm.utils.TomlParmParse
+from cmlm.utils import TomlParmParse
 import pandas as pd
 import numpy as np
 
@@ -32,7 +32,7 @@ for idim in range(ndim):
     ctableT['VISC'] += (idim+1)*(data + 0.2*data2)
 
 # Save tables
-ctt.write_chemtable_binary(outfi_pref+str(ndim)+'dim_'+str(ngrid)+'grid',
+ctt.write_chemtable_binary(outfi_pref+'_'+str(ndim)+'dim_'+str(ngrid)+'grid',
                            ctable, 'DOGS', 'Pele')
 
 ctt.write_chemtable_binary(outfi_pref+'_trans_'+str(ndim)+'dim_'+str(ngrid)+'grid',
@@ -41,6 +41,6 @@ ctt.write_chemtable_binary(outfi_pref+'_trans_'+str(ndim)+'dim_'+str(ngrid)+'gri
 # Print tables for user inspection
 print("Dummy EOS Table")
 print(ctable)
-print("\n ============ \n\n")
+print("\n ============ \n")
 print("Dummy Transport Table")
 print(ctableT)
