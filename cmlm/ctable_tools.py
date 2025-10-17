@@ -120,7 +120,7 @@ def write_chemtable_binary(filename, ctable, tablename, tformat="Pele"):
         fi.write(
             struct.pack(
                 str(Ndim) + "i",
-                *[len(level) for level in reversed(ctable.index.levels)]
+                *[len(level) for level in reversed(ctable.index.levels)],
             )
         )
 
@@ -325,8 +325,7 @@ class TabulatedFunction(pd.DataFrame):
         return out.T
 
 
-if __name__ == "__main__":
-
+def main():
     import argparse
 
     parser = argparse.ArgumentParser(
@@ -497,3 +496,8 @@ if __name__ == "__main__":
                 )
                 plt.clf()
                 plt.close()
+
+
+if __name__ == "__main__":
+
+    main()

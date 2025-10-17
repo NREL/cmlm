@@ -1,35 +1,53 @@
-[tool.poetry]
+[project]
 name = "cmlm"
 version = "0.1.0"
-description = ""
-authors = ["Bruce A. Perry <bruce.perry@nrel.gov>", "Marc Henry de Frahan", "Shashank Yellapantula", "Kiran Eiden"]
+description = "A tool for ML and physics-based reduced order manifold models in turbulent combustion"
+requires-python = ">=3.10, <3.12"
+authors = [
+    {name = "Bruce A. Perry", email = "bruce.perry@nrel.gov"},
+    {name = "Marc Henry de Frahan"},
+    {name = "Shashank Yellapantula"},
+    {name = "Kiran Eiden"}
+]
 
-[tool.poetry.dependencies]
-python = ">=3.10,<3.12"
-Cantera = ">=3.1.0"
-mpi4py = ">=3.1.4"
-matplotlib = "^3.7.2"
-scipy = "^1.11.2"
-numpy = "^1.25.2"
-sympy = "^1.12"
-pandas = ">=2.0.3"
-torch = "^2.7.1"
-scikit-learn = "^1.7.0"
-h5py = "^3.14.0"
+dependencies = [
+    "Cantera >= 3.1.0",
+    "matplotlib >= 3.7.2",
+    "scipy >= 1.11.2",
+    "numpy >= 1.25.2",
+    "sympy >= 1.12",
+    "pandas >= 2.0.3",
+    "scikit-learn >= 1.7.0",
+    "h5py >= 3.14.0"
+]
 
-[tool.poetry.group.dev.dependencies]
-sphinx = ">=8.0"
-sphinx_rtd_theme = ">0.0"
-sphinxcontrib_bibtex = ">0.0"
-ipython = "^8.14.0"
-black = {version = "^24.3.0"}
-isort = "^5.12.0"
-flake8 = "^4.0.1"
-flake8-bugbear = "^22.12.6"
-pep8-naming = "^0.12.1"
-flake8-docstrings = "^1.7.0"
-flake8-use-fstring = "^1.4"
+[project.optional-dependencies]
+
+ml = [
+    "torch >= 2.7.1"
+]
+
+parallel = [
+    "mpi4py >= 3.1.4"
+]
+
+dev = [
+    "sphinx >= 8.0",
+    "sphinx_rtd_theme >= 0.0",
+    "sphinxcontrib_bibtex >= 0.0",
+    "ipython >= 8.14.0",
+    "black >= 24.3.0, <25.0",
+    "isort >= 5.12.0, <6.0",
+    "flake8 >= 4.0.1, <5.0",
+    "flake8-bugbear >= 22.12.6",
+    "pep8-naming >= 0.12.1",
+    "flake8-docstrings >= 1.7.0",
+    "flake8-use-fstring >= 1.4"
+]
+
+[project.scripts]
+ctable_tools = "cmlm.ctable_tools:main"
 
 [build-system]
-requires = ["poetry-core^2.0.0"]
+requires = ["poetry-core>=2.0.0"]
 build-backend = "poetry.core.masonry.api"

@@ -18,6 +18,7 @@ organization, testing, dependency management, etc.
    :caption: Contents:
 
    installation
+   usage
    contributing
    citation
 
