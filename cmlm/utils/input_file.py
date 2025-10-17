@@ -57,10 +57,10 @@ class TomlParmParse:
            value: any type
               value from TOML file or default if not present
         """
-        if var in self.data[prefix].keys():
-            return self.data[prefix][var]
-        else:
-            return default
+        if prefix in self.data.keys():
+            if var in self.data[prefix].keys():
+                return self.data[prefix][var]
+        return default
 
     def get(self, prefix, var):
         """
