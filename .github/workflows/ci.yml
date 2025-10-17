@@ -39,11 +39,11 @@ jobs:
       - name: Install Dependencies using Poetry
         run: poetry install
       - name: Formatting with black
-        run: poetry run black --check ctable_tools.py
+        run: poetry run black --check cmlm/
       - name: Sort imports with isort
-        run: poetry run isort --check-only --diff ctable_tools.py
-      # - name: Lint with flake8
-      #   run: poetry run flake8 ctable_tools.py
+        run: poetry run isort --check-only --diff cmlm/
+      - name: Lint with flake8
+        run: poetry run flake8 cmlm/
   Codespell:
     runs-on: ubuntu-latest
     steps:
@@ -61,5 +61,5 @@ jobs:
           python -m pip install --upgrade pip
           pip install codespell
       - name: Run codespell
-        run: codespell ctable_tools.py docs/ --skip="*.bib,*.csv,*.pdf"
+        run: codespell cmlm/ docs/ --skip="*.bib,*.csv,*.pdf"
         #run: codespell --skip="*.bib,*.csv,*.pdf"
