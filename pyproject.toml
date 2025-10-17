@@ -1,6 +1,6 @@
 [project]
 name = "cmlm"
-version = "0.2.0"
+version = "0.1.0"
 description = "A tool for ML and physics-based reduced order manifold models in turbulent combustion"
 requires-python = ">=3.10, <3.12"
 authors = [
@@ -44,6 +44,9 @@ dev = [
     "flake8-docstrings >= 1.7.0",
     "flake8-use-fstring >= 1.4"
 ]
+
+[project.scripts]
+ctable_tools = "cmlm.ctable_tools:main"
 
 [build-system]
 requires = ["poetry-core>=2.0.0"]
