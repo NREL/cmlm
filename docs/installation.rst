@@ -1,7 +1,7 @@
 Installation & Dependencies
 ===========================
 
-CMLM is just collection of python scripts, but some installation steps are required. It relies on several python libraries that you must have installed in order to be able to run the CMLM scripts. Most are fairly standard, but you can follow the directions below in order to ensure you have compatible versions of all relevant dependencies.
+CMLM is just a collection of python scripts, but some installation steps are required. It relies on several python libraries that you must have installed in order to be able to run the CMLM scripts. Most are fairly standard, but you can follow the directions below in order to ensure you have compatible versions of all relevant dependencies.
 
 First, it is a good idea to use a tool like ``conda`` to create and activate an environment for your install, but that isn't strictly required::
 
