@@ -18,7 +18,8 @@ dependencies = [
     "sympy >= 1.12",
     "pandas >= 2.0.3",
     "scikit-learn >= 1.7.0",
-    "h5py >= 3.14.0"
+    "h5py >= 3.14.0",
+    "toml >= 0.10.0"
 ]
 
 [project.optional-dependencies]

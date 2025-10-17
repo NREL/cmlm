@@ -1,0 +1,4 @@
+[table]
+ndim = 1
+ngrid = 20
+outfile_prefix = peletable

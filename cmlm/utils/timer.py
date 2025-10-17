@@ -1,7 +1,7 @@
 import time
 
 
-class timer:
+class Timer:
 
     def __init__(self, task="Program", level=0, verbose=1, start=None):
         # verbose = 0: timings only printed at end.
@@ -43,7 +43,7 @@ class timer:
             # Create new task timer if needed
             if task not in self.tasks:
                 self.tasks.append(task)
-                self.subtimers[task] = timer(
+                self.subtimers[task] = Timer(
                     task=task, level=self.level + 1, verbose=self.verbose
                 )
                 self.present_task = task
@@ -124,7 +124,7 @@ class timer:
                 self.subtimers[task].finalize(self.cumtime)
 
 
-class trackerbar:
+class TrackerBar:
 
     def __init__(self, ntotal, name=None, nelems=50):
         self.ntotal = ntotal
