@@ -20,10 +20,11 @@ Input File
 
 if __name__ == "__main__":
 
+    import numpy as np
+    import pandas as pd
+
     import cmlm.ctable_tools as ctt
     from cmlm.utils import TomlParmParse
-    import pandas as pd
-    import numpy as np
 
     # Load inputs
     tpp = TomlParmParse("create_dummy_chemtable.toml", allow_cl_override=True)

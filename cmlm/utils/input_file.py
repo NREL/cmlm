@@ -13,7 +13,7 @@ class TomlParmParse:
 
     Parameters
     ----------
-        file_name: stirng
+        file_name: str
             path to input file
         allow_cl_override: bool, optional
             if True, sys.argv[1] replaces `file_name`. Default True.
@@ -45,9 +45,9 @@ class TomlParmParse:
 
         Parameters
         ----------
-           prefix: string
+           prefix: str
               section of TOML file
-           var: string
+           var: str
               entry in TOML file
            default: any type
               default to use if entry not found
@@ -68,9 +68,9 @@ class TomlParmParse:
 
         Parameters
         ----------
-           prefix: string
+           prefix: str
               section of TOML file
-           var: string
+           var: str
               entry in TOML file
 
         Returns
