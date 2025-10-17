@@ -1,5 +1,5 @@
-Installation
-============
+Installation & Dependencies
+===========================
 
 CMLM is just collection of python scripts, but some installation steps are required. It relies on several python libraries that you must have installed in order to be able to run the CMLM scripts. Most are fairly standard, but you can follow the directions below in order to ensure you have compatible versions of all relevant dependencies.
 
@@ -7,9 +7,6 @@ First, it is a good idea to use a tool like ``conda`` to create and activate an 
 
   $ conda create -n cmlm python=3.11
   $ conda activate cmlm
-
-Dependencies
-------------
 
 Dependencies for CMLM are primarily managed through `poetry <https://python-poetry.org/docs/#installation>`_. Poetry is therefore recommended to use CMLM and can typically be installed through system package managers (e.g. HomeBrew) or following the instructions in poetry's documentation.
 
