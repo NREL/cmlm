@@ -2,7 +2,7 @@
 Create chemtable for nonreacting multicomponent spray evaporation problems.
 
 The table will have a number of dimensions (mixture fractions) equal to the number
-of spray components, becuase mixing with oxidizer is also considered. If the
+of spray components, because mixing with oxidizer is also considered. If the
 ``use_fmix`` option is specified, instead of standard mixture fractions (sum to 1,
 state space is the unit simplex), the table is populated in terms of normalized
 mixture fractions (each goes from 0 to 1, state space is a unit cube). Liquid
@@ -26,7 +26,7 @@ Input File
 ----------
 
 The input file is a TOML format file with sections ``[phys]`` and ``[table]``,
-corresponding to phsyical/BC inputs and parameters for the table. See the
+corresponding to physical/BC inputs and parameters for the table. See the
 sample input file for more details.
 """
 
@@ -47,24 +47,23 @@ if __name__ == "__main__":
     T_ox = tpp.get("phys", "T_ox")
     X_ox = tpp.get("phys", "X_ox")
     pressure = tpp.get("phys", "pressure")
-    liqTfuel = tpp.get("phys", "liqTfuel")
+    liq_temp_fuel = tpp.get("phys", "liq_temp_fuel")
     X_fuel = tpp.get("phys", "X_fuel")
-    deltaHvap = tpp.get("phys", "deltaHvap")
+    delta_h_vap = tpp.get("phys", "delta_h_vap")
     ox = ct.Solution(mechanism)
     ox.TPX = T_ox, pressure, X_ox
     oxstream = ct.Quantity(ox, constant="HP")
     fuelstreams = []
     Nfuel = len(X_fuel)
-    for ii, fcomps in enumerate(X_fuel):
+    for ii in range(Nfuel):
         fu = ct.Solution(mechanism)
-        fu.TPX = liqTfuel[ii], pressure, X_fuel[ii]
+        fu.TPX = liq_temp_fuel[ii], pressure, X_fuel[ii]
         # account for enthalpy of vaporization
-        fu.HPX = fu.enthalpy_mass - deltaHvap[ii], fu.P, fu.Y
+        fu.HPX = fu.enthalpy_mass - delta_h_vap[ii], fu.P, fu.Y
         fuelstreams.append(ct.Quantity(fu, constant="HP"))
         print(
-            "Fuel stream {} ({}): liquid T is {} and gaseous T is {}".format(
-                ii, X_fuel[ii], liqTfuel[ii], fu.T
-            )
+            f"Fuel stream {ii} ({X_fuel[ii]}): liquid T is"
+            + "{liq_temp_fuel[ii]} and gaseous T is {fu.T}"
         )
     streams = [oxstream] + fuelstreams
 
