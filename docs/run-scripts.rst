@@ -7,4 +7,4 @@ create_dummy_chemtable.py
 -------------------------
 
 .. automodule::
-   run_scripts.ctable.create_dummy_chemtable
+   create_dummy_chemtable
