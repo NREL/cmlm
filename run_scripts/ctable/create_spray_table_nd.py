@@ -44,13 +44,13 @@ if __name__ == "__main__":
     print(tpp.data)
 
     # Create mixing streams
-    mechanism = tpp.get("phys","mechanism")
-    T_ox = tpp.get("phys","T_ox")
-    X_ox = tpp.get("phys","X_ox")
-    pressure = tpp.get("phys","pressure")
-    liqTfuel = tpp.get("phys","liqTfuel")
-    X_fuel = tpp.get("phys","X_fuel")
-    deltaHvap = tpp.get("phys","deltaHvap")
+    mechanism = tpp.get("phys", "mechanism")
+    T_ox = tpp.get("phys", "T_ox")
+    X_ox = tpp.get("phys", "X_ox")
+    pressure = tpp.get("phys", "pressure")
+    liqTfuel = tpp.get("phys", "liqTfuel")
+    X_fuel = tpp.get("phys", "X_fuel")
+    deltaHvap = tpp.get("phys", "deltaHvap")
     ox = ct.Solution(mechanism)
     ox.TPX = T_ox, pressure, X_ox
     oxstream = ct.Quantity(ox, constant="HP")
@@ -61,25 +61,31 @@ if __name__ == "__main__":
         fu.TPX = liqTfuel[ii], pressure, X_fuel[ii]
         # account for enthalpy of vaporization
         fu.HPX = fu.enthalpy_mass - deltaHvap[ii], fu.P, fu.Y
-        fuelstreams.append(ct.Quantity(fu,constant="HP"))
-        print("Fuel stream {} ({}): liquid T is {} and gaseous T is {}".format(ii, X_fuel[ii], liqTfuel[ii], fu.T))
+        fuelstreams.append(ct.Quantity(fu, constant="HP"))
+        print(
+            "Fuel stream {} ({}): liquid T is {} and gaseous T is {}".format(
+                ii, X_fuel[ii], liqTfuel[ii], fu.T
+            )
+        )
     streams = [oxstream] + fuelstreams
 
     # Create table
 
-    grids =[]
-    for grid in tpp.get("table","grid")[:Nfuel]:
-        grids.append(np.linspace(0.0,1.0,grid))
-    use_fmix = tpp.get("table","use_fmix")
+    grids = []
+    for grid in tpp.get("table", "grid")[:Nfuel]:
+        grids.append(np.linspace(0.0, 1.0, grid))
+    use_fmix = tpp.get("table", "use_fmix")
     if use_fmix:
         dimnames = ["ZMIX"]
         for ii in range(Nfuel - 1):
-            dimnames.append("FMIX"+str(ii))
+            dimnames.append("FMIX" + str(ii))
     else:
-        dimnames = ["ZMIX"+str(ii) for ii in range(Nfuel)]
+        dimnames = ["ZMIX" + str(ii) for ii in range(Nfuel)]
 
     dfindex = pd.MultiIndex.from_product(grids, names=dimnames)
-    dfcols = ["T","RHO","DIFF","WBAR","VISC","CP"]+["Y-"+spec.split(":")[0] for spec in X_fuel]
+    dfcols = ["T", "RHO", "DIFF", "WBAR", "VISC", "CP"] + [
+        "Y-" + spec.split(":")[0] for spec in X_fuel
+    ]
     df = pd.DataFrame(index=dfindex, columns=dfcols, dtype=np.float64)
 
     for comp in dfindex:
@@ -99,25 +105,37 @@ if __name__ == "__main__":
             streams[0].mass = remainder
         nonzeromass = [stream.mass > 0.0 for stream in streams]
         mixture = np.sum(np.array(streams)[nonzeromass])
-        df.loc[comp] = ([mixture.T, mixture.density, mixture.thermal_conductivity/mixture.cp, mixture.mean_molecular_weight, mixture.viscosity,mixture.cp ]
-                    + [mixture.Y[mixture.species_index(spec.split(":")[0])] for spec in X_fuel])
+        df.loc[comp] = [
+            mixture.T,
+            mixture.density,
+            mixture.thermal_conductivity / mixture.cp,
+            mixture.mean_molecular_weight,
+            mixture.viscosity,
+            mixture.cp,
+        ] + [mixture.Y[mixture.species_index(spec.split(":")[0])] for spec in X_fuel]
 
-    #Meta data generation
+    # Meta data generation
     species_list = [spec.split(":")[0] for spec in X_fuel]
     species_idx_list = [mixture.species_index(sp) for sp in species_list]
 
-    mdatfi = tpp.get("table","metadata_file")
+    mdatfi = tpp.get("table", "metadata_file")
     with open(mdatfi, "w") as fi:
         fi.write("manifold.has_species_mw = true\n")
         for i in range(len(species_list)):
-            fi.write("manifold."+species_list[i]+"_mw = "+str(mixture.molecular_weights[species_idx_list[i]])+"\n")
-        fi.write("manifold.nominal_pressure_cgs = " + str(pressure*10.0))
+            fi.write(
+                "manifold."
+                + species_list[i]
+                + "_mw = "
+                + str(mixture.molecular_weights[species_idx_list[i]])
+                + "\n"
+            )
+        fi.write("manifold.nominal_pressure_cgs = " + str(pressure * 10.0))
 
     ctable_tools.convert_chemtable_units(df, "mks2cgs")
-    df["RHOinv"] = 1.0/df["RHO"]
+    df["RHOinv"] = 1.0 / df["RHO"]
     df["lnRHO"] = np.log(np.array(df["RHO"]))
     ctable_tools.print_chemtable(df)
     print(df)
 
-    ofi = tpp.get("table","filename")
+    ofi = tpp.get("table", "filename")
     ctable_tools.write_chemtable_binary(ofi, df, "mixing-only")
