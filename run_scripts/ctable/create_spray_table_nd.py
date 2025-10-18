@@ -32,10 +32,9 @@ sample input file for more details.
 
 if __name__ == "__main__":
 
+    import cantera as ct
     import numpy as np
     import pandas as pd
-
-    import cantera as ct
     from cmlm import ctable_tools
     from cmlm.utils import TomlParmParse
 
