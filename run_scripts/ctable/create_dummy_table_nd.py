@@ -6,12 +6,12 @@ Usage
 
 Invoke on the command line::
 
-    python create_dummy_chemtable.py <input_file.toml>
+    python create_dummy_table_nd.py <input_file.toml>
 
 Input File
 ----------
 
-    The input file is a TOML format file with single section "[table]" that specifies the following:
+    The input file is a TOML format file with single section ``[table]`` that specifies the following:
 
     - ``ndim`` (int): number of dimensions in table
     - ``ngrid`` (int): number of grid points in each dimension

@@ -1,27 +1,34 @@
 """
+Create chemtable for nonreacting multicomponent spray evaporation problems.
 
+The table will have a number of dimensions (mixture fractions) equal to the number
+of spray components, becuase mixing with oxidizer is also considered. If the
+``use_fmix`` option is specified, instead of standard mixture fractions (sum to 1,
+state space is the unit simplex), the table is populated in terms of normalized
+mixture fractions (each goes from 0 to 1, state space is a unit cube). Liquid
+fuel temperatures and latent heats are specified for each fuel; it is assumed
+that the gas phase temperature adjacent to the droplet is temperature that conserves
+enthalpy (i.e., it is lower than the liquid temperature due to the vaporization
+process).
+
+This script uses Cantera and the user must specify a Cantera yaml format chemical
+mechanism. The `liquid_fuels_nonreacting` mechanism that comes with PelePhysics
+is likely a good choice.
+
+Usage
+-----
+
+Invoke on the command line::
+
+    python create_spray_table_nd.py <input_file.toml>
+
+Input File
+----------
+
+The input file is a TOML format file with sections ``[phys]`` and ``[table]``,
+corresponding to phsyical/BC inputs and parameters for the table. See the
+sample input file for more details.
 """
-
-# ------------------------------------------------------------------------- #
-# get_spray_nd_table.py
-#
-# Simple script to compute an ND chemtable for mixing of N liquid fuel
-# components with air, with N mixture fractions corresponding to the N fuels.
-#
-# Usage:
-# python get_spray_nd_table.py <input_file>
-# A sample input file "spray_nd.inp" is provided.
-
-# Notes on inputs:
-# - The fuel species must exist the provided Cantera mechanism. The
-#   `liquid_fuels_nonreacting` mechanism in PelePhysics is a good choice.
-# - The user provides a temperature of the liquid for each stream and
-#   enthalpy of vaporization, which are used to compute the gas phase
-#   temperature corresponding to vaporized liquid.
-# - The fuel stream may in principal themselves have multiple components
-#   (specified as Cantera format compositions), but mostly it makes sense
-#   to treat each component with a separate mixtyre fraction
-# ------------------------------------------------------------------------- #
 
 if __name__ == "__main__":
 
