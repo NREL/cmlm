@@ -1,10 +1,3 @@
-import cantera as ct
-import ctable_tools
-import pandas as pd
-import toml
-import sys
-import numpy as np
-
 # ------------------------------------------------------------------------- #
 # get_spray_nd_table.py
 #
@@ -27,6 +20,16 @@ import numpy as np
 # ------------------------------------------------------------------------- #
 
 if __name__ == "__main__":
+
+    import sys
+    import toml
+
+    import numpy as np
+    import pandas as pd
+
+    import cantera as ct
+    from cmlm import ctable_tools
+    from cmlm.utils import TomlParmParse
 
     # Load inputs
     if len(sys.argv) != 2:
