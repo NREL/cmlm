@@ -27,7 +27,7 @@ if __name__ == "__main__":
     from cmlm.utils import TomlParmParse
 
     # Load inputs
-    tpp = TomlParmParse("create_dummy_chemtable.toml", allow_cl_override=True)
+    tpp = TomlParmParse("create_dummy_table_nd.toml", allow_cl_override=True)
     ndim = tpp.get("table", "ndim")
     ngrid = tpp.get("table", "ngrid")
     outfi_pref = tpp.get("table", "outfile_prefix")
