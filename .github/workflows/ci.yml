@@ -39,11 +39,11 @@ jobs:
       - name: Install Dependencies using Poetry
         run: poetry install --extras dev
       - name: Formatting with black
-        run: poetry run black --check cmlm/
+        run: poetry run black --check cmlm/ run_scripts/
       - name: Sort imports with isort
-        run: poetry run isort --check-only --diff cmlm/
+        run: poetry run isort --check-only --diff cmlm/ run_scripts/
       #- name: Lint with flake8
-      #  run: poetry run flake8 cmlm/
+      #  run: poetry run flake8 cmlm/ run_scripts/
   Codespell:
     runs-on: ubuntu-latest
     steps:
@@ -59,7 +59,7 @@ jobs:
         run: |
           # Install Python packages
           python -m pip install --upgrade pip
-          pip install codespell
+          pip install .[dev]
       - name: Run codespell
-        run: codespell cmlm/ docs/ --skip="*.bib,*.csv,*.pdf"
+        run: codespell cmlm/ docs/ run_scripts/ --skip="*.bib,*.csv,*.pdf"
         #run: codespell --skip="*.bib,*.csv,*.pdf"
