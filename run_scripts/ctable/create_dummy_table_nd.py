@@ -6,12 +6,12 @@ Usage
 
 Invoke on the command line::
 
-    python create_dummy_chemtable.py <input_file.toml>
+    python create_dummy_table_nd.py <input_file.toml>
 
 Input File
 ----------
 
-    The input file is a TOML format file with single section "[table]" that specifies the following:
+    The input file is a TOML format file with single section ``[table]`` that specifies the following:
 
     - ``ndim`` (int): number of dimensions in table
     - ``ngrid`` (int): number of grid points in each dimension
@@ -27,7 +27,7 @@ if __name__ == "__main__":
     from cmlm.utils import TomlParmParse
 
     # Load inputs
-    tpp = TomlParmParse("create_dummy_chemtable.toml", allow_cl_override=True)
+    tpp = TomlParmParse("create_dummy_table_nd.toml", allow_cl_override=True)
     ndim = tpp.get("table", "ndim")
     ngrid = tpp.get("table", "ngrid")
     outfi_pref = tpp.get("table", "outfile_prefix")
