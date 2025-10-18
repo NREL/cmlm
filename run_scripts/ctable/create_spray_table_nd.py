@@ -64,7 +64,7 @@ if __name__ == "__main__":
         fuelstreams.append(ct.Quantity(fu, constant="HP"))
         print(
             f"Fuel stream {ii} ({X_fuel[ii]}): liquid T is"
-            + "{liq_temp_fuel[ii]} and gaseous T is {fu.T}"
+            + f"{liq_temp_fuel[ii]} and gaseous T is {fu.T}"
         )
     streams = [oxstream] + fuelstreams
 
