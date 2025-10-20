@@ -12,7 +12,7 @@ def convert_chemtable_units(ctable, conversion="mks2cgs"):
     """
     Find selected variables in a table and convert units between CGS and MKS.
 
-    Converts variables with the following names (mks2cgs convrsion shown):
+    Converts variables with the following names (mks2cgs conversion shown):
 
     - `RHO`: kg m-3 -> g cm-3
 
