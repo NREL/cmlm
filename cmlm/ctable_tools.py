@@ -13,14 +13,22 @@ def convert_chemtable_units(ctable, conversion="mks2cgs"):
     Find selected variables in a table and convert units between CGS and MKS.
 
     Converts variables with the following names (mks2cgs convrsion shown):
-    - RHO: kg m-3 -> g cm-3
-    - DIFF (actually rhoD): kg s-1 m-1 -> g s-1 cm-1
-    - VISC (dynamic): kg s-1 m-1 -> g s-1 cm-1
-    - WBAR (molecular mass): ks mol-1 -> g mol-1
-    - SRC_* (species source terms): kg m-3 s-1 -> g cm-3 s-1
-    - T: K -> K
-    - X (length): m -> cm
-    - VEL (velocity) m s-1 -> cm s-1
+
+    - `RHO`: kg m-3 -> g cm-3
+
+    - `DIFF` (actually rhoD): kg s-1 m-1 -> g s-1 cm-1
+
+    - `VISC` (dynamic): kg s-1 m-1 -> g s-1 cm-1
+
+    - `WBAR` (molecular mass): ks mol-1 -> g mol-1
+
+    - `SRC_*` (species source terms): kg m-3 s-1 -> g cm-3 s-1
+
+    - `T`: K -> K
+
+    - `X` (length): m -> cm
+
+    - `VEL` (velocity) m s-1 -> cm s-1
 
     Parameters
     ----------
@@ -31,7 +39,7 @@ def convert_chemtable_units(ctable, conversion="mks2cgs"):
 
     Returns
     -------
-        int: err
+        ierr: int
             conversion happens in place, returns 0 if success
     """
     # MKS to CGS conversion factors
