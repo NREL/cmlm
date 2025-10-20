@@ -20,7 +20,7 @@ def convert_chemtable_units(ctable, conversion="mks2cgs"):
 
     - `VISC` (dynamic): kg s-1 m-1 -> g s-1 cm-1
 
-    - `WBAR` (molecular mass): ks mol-1 -> g mol-1
+    - `WBAR` (molecular mass): kg mol-1 -> g mol-1
 
     - `SRC_*` (species source terms): kg m-3 s-1 -> g cm-3 s-1
 
