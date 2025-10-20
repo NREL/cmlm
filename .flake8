@@ -2,7 +2,8 @@
 max-line-length = 88
 max-complexity = 10
 select = C,E,F,W,B,B950,N,D
-ignore = E203,E302,E501,W503,C901,FS003
+#TODO: remove ignores starting with N802
+ignore = E203,E302,E501,W503,C901,N802,N803,N806,D101,D102,D103,D104
 docstring-convention = numpy
 exclude =
     .git,

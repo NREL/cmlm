@@ -1,3 +1,5 @@
+"""Tools to profile and track elapsed time in python code."""
+
 import time
 
 
@@ -20,7 +22,7 @@ class Timer:
         self.present_task = None
 
         # Print a startup message if verbosity dictates it
-        if verbose > 0 and self.level is 0:
+        if verbose > 0 and self.level == 0:
             print("Wall start time:" + str(time.ctime()))
 
         # Start a subtimer if desired
@@ -107,18 +109,14 @@ class Timer:
                 totaltime = self.cumtime
                 print("")
                 print(
-                    "{:18s}".format("Task Name")
-                    + "{:>12s}".format("Time")
-                    + "{:>8s}".format("%")
-                    + "{:>8s}".format("Ncalls")
+                    f"{'Task Name':18s}" f"{'Time':>12s}" f"{'%':>8s}" f"{'Ncalls':>8s}"
                 )
 
             print(
-                "".join(["    "] * self.level)
-                + "{:18s}".format(self.maintask + ": ")
-                + "{:12.3e}".format(self.cumtime)
-                + "{:8.1f}".format(100 * self.cumtime / totaltime)
-                + "{:8d}".format(self.ncalls)
+                "".join(["    "] * self.level) + f"{self.maintask + ': ':18s}"
+                f"{self.cumtime:12.3e}"
+                f"{100 * self.cumtime / totaltime:8.1f}"
+                f"{self.ncalls:8d}"
             )
             for task in self.tasks:
                 self.subtimers[task].finalize(self.cumtime)

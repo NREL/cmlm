@@ -1,3 +1,5 @@
+"""Tools for tabulated function data of arbitrary dimension (via pandas DataFrames)."""
+
 import os
 import struct
 
@@ -7,17 +9,42 @@ from scipy.interpolate import interpn
 
 
 def convert_chemtable_units(ctable, conversion="mks2cgs"):
+    """
+    Find selected variables in a table and convert units between CGS and MKS.
+
+    Converts variables with the following names (mks2cgs convrsion shown):
+    - RHO: kg m-3 -> g cm-3
+    - DIFF (actually rhoD): kg s-1 m-1 -> g s-1 cm-1
+    - VISC (dynamic): kg s-1 m-1 -> g s-1 cm-1
+    - WBAR (molecular mass): ks mol-1 -> g mol-1
+    - SRC_* (species source terms): kg m-3 s-1 -> g cm-3 s-1
+    - T: K -> K
+    - X (length): m -> cm
+    - VEL (velocity) m s-1 -> cm s-1
+
+    Parameters
+    ----------
+        ctable: TabulatedFunction, pd.DataFrame
+            tabular data to convert (conversion happens in place)
+        conversion: str ('mks2cgs' or 'cgs2mks', default 'mks2cgs')
+            unit conversion to perform
+
+    Returns
+    -------
+        int: err
+            conversion happens in place, returns 0 if success
+    """
     # MKS to CGS conversion factors
     conversions = {
-        "RHO": 1.0e-3,  #  kg m-3 -> g cm-3
+        "RHO": 1.0e-3,  # kg m-3 -> g cm-3
         "DIFF": 10.0,  # (rhoD) kg s-1 m-1 -> g s-1 cm-1
         "VISC": 10.0,  # (dynamic) kg s-1 m-1 -> g s-1 cm-1
         "WBAR": 0.001,  # (molecular mass) kg/mol -> g/mol
         "SRC_": 1.0e-3,  # source terms kg m-3 s-1 -> g cm-3 s-1
         "T": 1.0,  # K -> K
         "X": 1.0e2,  # m -> cm
-        "VEL": 1.0e2,
-    }  # m s-1 -> cm s-1
+        "VEL": 1.0e2,  # m s-1 -> cm s-1
+    }
 
     if conversion not in ["mks2cgs", "cgs2mks"]:
         raise RuntimeError(
@@ -35,7 +62,7 @@ def convert_chemtable_units(ctable, conversion="mks2cgs"):
 
         elif not var.startswith("Y-"):
             # Warn if not a mass fraction and no conversion is found
-            print("WARNING: no conversion for tabulated variable {}".format(var))
+            print(f"WARNING: no conversion for tabulated variable {var}")
 
     return 0
 
@@ -108,10 +135,7 @@ def write_chemtable_binary(filename, ctable, tablename, tformat="Pele"):
                 struct.pack(
                     str(Ndim * 64) + "s",
                     "".join(
-                        [
-                            "{:<64s}".format(name)
-                            for name in reversed(ctable.index.names)
-                        ]
+                        [f"{name:<64s}" for name in reversed(ctable.index.names)]
                     ).encode(),
                 )
             )
@@ -138,7 +162,7 @@ def write_chemtable_binary(filename, ctable, tablename, tformat="Pele"):
         fi.write(
             struct.pack(
                 str(len(ctable.columns) * 64) + "s",
-                "".join(["{:<64s}".format(name) for name in ctable.columns]).encode(),
+                "".join([f"{name:<64s}" for name in ctable.columns]).encode(),
             )
         )
 
@@ -152,7 +176,8 @@ def write_chemtable_binary(filename, ctable, tablename, tformat="Pele"):
 
 def slice_table(ctable, slice_vars=None, slice_vals=None, slice_pairs=None):
     # create a slice of a chemtable
-    # must specify lists of slice_vars and slice_vals or slice_pairs of format ["var0:val0", "var1:val1", "var2:val2"]
+    # must specify lists of slice_vars and slice_vals or slice_pairs of format
+    # ["var0:val0", "var1:val1", "var2:val2"]
     # slices in dimensions specified by slice_vars at locations specified by slice_vals
     if slice_pairs is not None:
         assert slice_vars is None and slice_vals is None
@@ -238,26 +263,22 @@ class TabulatedFunction(pd.DataFrame):
             raise ValueError("TabulatedFunction data must be floats")
 
     def __str__(self):
+        """Write table summary to a string."""
         out = "\n"
         out += "--- TABULATED FUNCTION ---" + "\n"
         out += "\n"
-        out += "Model Name: {} \n".format(self.model_name)
+        out += f"Model Name: {self.model_name} \n"
         out += "\n"
-        out += "Dimensions ({}):".format(self.getNdim()) + "\n"
+        out += f"Dimensions ({self.getNdim()}):\n"
         for ii, dim in enumerate(self.getDimNames()):
-            out += (
-                "    Dim: {:<2d} Name: {:<10s} Length: {}".format(
-                    ii, dim, len(self.index.levels[ii])
-                )
-                + "\n"
-            )
+            out += f"    Dim: {ii:<2d} Name: {dim:<10s} Length: {len(self.index.levels[ii])}\n"
             out += "         Values:" + "\n"
             out += (
                 " "
                 + " ".join(
                     [
                         ("         " if ii % 4 == 0 else "")
-                        + "{:16.8e}".format(val)
+                        + f"{val:16.8e}"
                         + ("\n" if ii % 4 == 3 else "")
                         for ii, val in enumerate(self.index.levels[ii])
                     ]
@@ -265,13 +286,11 @@ class TabulatedFunction(pd.DataFrame):
                 + "\n"
             )
         out += "\n"
-        out += "Variables ({}):".format(len(self.columns)) + "\n"
+        out += f"Variables ({len(self.columns)}):\n"
         for ii, var in enumerate(self.columns):
             out += (
-                "    Var: {:<2d} Name: {:<10s} Min: {:16.8e} Max: {:16.8e}".format(
-                    ii, var, np.min(self[var]), np.max(self[var])
-                )
-                + "\n"
+                f"    Var: {ii:<2d} Name: {var:<10s} Min: {np.min(self[var]):16.8e}"
+                f" Max: {np.max(self[var]):16.8e}\n"
             )
         out += "\n"
         if self.verbose > 0:
@@ -302,16 +321,15 @@ class TabulatedFunction(pd.DataFrame):
             for name in self.getDimNames():
                 if name not in kwargs.keys():
                     raise RuntimeError(
-                        "table dim <{}> not specified in interpolate functions".format(
-                            name
-                        )
+                        f"table dim <{name}> not specified in interpolate functions"
                     )
                 lookup.append(kwargs[name])
             lookup = np.array(lookup)
 
         if lookup.shape[0] != self.getNdim():
             raise RuntimeError(
-                "TabulatedFunction.interpolate(): number of vals passed must equal number of table dimensions"
+                "TabulatedFunction.interpolate(): number of vals passed must equal "
+                "number of table dimensions"
             )
 
         out = interpn(
@@ -379,18 +397,20 @@ def main():
         "--slice",
         type=str,
         nargs="+",
-        help="""Create a table by slicing. Specify dimensions to slice and values as a list of form
-                        dim_name1:value dim_name2:value""",
+        help="Create a table by slicing. Specify dimensions to slice"
+        "and values as a list of form"
+        "dim_name1:value dim_name2:value",
     )
     parser.add_argument(
         "-sp",
         "--slice_plot",
         type=str,
         nargs="+",
-        help="""Plot a slice of the table. Specify dimensions to slice and values as a list of form
-                        dim_name1:value dim_name2:value, must specify enough slice dims such that there are exactly
-                        one or two slice dimensions. Alternatively, set as "justplot" to directly slice a 1D or 2D
-                        table without slicing.""",
+        help="Plot a slice of the table. Specify dimensions to slice"
+        " and values as a list of form dim_name1:value dim_name2:value,"
+        " must specify enough slice dims such that there are exactly"
+        " one or two slice dimensions. Alternatively, set as 'justplot'"
+        " to directly slice a 1D or 2D table without slicing.",
     )
     parser.add_argument(
         "-v", "--variables", type=str, nargs="+", help="variables to be plotted"
@@ -409,7 +429,7 @@ def main():
         args.convert_format or (args.convert_units != "none") or args.slice is not None
     )
     if convert:
-        if args.outputfile == None:
+        if args.outputfile is None:
             raise RuntimeError(
                 "Output file must be specified for table format/units/slicing conversion"
             )
