@@ -418,7 +418,7 @@ def main():
         " and values as a list of form dim_name1:value dim_name2:value,"
         " must specify enough slice dims such that there are exactly"
         " one or two slice dimensions. Alternatively, set as 'justplot'"
-        " to directly slice a 1D or 2D table without slicing.",
+        " to directly plot a 1D or 2D table without slicing.",
     )
     parser.add_argument(
         "-v", "--variables", type=str, nargs="+", help="variables to be plotted"
