@@ -405,8 +405,8 @@ def main():
         "--slice",
         type=str,
         nargs="+",
-        help="Create a table by slicing. Specify dimensions to slice"
-        "and values as a list of form"
+        help="Create a table by slicing. Specify dimensions to slice "
+        "and values as a list of form "
         "dim_name1:value dim_name2:value",
     )
     parser.add_argument(
