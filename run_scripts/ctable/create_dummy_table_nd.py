@@ -11,7 +11,8 @@ Invoke on the command line::
 Input File
 ----------
 
-    The input file is a TOML format file with single section ``[table]`` that specifies the following:
+    The input file is a TOML format file with single section ``[table]`` that
+    specifies the following:
 
     - ``ndim`` (int): number of dimensions in table
     - ``ngrid`` (int): number of grid points in each dimension
