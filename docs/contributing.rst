@@ -34,7 +34,6 @@ This will perform proper formatting of all Python files to be consistent with al
 
 This will run diagnostics on all the Python files and will list a series of issues that need to be addressed to adhere to current Python best practices.
 
-
 Once all ``flake8`` messages have been addressed, the code will match the CMLM standard.
 
 .. note::
