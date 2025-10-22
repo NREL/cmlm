@@ -8,6 +8,209 @@ import pandas as pd
 from scipy.interpolate import interpn
 
 
+def check_tabfunc_integrity(ctable, allow_monoindex=False):
+    """
+    Verify DataFrame can be a valid TabulatedFunction for interpolation.
+
+    Parameters
+    ----------
+    ctable: DataFrame
+        Table to check integrity of
+    allow_monoindex: Bool
+        If true, don't require DataFrame to MultiIndex
+
+    Returns
+    -------
+    is_valid: bool
+        True indicates table is ready for interpolation
+    """
+    # Must have a multi-index and float64 data - if not we can't go on
+    if not allow_monoindex and type(ctable.index) != pd.core.indexes.multi.MultiIndex:
+        raise RuntimeError(
+            "TabulatedFunction index must be a pandas MultiIndex DataFrame"
+        )
+    try:
+        ctable.astype(np.float64)
+    except ValueError:
+        raise ValueError("TabulatedFunction data must be floats")
+
+    # All axes must be regular grids - if not we don't need to die, but can't interpolate
+    test_index = pd.MultiIndex.from_product(ctable.index.levels)
+    if len(test_index) != len(ctable.index):
+        return False
+    elif all(test_index == ctable.index):
+        return True
+    else:
+        return False
+
+
+def is_strictly_increasing(array):
+    """Retrun true if array is strictly monotonicly increasing."""
+    return all(xnp1 > xn for xn, xnp1 in zip(array[:-1], array[1:]))
+
+
+def interpolate_axis(
+    ctable,
+    axis_name,
+    new_grid,
+    grid_var_name=None,
+    remove_nonmonotonic=False,
+    verbose=0,
+):
+    """
+    Interpolates one axis of a DataFtame/TabulatedFunction onto a new grid.
+
+    We require that all axes to the right of the specified axis already be
+    on regular cartesian grids (they will be inteprolated simultaneously). The
+    interpolation axis itself and all axes to the left may be on irregular
+    grids. After interpolation, the interpolation axis will ne regular, but the
+    axes to the left won't be changed.
+
+
+    Parameters
+    ----------
+    ctable: pandas DataFrame, TabulatedFunction
+        Table that we will interpolate onto new_grid
+    axis_name: str
+        Name of table axis that will be interpolated
+    new_grid: 1d array of floats (or similar object) sorted in increasing order
+        Modified grid values on which to interpolate (must be strictly ascending)
+    verbose: int
+        Verbosity level of logging to terminal (0: none, 1: one statement,
+        2: statement for each group)
+    grid_var_name: str, default None
+        If set, use the specified column of the table to interpolate/redefine the
+        specified axis
+    remove_nonmonotonic: Bool, (default False)
+        If True, ignore nonmonotonic entries in the current grid; otherwise an error
+        will be raised for non-monotonic values in the current grid
+
+    Returns
+    -------
+    newtable: pandas DataFrame
+        Table with specified axis_name interpolated onto the new_grid
+    """
+    if verbose > 0:
+        addstr = ""
+        if grid_var_name is not None:
+            addstr = f" -> {grid_var_name}"
+        print(f"   Interpolating axis: {axis_name}{addstr}")
+
+    axis_ind = ctable.index.names.index(axis_name)
+
+    # Error test new grid - must be monotonic ascending
+    if not is_strictly_increasing(new_grid):
+        raise RuntimeError("Requested grid must be monotonicly increasing and is not.")
+
+    # will will do the interpolation seprately for each point in the axes left of the
+    # interpolation axis (but grouped together for axes to the right)
+    groups = (
+        (((), ctable),)
+        if (axis_ind == 0)
+        else ctable.groupby(ctable.index.names[:axis_ind])
+    )
+
+    # Generate new axis indices and an empty dataframe for the output
+    new_index_right = pd.MultiIndex.from_product(
+        [new_grid] + [lev for lev in ctable.index.levels[axis_ind + 1 :]],
+    )
+    if axis_ind > 1:
+        new_index = pd.MultiIndex.from_tuples(
+            [key1 + key2 for key1 in groups.indices.keys() for key2 in new_index_right],
+            names=ctable.index.names,
+        )
+    elif axis_ind == 1:
+        new_index = pd.MultiIndex.from_tuples(
+            [
+                (key1,) + key2
+                for key1 in groups.indices.keys()
+                for key2 in new_index_right
+            ],
+            names=ctable.index.names,
+        )
+    else:
+        new_index = new_index_right
+        new_index.names = ctable.index.names
+    if grid_var_name is not None:
+        new_index.rename({axis_name: grid_var_name}, inplace=True)
+    new_table = pd.DataFrame(
+        data=0.0, index=new_index, columns=ctable.columns, dtype=np.float64
+    )
+
+    # Interpolate group by group
+    for idx, subdata in groups:
+        if verbose > 0:
+            print(f"    |-> for: {new_table.index.names[:axis_ind]} = {idx}")
+        new_subdata = new_table.loc[idx]
+
+        # account for variability in axis_ind axis
+        old_shape = list(subdata.index.levshape[axis_ind:] + (ctable.shape[1],))
+
+        # Ensure that the new data will be on a regular grid
+        check_tabfunc_integrity(new_subdata, allow_monoindex=True)
+
+        # Current grid - Remove non-monotonic if requested. Otherwise interpn will error.
+        if grid_var_name is None:
+            current_grid = subdata.index.remove_unused_levels().levels[axis_ind]
+        else:
+            # new variable must have same value for each value of existing variable
+            # across all indices to the right of the interpolation index
+            current_grid = []
+            for _, grp2 in subdata[grid_var_name].groupby(axis_name):
+                val = grp2.iloc[0]
+                current_grid.append(val)
+                if not all(grp2 == val):
+                    raise RuntimeError(
+                        "If using grid_var_name, that variable must have same value"
+                        "for all right indices"
+                    )
+
+        if not is_strictly_increasing(current_grid):
+            if remove_nonmonotonic:
+                mod_current_grid = []
+                mod_grid_idx = []
+                maxval = -np.inf
+                ndrop = 0
+                for gridval, idxval in zip(
+                    current_grid, subdata.index.remove_unused_levels().levels[axis_ind]
+                ):
+                    if gridval > maxval:
+                        maxval = gridval
+                        mod_current_grid.append(gridval)
+                        mod_grid_idx.append(idxval)
+                    else:
+                        ndrop += 1
+                if verbose > 2:
+                    print(
+                        f"dropping {ndrop}/{len(current_grid)} points for nonmonotonicity"
+                    )
+                current_grid = mod_current_grid
+                interpdata = subdata.droplevel(subdata.index.names[:axis_ind]).loc[
+                    mod_current_grid
+                ]
+                old_shape[0] -= ndrop
+            else:
+                raise RuntimeError("Cannot interpolate because data are nonmonotone.")
+        else:
+            interpdata = subdata
+
+        # clamp new grid to valid domain so we don't extrapolate OOB
+        interp_grid = np.clip(new_grid, current_grid[0], current_grid[-1])
+
+        # Do interpolation
+        new_subdata[:] = interpn(
+            (current_grid,),  # existing grid for interpolation axis
+            interpdata.to_numpy().reshape(
+                old_shape
+            ),  # existing data, reshaped to match the axis shape
+            interp_grid,  # new grid for interpolation axis
+            bounds_error=False,  # allow out of bounds data
+            fill_value=None,  # Use FOextrap to fill out of bounds data
+        ).reshape(new_subdata.shape)
+
+    return new_table
+
+
 def convert_chemtable_units(ctable, conversion="mks2cgs"):
     """
     Find selected variables in a table and convert units between CGS and MKS.
@@ -262,13 +465,8 @@ class TabulatedFunction(pd.DataFrame):
             print("Successfully created table")
             print(self)
 
-        # validate that we got something reasonable out - must have a MultiIndex DF of floats
-        if type(self.index) != pd.core.indexes.multi.MultiIndex:
-            raise RuntimeError("TabulatedFunction index must be a pandas multindex")
-        try:
-            self.astype(np.float64)
-        except ValueError:
-            raise ValueError("TabulatedFunction data must be floats")
+        self.saved_is_valid = None
+        self.is_valid()
 
     def __str__(self):
         """Write table summary to a string."""
@@ -305,6 +503,13 @@ class TabulatedFunction(pd.DataFrame):
             out += super().__str__()
         return out
 
+    def is_valid(self):
+        if self.saved_is_valid is None:
+            self.saved_is_valid = check_tabfunc_integrity(self)
+            return self.saved_is_valid
+        else:
+            return self.saved_is_valid
+
     def getNdim(self):
         return len(self.index.names)
 
@@ -318,6 +523,9 @@ class TabulatedFunction(pd.DataFrame):
         return self[var].to_numpy().reshape(self.getDimSizes())
 
     def interpolate(self, var, vals=None, method="linear", **kwargs):
+
+        if not self.is_valid():
+            raise RuntimeError("Trying to interpolate with an invalid table")
 
         # vals is an array of variables in order
         # each variable may be a scalar or an array of values
