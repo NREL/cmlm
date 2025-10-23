@@ -58,7 +58,7 @@ def interpolate_axis(
     verbose=0,
 ):
     """
-    Interpolates one axis of a DataFtame/TabulatedFunction onto a new grid.
+    Interpolates one axis of a DataFrame/TabulatedFunction onto a new grid.
 
     We require that all axes to the right of the specified axis already be
     on regular cartesian grids (they will be inteprolated simultaneously). The
