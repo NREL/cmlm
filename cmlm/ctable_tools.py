@@ -279,7 +279,11 @@ def convert_chemtable_units(ctable, conversion="mks2cgs"):
 
 
 def print_chemtable(df, model_name=None):
-    print(TabulatedFunction(df, model_name=model_name))
+    try:
+        mod_name = df.model_name
+    except AttributeError:
+        mod_name = model_name
+    print(TabulatedFunction(df, model_name=mod_name))
 
 
 def read_chemtable_binary(
@@ -629,7 +633,12 @@ def main():
         " to directly plot a 1D or 2D table without slicing.",
     )
     parser.add_argument(
-        "-v", "--variables", type=str, nargs="+", help="variables to be plotted"
+        "-v",
+        "--variables",
+        type=str,
+        nargs="+",
+        help="variables to be plotted"
+        "if unspecified, all variables in table will be plotted",
     )
     args = parser.parse_args()
 
