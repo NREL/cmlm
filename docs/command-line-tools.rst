@@ -51,5 +51,5 @@ of options
                            two slice dimensions. Alternatively, set as 'justplot' to
                            directly plot a 1D or 2D table without slicing.
      -v VARIABLES [VARIABLES ...], --variables VARIABLES [VARIABLES ...]
-                           variables to be plottedif unspecified, all variables in table
+                           variables to be plotted if unspecified, all variables in table
                            will be plotted
