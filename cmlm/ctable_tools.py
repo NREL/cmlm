@@ -102,7 +102,7 @@ def interpolate_axis(
     if not is_strictly_increasing(new_grid):
         raise RuntimeError("Requested grid must be monotonicly increasing and is not.")
 
-    # will will do the interpolation seprately for each point in the axes left of the
+    # will do the interpolation separately for each point in the axes left of the
     # interpolation axis (but grouped together for axes to the right)
     groups = (
         (((), ctable),)
