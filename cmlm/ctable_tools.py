@@ -637,7 +637,7 @@ def main():
         "--variables",
         type=str,
         nargs="+",
-        help="variables to be plotted"
+        help="variables to be plotted "
         "if unspecified, all variables in table will be plotted",
     )
     args = parser.parse_args()
