@@ -45,7 +45,7 @@ def check_tabfunc_integrity(ctable, allow_monoindex=False):
 
 
 def is_strictly_increasing(array):
-    """Retrun true if array is strictly monotonicly increasing."""
+    """Return true if array is strictly monotonically increasing."""
     return all(xnp1 > xn for xn, xnp1 in zip(array[:-1], array[1:]))
 
 
