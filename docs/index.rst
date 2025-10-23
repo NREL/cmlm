@@ -15,6 +15,11 @@ Source code available on `GitHub <https://github.com/NREL/cmlm>`_.
 first step toward making it a usable piece of software with some semblance of
 organization, testing, dependency management, etc.
 
+.. warning::
+
+   For now, CMLM is under active development. Changes to interfaces, file formats,
+   outputs, behavior, etc. should all be expected and may be made without warning.
+
 .. toctree::
    :maxdepth: 3
    :includehidden:
