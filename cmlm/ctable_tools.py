@@ -61,7 +61,7 @@ def interpolate_axis(
     Interpolates one axis of a DataFrame/TabulatedFunction onto a new grid.
 
     We require that all axes to the right of the specified axis already be
-    on regular cartesian grids (they will be inteprolated simultaneously). The
+    on regular cartesian grids (they will be interpolated simultaneously). The
     interpolation axis itself and all axes to the left may be on irregular
     grids. After interpolation, the interpolation axis will ne regular, but the
     axes to the left won't be changed.
