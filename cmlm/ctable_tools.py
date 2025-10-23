@@ -100,7 +100,9 @@ def interpolate_axis(
 
     # Error test new grid - must be monotonic ascending
     if not is_strictly_increasing(new_grid):
-        raise RuntimeError("Requested grid must be monotonicly increasing and is not.")
+        raise RuntimeError(
+            "Requested grid must be monotonically increasing and is not."
+        )
 
     # will do the interpolation separately for each point in the axes left of the
     # interpolation axis (but grouped together for axes to the right)
@@ -204,8 +206,7 @@ def interpolate_axis(
                 old_shape
             ),  # existing data, reshaped to match the axis shape
             interp_grid,  # new grid for interpolation axis
-            bounds_error=False,  # allow out of bounds data
-            fill_value=None,  # Use FOextrap to fill out of bounds data
+            bounds_error=True,  # Don't allow OOB (we've clipped grid so no OOB should exist)
         ).reshape(new_subdata.shape)
 
     return new_table
