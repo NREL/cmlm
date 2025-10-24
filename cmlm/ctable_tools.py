@@ -224,7 +224,9 @@ def convert_chemtable_units(ctable, conversion="mks2cgs"):
 
     - `VISC` (dynamic): kg s-1 m-1 -> g s-1 cm-1
 
-    - `WBAR` (molecular mass): kg mol-1 -> g mol-1
+    - `WBAR` (molecular mass): kg kmol-1 -> g mol-1
+
+    - `CP` (heat capacity): J kg-1 K-1 -> erg g-1 K-1
 
     - `SRC_*` (species source terms): kg m-3 s-1 -> g cm-3 s-1
 
@@ -251,11 +253,12 @@ def convert_chemtable_units(ctable, conversion="mks2cgs"):
         "RHO": 1.0e-3,  # kg m-3 -> g cm-3
         "DIFF": 10.0,  # (rhoD) kg s-1 m-1 -> g s-1 cm-1
         "VISC": 10.0,  # (dynamic) kg s-1 m-1 -> g s-1 cm-1
-        "WBAR": 0.001,  # (molecular mass) kg/mol -> g/mol
+        "WBAR": 1.0,  # (molecular mass) kg/kmol -> g/mol
         "SRC_": 1.0e-3,  # source terms kg m-3 s-1 -> g cm-3 s-1
         "T": 1.0,  # K -> K
         "X": 1.0e2,  # m -> cm
         "VEL": 1.0e2,  # m s-1 -> cm s-1
+        "CP": 1.0e4,  # J kg-1
     }
 
     if conversion not in ["mks2cgs", "cgs2mks"]:
