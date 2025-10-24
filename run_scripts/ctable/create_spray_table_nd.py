@@ -118,11 +118,8 @@ if __name__ == "__main__":
 
         # Now account for enthalpy of vaporization for real
         enth = mixture.mass * mixture.enthalpy_mass
-        print(mixture.mass, mixture.enthalpy_mass)
-        for stream in streams[1:]:
-            enth -= stream.mass * delta_h_vap[ii - 1]
-            print(stream.mass, delta_h_vap[ii - 1])
-        print(mixture.enthalpy_mass)
+        for stream, delta_h_i in zip(streams[1:], delta_h_vap):
+            enth -= stream.mass * delta_h_i
         try:
             mixture.HP = enth / mixture.mass, mixture.P
             if mixture.T < T_min:

@@ -3,7 +3,6 @@ mechanism = "/path/to/PelePhysics/Mechanisms/liquid_fuels_nonreacting/mechanism.
 pressure = 101325 # Pa
 X_ox = "O2:0.21, N2:0.79"
 T_ox = 400 # K
-#X_fuel = ["NC7H16:1.0", "NC10H22:1.0", "NC12H26:1.0"] # should all be pure components
 X_fuel = ["NC7H16:1.0"] # should all be pure components
 liq_temp_fuel = [300.0, 300.0, 300.0, 300.0] # 1 per fuel, K
 delta_h_vap = [300000, 330000, 340000, 300000] # 1 per fuel, J/kg
