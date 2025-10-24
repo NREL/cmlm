@@ -59,7 +59,7 @@ if __name__ == "__main__":
         fu.TPX = liq_temp_fuel[ii], pressure, X_fuel[ii]
 
         # note fuel stream does not yet account for enthalpy of vaporization
-        # here we do a test just to see what the temperatu8re will be
+        # here we do a test just to see what the temperature will be
         fu_vap = ct.Solution(mechanism)
         T_min = tpp.get("phys", "T_min")
         try:
