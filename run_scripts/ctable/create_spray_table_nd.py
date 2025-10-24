@@ -69,7 +69,7 @@ if __name__ == "__main__":
                 + f" {liq_temp_fuel[ii]} and gaseous T is {fu_vap.T}"
             )
             if fu_vap.T < T_min:
-                add_str = f"WARNING: T will be limited to T_min = {T_min}"
+                print(f"WARNING: T will be limited to T_min = {T_min}")
         except ct.CanteraError:
             print(
                 f"WARNING: Negative T due to fuel vaporization"
