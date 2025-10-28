@@ -41,7 +41,6 @@ if __name__ == "__main__":
 
     # Load inputs
     tpp = TomlParmParse("create_spray_table_nd.toml", allow_cl_override=True)
-    print(tpp.data)
 
     # Create mixing streams
     mechanism = tpp.get("phys", "mechanism")
@@ -59,17 +58,29 @@ if __name__ == "__main__":
     for ii in range(Nfuel):
         fu = ct.Solution(mechanism)
         fu.TPX = liq_temp_fuel[ii], pressure, X_fuel[ii]
-        # account for enthalpy of vaporization
-        fu.HPX = fu.enthalpy_mass - delta_h_vap[ii], fu.P, fu.Y
+
+        # note fuel stream does not yet account for enthalpy of vaporization
+        # here we do a test just to see what the temperature will be
+        fu_vap = ct.Solution(mechanism)
+        T_min = tpp.get("phys", "T_min")
+        try:
+            fu_vap.HPY = fu.enthalpy_mass - delta_h_vap[ii], fu.P, fu.Y
+            print(
+                f"Fuel stream {ii} ({X_fuel[ii]}): liquid T is"
+                + f" {liq_temp_fuel[ii]} and gaseous T is {fu_vap.T}"
+            )
+            if fu_vap.T < T_min:
+                print(f"WARNING: T will be limited to T_min = {T_min}")
+        except ct.CanteraError:
+            print(
+                f"WARNING: Negative T due to fuel vaporization"
+                f" for fuel stream {ii}, will limit to T_min = {T_min}"
+            )
         fuelstreams.append(ct.Quantity(fu, constant="HP"))
-        print(
-            f"Fuel stream {ii} ({X_fuel[ii]}): liquid T is"
-            + f"{liq_temp_fuel[ii]} and gaseous T is {fu.T}"
-        )
+
     streams = [oxstream] + fuelstreams
 
     # Create table
-
     grids = []
     for grid in tpp.get("table", "grid")[:Nfuel]:
         grids.append(np.linspace(0.0, 1.0, grid))
@@ -87,6 +98,7 @@ if __name__ == "__main__":
     ]
     df = pd.DataFrame(index=dfindex, columns=dfcols, dtype=np.float64)
 
+    n_limited = 0
     for comp in dfindex:
         remainder = 1.0
         comps = np.array(comp)
@@ -104,6 +116,20 @@ if __name__ == "__main__":
             streams[0].mass = remainder
         nonzeromass = [stream.mass > 0.0 for stream in streams]
         mixture = np.sum(np.array(streams)[nonzeromass])
+
+        # Now account for enthalpy of vaporization for real
+        enth = mixture.mass * mixture.enthalpy_mass
+        for stream, delta_h_i in zip(streams[1:], delta_h_vap):
+            enth -= stream.mass * delta_h_i
+        try:
+            mixture.HP = enth / mixture.mass, mixture.P
+            if mixture.T < T_min:
+                mixture.TP = T_min, mixture.P
+                n_limited += 1
+        except ct.CanteraError:
+            mixture.TP = T_min, mixture.P
+            n_limited += 1
+
         df.loc[comp] = [
             mixture.T,
             mixture.density,
@@ -112,6 +138,9 @@ if __name__ == "__main__":
             mixture.viscosity,
             mixture.cp,
         ] + [mixture.Y[mixture.species_index(spec.split(":")[0])] for spec in X_fuel]
+
+    if n_limited > 0:
+        print(f"WARNING: {n_limited}/{df.shape[0]} points in table had T limited")
 
     # Meta data generation
     species_list = [spec.split(":")[0] for spec in X_fuel]
