@@ -100,6 +100,7 @@ if __name__ == "__main__":
     df = pd.DataFrame(index=dfindex, columns=dfcols, dtype=np.float64)
 
     n_limited = 0
+    gas = ct.Solution(mechanism)
     for comp in dfindex:
         remainder = 1.0
         comps = np.array(comp)
@@ -131,7 +132,6 @@ if __name__ == "__main__":
             mixture.TP = T_min, mixture.P
             n_limited += 1
 
-        gas = ct.Solution(mechanism)
         eps = 1e-10
         gas.TPY = (
             mixture.T,
