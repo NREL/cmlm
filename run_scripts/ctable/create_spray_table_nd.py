@@ -49,6 +49,7 @@ if __name__ == "__main__":
     pressure = tpp.get("phys", "pressure")
     liq_temp_fuel = tpp.get("phys", "liq_temp_fuel")
     X_fuel = tpp.get("phys", "X_fuel")
+    species_list = [spec.split(":")[0] for spec in X_fuel]
     delta_h_vap = tpp.get("phys", "delta_h_vap")
     ox = ct.Solution(mechanism)
     ox.TPX = T_ox, pressure, X_ox
@@ -93,12 +94,13 @@ if __name__ == "__main__":
         dimnames = ["ZMIX" + str(ii) for ii in range(Nfuel)]
 
     dfindex = pd.MultiIndex.from_product(grids, names=dimnames)
-    dfcols = ["T", "RHO", "DIFF", "WBAR", "VISC", "CP"] + [
+    dfcols = ["T", "RHO", "DIFF", "WBAR", "VISC", "CP", "CP_fuel"] + [
         "Y-" + spec.split(":")[0] for spec in X_fuel
     ]
     df = pd.DataFrame(index=dfindex, columns=dfcols, dtype=np.float64)
 
     n_limited = 0
+    gas = ct.Solution(mechanism)
     for comp in dfindex:
         remainder = 1.0
         comps = np.array(comp)
@@ -130,6 +132,19 @@ if __name__ == "__main__":
             mixture.TP = T_min, mixture.P
             n_limited += 1
 
+        eps = 1e-10
+        gas.TPY = (
+            mixture.T,
+            mixture.P,
+            ", ".join(
+                [
+                    f"{spec}:{max(mixture.Y[mixture.species_index(spec)],eps)}"
+                    for spec in species_list
+                ]
+            ),
+        )
+        cp_fuel = gas.cp
+
         df.loc[comp] = [
             mixture.T,
             mixture.density,
@@ -137,13 +152,13 @@ if __name__ == "__main__":
             mixture.mean_molecular_weight,
             mixture.viscosity,
             mixture.cp,
-        ] + [mixture.Y[mixture.species_index(spec.split(":")[0])] for spec in X_fuel]
+            cp_fuel,
+        ] + [mixture.Y[mixture.species_index(spec)] for spec in species_list]
 
     if n_limited > 0:
         print(f"WARNING: {n_limited}/{df.shape[0]} points in table had T limited")
 
     # Meta data generation
-    species_list = [spec.split(":")[0] for spec in X_fuel]
     species_idx_list = [mixture.species_index(sp) for sp in species_list]
 
     mdatfi = tpp.get("table", "metadata_file")

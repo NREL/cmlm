@@ -226,7 +226,7 @@ def convert_chemtable_units(ctable, conversion="mks2cgs"):
 
     - `WBAR` (molecular mass): kg kmol-1 -> g mol-1
 
-    - `CP` (heat capacity): J kg-1 K-1 -> erg g-1 K-1
+    - `CP*` (heat capacity): J kg-1 K-1 -> erg g-1 K-1
 
     - `SRC_*` (species source terms): kg m-3 s-1 -> g cm-3 s-1
 
@@ -271,9 +271,12 @@ def convert_chemtable_units(ctable, conversion="mks2cgs"):
             conversions[var] = 1 / conversions[var]
 
     for var in ctable.columns:
-        varmod = var if not var.startswith("SRC_") else "SRC_"
-        if varmod in conversions.keys():
-            ctable[var] *= conversions[varmod]
+        if var in conversions:
+            ctable[var] *= conversions[var]
+        elif var.startswith("SRC_"):
+            ctable[var] *= conversions["SRC_"]
+        elif var.startswith("CP"):
+            ctable[var] *= conversions["CP"]
 
         elif not var.startswith("Y-"):
             # Warn if not a mass fraction and no conversion is found
