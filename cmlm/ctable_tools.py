@@ -271,10 +271,12 @@ def convert_chemtable_units(ctable, conversion="mks2cgs"):
             conversions[var] = 1 / conversions[var]
 
     for var in ctable.columns:
-        varmod = var if not var.startswith("SRC_") else "SRC_"
-        varmod = varmod if not varmod.startswith("CP") else "CP"
-        if varmod in conversions.keys():
-            ctable[var] *= conversions[varmod]
+        if var in conversions:
+            ctable[var] *= conversions[var]
+        elif var.startswith("SRC_"):
+            ctable[var] *= conversions["SRC_"]
+        elif var.startswith("CP"):
+            ctable[var] *= conversions["CP"]
 
         elif not var.startswith("Y-"):
             # Warn if not a mass fraction and no conversion is found
