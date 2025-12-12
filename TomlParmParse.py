@@ -10,6 +10,13 @@ class TomlParmParse:
     """
     Wrapper for tomlkit document class.
 
+    Enables a few new features:
+    - Easier access to nested parameters
+    - Autodocumentation of inputs
+    - Combining inputs from the command line and an input file
+    - Saving the config that was actually used
+    - Optionally raise errors for unused inputs
+
     Inspired by the ParmParse class from AMReX, but quite different.
 
     Parameters
@@ -18,9 +25,22 @@ class TomlParmParse:
             input TOMLDocument that has been read in
         accessed_data: tomlkit.TOMLDocument, optional
             shows which entries from data_dict have already been accessed
+            Default None.
         is_base: bool, optional
             If True, optional checks and file dumping occur during garbage collecting.
             Default False.
+        output: string, optional
+            Directory in which to save output. Default None (no output saved).
+        output_type: str, optional
+            Type of output to save: "clean" will save only inputs used with no comments.
+            "doc" will save only inputs used with comments generated based on doc info
+            provided when accessing variables. "original" keeps all variables, comments,
+            and formatting from the provided input file. Default "clean".
+        no_overwrite: bool, optional
+            Raise an error if multiple different values are set/accessed for a variable.
+            Default True.
+        error_unused: bool, optional
+            Raise an error for unused variables in input file. Default False.
     """
 
     def __init__(
@@ -61,6 +81,9 @@ class TomlParmParse:
            file_name: str (path-like), optional
               File to load as a tomlkit Document
            additional_args: str (toml), optional
+              TOML format string of parameters to add to the file
+           kwargs: optional
+              Passed to TomlParmParse constructor
 
         Returns
         -------
@@ -93,6 +116,19 @@ class TomlParmParse:
 
     @classmethod
     def parse_args(cls, description=None):
+        """
+        Parse command line arguments specifying file and arguments to create a TPP.
+
+        Parameters
+        ----------
+           description: str, optional
+              Short description of program for which config is being loaded
+
+        Returns
+        -------
+           tpp: TomlParmParse
+              A TOML ParmParser
+        """
         if description is None:
             description = "A tool using the TomlParmParse class to parse inputs"
         description += (
@@ -146,9 +182,13 @@ class TomlParmParse:
         )
 
     def __repr__(self):
+        """Provide string represention of data (as nested dict)."""
         return self.data.__repr__()
 
     def __getitem__(self, item_name):
+        """
+        Provide string represention of data (as nested dict).
+        """
         # Use periods to separate hierarchy levels in item_name.
         # if none, we're at the last requested level
         if item_name.count(".") == 0:
@@ -250,6 +290,7 @@ class TomlParmParse:
                 tomlfile.write(tomlkit.dumps(self.accessed_data))
 
     def check_unused_inputs(self):
+        """Return any items in table that have not been used."""
         unused = []
         for key in self.data:
             if key not in self.accessed_data:
@@ -262,6 +303,7 @@ class TomlParmParse:
         return unused
 
     def __del__(self):
+        """When destroying, optionally dump output to file, raise error for unused."""
         if self.is_base:
             if self.output is not None:
                 self.dump()
