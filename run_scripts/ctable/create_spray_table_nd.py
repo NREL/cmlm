@@ -52,6 +52,7 @@ if __name__ == "__main__":
     )
 
     # Create mixing streams
+
     ppp = pp["phys"].doc("Physical conditions/models/parameters")
     mechanism = ppp.get("mechanism", doc="path to mechanism file (yaml)")
     T_ox = ppp.get("T_ox", doc="ambient temp, K")
@@ -59,8 +60,9 @@ if __name__ == "__main__":
     pressure = ppp.get("pressure", doc="ambient pressure, Pa")
     liq_temp_fuel = ppp.get("liq_temp_fuel", doc="liquid temps for each fuel, K")
     X_fuel = ppp.get("X_fuel", doc="Cantera composition string")
-    species_list = [spec.split(":")[0] for spec in X_fuel]
-    delta_h_vap = ppp.get("delta_h_vap", "Latent heats for each fuel")
+    species_list = ["O2"] + [spec.split(":")[0] for spec in X_fuel]
+    delta_h_vap = ppp.get("delta_h_vap", "Latent heats for each fuel, J/kg")
+
     ox = ct.Solution(mechanism)
     ox.TPX = T_ox, pressure, X_ox
     oxstream = ct.Quantity(ox, constant="HP")
@@ -113,7 +115,7 @@ if __name__ == "__main__":
 
     dfindex = pd.MultiIndex.from_product(grids, names=dimnames)
     dfcols = ["T", "RHO", "DIFF", "WBAR", "VISC", "CP", "CP_fuel"] + [
-        "Y-" + spec.split(":")[0] for spec in X_fuel
+        f"Y-{spec}" for spec in species_list
     ]
     df = pd.DataFrame(index=dfindex, columns=dfcols, dtype=np.float64)
 
