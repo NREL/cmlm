@@ -1,15 +1,43 @@
+# ==================================================================================== #
+# Physical conditions/models/parameters
+# ==================================================================================== #
 [phys]
-mechanism = "/path/to/PelePhysics/Mechanisms/liquid_fuels_nonreacting/mechanism.yaml"
-pressure = 101325 # Pa
+
+# path to mechanism file (yaml)
+mechanism = '/path/to/PelePhysics/Mechanisms/liquid_fuels_nonreacting/mechanism.yaml'
+
+T_ox = 400 # ambient temp, K
+
+# Cantera composition string
 X_ox = "O2:0.21, N2:0.79"
-T_ox = 400 # K
-X_fuel = ["NC7H16:1.0"] # should all be pure components
-liq_temp_fuel = [300.0, 300.0, 300.0, 300.0] # 1 per fuel, K
-delta_h_vap = [300000, 330000, 340000, 300000] # 1 per fuel, J/kg
+
+# ambient pressure, Pa
+pressure = 101325
+
+# liquid temps for each fuel, K
+liq_temp_fuel = [300.0, 300.0, 300.0, 300.0]
+
+# Cantera composition string
+X_fuel = ["NC7H16:1.0"]
+
+delta_h_vap = [300000] # 1 per fuel, J/kg
 T_min = 100.0
 
+
+# ==================================================================================== #
+# Table setup inputs
+# ==================================================================================== #
 [table]
+
+# number of grid points for each table dimension (length Nfuels)
+grid = [20]
+
+# Tabulate in terms of fuel premixing fractions rather than mixture fractions  |
+# optional, default: False
 use_fmix = false
-grid = [20, 21, 22] # must have N_fuels dimensions
+
+# output file path/name for the table metadata
+metadata_file = "manifold_metadata_heptane.text"
+
+# output file path/name for the table
 filename = "spray_heptane.ctb"
-metadata_file = "manifold_metadata_3d.text"
