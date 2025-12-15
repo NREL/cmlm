@@ -42,7 +42,7 @@ def beautify_document(doc, max_inline_length=20, max_line_length=88):
     Parameters
     ----------
         doc: str (TOML format)
-            string representation of document being updates
+            string representation of document being updated
         max_inline_length: int, default 20
             Maximum length of comment to leave as inline, but total line
             length must still be less than max_line_length or comment will be moved
@@ -211,7 +211,7 @@ class TomlParmParse:
            description: str, optional
               Short description of program for which config is being loaded
            infile: str, optional
-              Default TOML inpit file to use
+              Default TOML input file to use
 
         Returns
         -------
@@ -426,13 +426,12 @@ class TomlParmParse:
 
     def dump(self, outfile=None):
         """
-        Add a high level comment to the TOML document.
+        Output TomlParmParse data to file.
 
         Parameters
         ----------
             outfile: str, optional
                 file name to save to
-            base:
         """
         if self.base is None:
             if outfile is not None:

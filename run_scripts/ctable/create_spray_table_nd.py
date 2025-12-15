@@ -36,8 +36,6 @@ sample input file for more details.
 
 if __name__ == "__main__":
 
-    print(__file__)
-
     import cantera as ct
     import numpy as np
     import pandas as pd
@@ -61,7 +59,7 @@ if __name__ == "__main__":
     liq_temp_fuel = ppp.get("liq_temp_fuel", doc="liquid temps for each fuel, K")
     X_fuel = ppp.get("X_fuel", doc="Cantera composition string")
     species_list = ["O2"] + [spec.split(":")[0] for spec in X_fuel]
-    delta_h_vap = ppp.get("delta_h_vap", "Latent heats for each fuel, J/kg")
+    delta_h_vap = ppp.get("delta_h_vap", doc="Latent heats for each fuel, J/kg")
 
     ox = ct.Solution(mechanism)
     ox.TPX = T_ox, pressure, X_ox
@@ -75,7 +73,7 @@ if __name__ == "__main__":
         # note fuel stream does not yet account for enthalpy of vaporization
         # here we do a test just to see what the temperature will be
         fu_vap = ct.Solution(mechanism)
-        T_min = ppp.get("T_min", "min temperature allowed in gas phase, K")
+        T_min = ppp.get("T_min", doc="min temperature allowed in gas phase, K")
         try:
             fu_vap.HPY = fu.enthalpy_mass - delta_h_vap[ii], fu.P, fu.Y
             print(
