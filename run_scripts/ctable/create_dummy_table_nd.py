@@ -28,10 +28,10 @@ if __name__ == "__main__":
     from cmlm.utils import TomlParmParse
 
     # Load inputs
-    tpp = TomlParmParse("create_dummy_table_nd.toml", allow_cl_override=True)
-    ndim = tpp.get("table", "ndim")
-    ngrid = tpp.get("table", "ngrid")
-    outfi_pref = tpp.get("table", "outfile_prefix")
+    tpp = TomlParmParse.parse_args("Create dummy chemtables with fake data.")
+    ndim = tpp["table"].get("ndim", doc="Number of table dimensions to create")
+    ngrid = tpp["table"].get("ngrid", doc="Grid points for each table dimension")
+    outfi_pref = tpp["table"].get("outfile_prefix", doc="Filename prefix for output")
 
     # Create empty tables
     dimnames = ["dim" + str(idim) for idim in range(ndim)]

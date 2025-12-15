@@ -221,12 +221,11 @@ class TomlParmParse:
         if description is None:
             description = "A tool using the TomlParmParse class to parse inputs"
         description += (
-            " --- This program uses the TomlParmParse utility to manage"
+            " --- This program uses the TomlParmParse utility to manage "
             "input/config files and command line arguments. Arguments can "
             "be auto-documented by enabling output of the 'doc' type."
         )
         if infile is None:
-            print(sys.argv[0])
             infile = sys.argv[0].replace(".py", ".toml")
         parser = argparse.ArgumentParser(description=description)
         parser.add_argument(

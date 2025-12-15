@@ -22,6 +22,10 @@ Invoke on the command line::
 
     python create_spray_table_nd.py <input_file.toml>
 
+To see additional runtime options you can run::
+
+    python create_spray_table_nd.py -h
+
 Input File
 ----------
 
