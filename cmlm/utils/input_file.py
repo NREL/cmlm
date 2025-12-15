@@ -334,7 +334,7 @@ class TomlParmParse:
                     )
             else:
                 self.accessed_data[item_name] = value
-                self.data[item_name] = self.accessed_data[item_name]
+                self.data[item_name] = self.accessed_data.item(item_name)
                 if self.live_update and self.output is not None:
                     self.dump()
         else:

@@ -94,9 +94,10 @@ if __name__ == "__main__":
     # Create table
     ppt = pp["table"].doc("Table setup inputs")
     grids = []
-    for grid in ppt.get(
+    grid_sizes = ppt.get(
         "grid", doc="number of grid points for each table dimension (length Nfuels)"
-    )[:Nfuel]:
+    )
+    for grid in grid_sizes[:Nfuel]:
         grids.append(np.linspace(0.0, 1.0, grid))
     use_fmix = ppt.get(
         "use_fmix",
