@@ -32,6 +32,8 @@ sample input file for more details.
 
 if __name__ == "__main__":
 
+    print(__file__)
+
     import cantera as ct
     import numpy as np
     import pandas as pd
@@ -40,17 +42,21 @@ if __name__ == "__main__":
     from cmlm.utils import TomlParmParse
 
     # Load inputs
-    tpp = TomlParmParse("create_spray_table_nd.toml", allow_cl_override=True)
+    pp = TomlParmParse.parse_args(
+        description="Create chemtable for nonreacting"
+        " multicomponent spray evaporation problems."
+    )
 
     # Create mixing streams
-    mechanism = tpp.get("phys", "mechanism")
-    T_ox = tpp.get("phys", "T_ox")
-    X_ox = tpp.get("phys", "X_ox")
-    pressure = tpp.get("phys", "pressure")
-    liq_temp_fuel = tpp.get("phys", "liq_temp_fuel")
-    X_fuel = tpp.get("phys", "X_fuel")
+    ppp = pp["phys"].doc("Physical conditions/models/parameters")
+    mechanism = ppp.get("mechanism", doc="path to mechanism file (yaml)")
+    T_ox = ppp.get("T_ox", doc="ambient temp, K")
+    X_ox = ppp.get("X_ox", doc="Cantera composition string")
+    pressure = ppp.get("pressure", doc="ambient pressure, Pa")
+    liq_temp_fuel = ppp.get("liq_temp_fuel", doc="liquid temps for each fuel, K")
+    X_fuel = ppp.get("X_fuel", doc="Cantera composition string")
     species_list = [spec.split(":")[0] for spec in X_fuel]
-    delta_h_vap = tpp.get("phys", "delta_h_vap")
+    delta_h_vap = ppp.get("delta_h_vap", "Latent heats for each fuel")
     ox = ct.Solution(mechanism)
     ox.TPX = T_ox, pressure, X_ox
     oxstream = ct.Quantity(ox, constant="HP")
@@ -63,7 +69,7 @@ if __name__ == "__main__":
         # note fuel stream does not yet account for enthalpy of vaporization
         # here we do a test just to see what the temperature will be
         fu_vap = ct.Solution(mechanism)
-        T_min = tpp.get("phys", "T_min")
+        T_min = ppp.get("T_min", "min temperature allowed in gas phase, K")
         try:
             fu_vap.HPY = fu.enthalpy_mass - delta_h_vap[ii], fu.P, fu.Y
             print(
@@ -82,10 +88,17 @@ if __name__ == "__main__":
     streams = [oxstream] + fuelstreams
 
     # Create table
+    ppt = pp["table"].doc("Table setup inputs")
     grids = []
-    for grid in tpp.get("table", "grid")[:Nfuel]:
+    for grid in ppt.get(
+        "grid", doc="number of grid points for each table dimension (length Nfuels)"
+    )[:Nfuel]:
         grids.append(np.linspace(0.0, 1.0, grid))
-    use_fmix = tpp.get("table", "use_fmix")
+    use_fmix = ppt.get(
+        "use_fmix",
+        default=False,
+        doc="Tabulate in terms of fuel premixing fractions rather than mixture fractions",
+    )
     if use_fmix:
         dimnames = ["ZMIX"]
         for ii in range(Nfuel - 1):
@@ -161,7 +174,9 @@ if __name__ == "__main__":
     # Meta data generation
     species_idx_list = [mixture.species_index(sp) for sp in species_list]
 
-    mdatfi = tpp.get("table", "metadata_file")
+    mdatfi = ppt.get(
+        "metadata_file", doc="output file path/name for the table metadata"
+    )
     with open(mdatfi, "w") as fi:
         fi.write("manifold.has_species_mw = true\n")
         for i in range(len(species_list)):
@@ -180,5 +195,5 @@ if __name__ == "__main__":
     ctable_tools.print_chemtable(df)
     print(df)
 
-    ofi = tpp.get("table", "filename")
+    ofi = ppt.get("filename", doc="output file path/name for the table")
     ctable_tools.write_chemtable_binary(ofi, df, "mixing-only")
