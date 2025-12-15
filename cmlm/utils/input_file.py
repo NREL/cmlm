@@ -108,9 +108,10 @@ class TomlParmParse:
         accessed_data: tomlkit.TOMLDocument, optional
             shows which entries from data_dict have already been accessed
             Default None.
-        is_base: bool, optional
-            If True, optional checks and file dumping occur during garbage collecting.
-            Default False.
+        base: TomlParmParse, optional
+            Parent TomlParmParse object. If None, this is a base TomlParmParse
+            object and output will occur during garbage collecting if requested.
+            Default None.
         output: string, optional kwarg
             Directory in which to save output. Default None (no output saved).
         output_type: str, optional kwarg
@@ -123,10 +124,12 @@ class TomlParmParse:
             Default False.
         error_unused: bool, optional kwarg
             Raise an error for unused variables in input file. Default False.
+        live_update: bool, optional kwarg
+            Continuously update output file as code runs. Default False.
     """
 
     def __init__(
-        self, datadict, accessed_data=None, name="<base>", is_base=False, **kwargs
+        self, datadict, accessed_data=None, name="<base>", base=None, **kwargs
     ):
         self.data = datadict
 
@@ -137,16 +140,17 @@ class TomlParmParse:
             self.accessed_data = accessed_data
 
         self.name = name
-        self.is_base = is_base
+        self.base = base
         self.output = kwargs.get("output", None)
         if self.output is not None:
             self.output_dir = os.path.split(self.output)[0]
-            if is_base:
+            if self.base is None:
                 if len(self.output_dir) > 0 and not os.path.exists(self.output_dir):
                     os.makedirs(self.output_dir)
         self.output_type = kwargs.get("output_type", "clean")
         self.no_overwrite = kwargs.get("no_overwrite", False)
         self.error_unused = kwargs.get("error_unused", False)
+        self.live_update = kwargs.get("live_update", False)
         output_types = ["clean", "doc", "original"]
         if self.output_type not in output_types:
             raise ValueError(
@@ -195,7 +199,7 @@ class TomlParmParse:
                 "TomlParmParse: must provide input file or arguments on command line"
             )
 
-        return cls(data, name=name, is_base=True, **kwargs)
+        return cls(data, name=name, base=None, **kwargs)
 
     @classmethod
     def parse_args(cls, description=None, infile=None):
@@ -253,9 +257,15 @@ class TomlParmParse:
         )
         parser.add_argument(
             "-e",
-            "--error-unused",
+            "--error_unused",
             action="store_true",
             help="Raise error if there are unused inputs",
+        )
+        parser.add_argument(
+            "-l",
+            "--live_update",
+            action="store_true",
+            help="Update output file continuously as code runs",
         )
         args = parser.parse_args()
         if args.args is not None:
@@ -267,6 +277,7 @@ class TomlParmParse:
             output_type=args.output_type,
             no_overwrite=args.no_overwrite,
             error_unused=args.error_unused,
+            live_update=args.live_update,
         )
 
     def __repr__(self):
@@ -288,6 +299,7 @@ class TomlParmParse:
                         self.data[item_name],
                         self.accessed_data[item_name],
                         f"{self.name}.{item_name}",
+                        base=self,
                         **self.kwargs,
                     )
                 else:
@@ -324,6 +336,8 @@ class TomlParmParse:
             else:
                 self.accessed_data[item_name] = value
                 self.data[item_name] = self.accessed_data[item_name]
+                if self.live_update and self.output is not None:
+                    self.dump()
         else:
             # split keyword on the first period
             split_loc = item_name.index(".")
@@ -419,23 +433,27 @@ class TomlParmParse:
         ----------
             outfile: str, optional
                 file name to save to
+            base:
         """
-        if outfile is not None:
-            write_to = outfile
-        elif self.output is not None:
-            write_to = self.output
-        else:
-            raise RuntimeError(
-                "Cannot dump with no outfile unless initialized with one"
-            )
-
-        with open(write_to, "w") as tomlfile:
-            if self.output_type == "original":
-                tomlfile.write(tomlkit.dumps(self.data))
-            elif self.output_type == "doc":
-                tomlfile.write(beautify_document(tomlkit.dumps(self.accessed_data)))
+        if self.base is None:
+            if outfile is not None:
+                write_to = outfile
+            elif self.output is not None:
+                write_to = self.output
             else:
-                tomlfile.write(tomlkit.dumps(self.accessed_data))
+                raise RuntimeError(
+                    "Cannot dump with no outfile unless initialized with one"
+                )
+
+            with open(write_to, "w") as tomlfile:
+                if self.output_type == "original":
+                    tomlfile.write(tomlkit.dumps(self.data))
+                elif self.output_type == "doc":
+                    tomlfile.write(beautify_document(tomlkit.dumps(self.accessed_data)))
+                else:
+                    tomlfile.write(tomlkit.dumps(self.accessed_data))
+        else:
+            self.base.dump(outfile)
 
     def check_unused_inputs(self):
         """Return any keys in table that have not been used."""
@@ -452,7 +470,7 @@ class TomlParmParse:
 
     def __del__(self):
         """When destroying, optionally dump output to file, raise error for unused."""
-        if self.is_base:
+        if self.base is None:
             if self.output is not None:
                 self.dump()
             unused = self.check_unused_inputs()
