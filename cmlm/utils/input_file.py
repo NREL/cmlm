@@ -280,7 +280,7 @@ class TomlParmParse:
         )
 
     def __repr__(self):
-        """Provide string represention of data (as nested dict)."""
+        """Provide string representation of data (as nested dict)."""
         return self.data.__repr__()
 
     def __getitem__(self, item_name):
@@ -357,7 +357,7 @@ class TomlParmParse:
         Parameters
         ----------
             item_name: str
-                key to lookup in table. May parse through multiple levels in heirarchy
+                key to lookup in table. May parse through multiple levels in hierarchy
                 by separating different levels with periods, e.g. lev1name.level2name.lev3name
             default: optional
                 value to use if item_name is not found in table
