@@ -64,8 +64,6 @@ jobs:
         run: codespell cmlm/ docs/ run_scripts/ --skip="*.bib,*.csv,*.pdf"
         #run: codespell --skip="*.bib,*.csv,*.pdf"
   Test:
-    runs-on: ubuntu-latest
-
     name: Test (${{ matrix.python-version }}, ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
