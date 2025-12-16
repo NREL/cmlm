@@ -1,6 +1,7 @@
 """Test the TomlParmParse utility."""
 
 import pytest
+
 from cmlm.utils import TomlParmParse
 
 # Dummy toml data with values of various types
