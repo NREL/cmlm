@@ -55,7 +55,7 @@ def test_get_with_default():
     assert tpp["c"].get("adams", 2) == answer3
 
     # Default gets used if not in table
-    assert tpp["c"].get("madison", answer4) == answer4
+    assert tpp["c"].get("madison", answer3) == answer4
 
     # Default gets re-used after being added
     assert tpp["c"].get("madison") == answer4
