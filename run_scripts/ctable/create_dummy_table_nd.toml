@@ -1,4 +1,12 @@
+# ==================================================================================== #
 [table]
-ndim = 1
-ngrid = 20
-outfile_prefix = "peletable"
+
+# Number of table dimensions to create
+ndim = 1 
+
+# Grid points for each table dimension
+ngrid = 20 
+
+# Filename prefix for output
+outfile_prefix = "peletable" 
+
