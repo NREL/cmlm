@@ -15,23 +15,9 @@ This script uses Cantera and the user must specify a Cantera yaml format chemica
 mechanism. The `liquid_fuels_nonreacting` mechanism that comes with PelePhysics
 is likely a good choice.
 
-Usage
------
+Uses TOML format input files (see example input file for more details)::
 
-Invoke on the command line::
-
-    python create_spray_table_nd.py <input_file.toml>
-
-To see additional runtime options you can run::
-
-    python create_spray_table_nd.py -h
-
-Input File
-----------
-
-The input file is a TOML format file with sections ``[phys]`` and ``[table]``,
-corresponding to physical/BC inputs and parameters for the table. See the
-sample input file for more details.
+    python create_spray_table_nd.py create_spray_table_nd.toml
 """
 
 if __name__ == "__main__":

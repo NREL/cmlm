@@ -1,22 +1,10 @@
 """
 Create sample chemtables with dummy data for testing purposes.
 
-Usage
------
+Uses TOML format input files (see example input file for more details)::
 
-Invoke on the command line::
+    python create_dummy_table_nd.py create_dummy_table_nd.toml
 
-    python create_dummy_table_nd.py <input_file.toml>
-
-Input File
-----------
-
-    The input file is a TOML format file with single section ``[table]`` that
-    specifies the following:
-
-    - ``ndim`` (int): number of dimensions in table
-    - ``ngrid`` (int): number of grid points in each dimension
-    - ``outfile_prefix`` (string): path to save files
 """
 
 if __name__ == "__main__":
