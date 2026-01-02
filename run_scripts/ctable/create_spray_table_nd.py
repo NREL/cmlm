@@ -36,12 +36,12 @@ sample input file for more details.
 
 if __name__ == "__main__":
 
-    import cantera as ct
     import numpy as np
     import pandas as pd
-
     from cmlm import ctable_tools
     from cmlm.utils import TomlParmParse
+
+    import cantera as ct
 
     # Load inputs
     pp = TomlParmParse.parse_args(
@@ -58,7 +58,8 @@ if __name__ == "__main__":
     pressure = ppp.get("pressure", doc="ambient pressure, Pa")
     liq_temp_fuel = ppp.get("liq_temp_fuel", doc="liquid temps for each fuel, K")
     X_fuel = ppp.get("X_fuel", doc="Cantera composition string")
-    species_list = ["O2"] + [spec.split(":")[0] for spec in X_fuel]
+    fuel_species_list = [spec.split(":")[0] for spec in X_fuel]
+    species_list = ["O2"] + fuel_species_list
     delta_h_vap = ppp.get("delta_h_vap", doc="Latent heats for each fuel, J/kg")
 
     ox = ct.Solution(mechanism)
@@ -157,7 +158,7 @@ if __name__ == "__main__":
             ", ".join(
                 [
                     f"{spec}:{max(mixture.Y[mixture.species_index(spec)],eps)}"
-                    for spec in species_list
+                    for spec in fuel_species_list
                 ]
             ),
         )
