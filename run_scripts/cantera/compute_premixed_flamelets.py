@@ -50,7 +50,7 @@ if __name__ == "__main__":
         )
         oxid_temp = ppc.get("oxid_temp", doc="K")
         Zvalues = scalar_to_list(ppc.get("Zvalues", doc="Single Z value or list"))
-        cond_labels = ["p{:.4f}", "zmix{:.4f}"] # noqa : FS003
+        cond_labels = ["p{:.4f}", "zmix{:.4f}"]  # noqa : FS003
         cond_iterator_global = list(itertools.product(pressures, Zvalues))
     elif composition_type == "phis":
         fuel_comp = ppc.get(
@@ -65,14 +65,14 @@ if __name__ == "__main__":
         phis = scalar_to_list(
             ppc.get("phis", doc="Single equivalence ratio or list, K")
         )
-        cond_labels = ["p{:.4f}", "T{:.1f}", "phi{:.4f}"] # noqa : FS003
+        cond_labels = ["p{:.4f}", "T{:.1f}", "phi{:.4f}"]  # noqa : FS003
         cond_iterator_global = list(itertools.product(pressures, temperatures, phis))
     else:
         comp = ppc.get("comp", doc="cantera composition, mass basis")
         temperatures = scalar_to_list(
             ppc.get("temperatures", doc="Single temperature or list, K")
         )
-        cond_labels = ["p{:.4f}", "T{:.1f}"] # noqa : FS003
+        cond_labels = ["p{:.4f}", "T{:.1f}"]  # noqa : FS003
         cond_iterator_global = list(itertools.product(pressures, temperatures))
     flame_width = ppc.get(
         "dom_width", default=0.1, doc="Domain width for flame simulations (m)"

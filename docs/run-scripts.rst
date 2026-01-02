@@ -3,7 +3,7 @@
 Run Scripts
 ===========
 
-These scripts all use the TomlParmParse utility to manage configutation/inputs. Sample
+These scripts all use the TomlParmParse utility to manage configuration/inputs. Sample
 inputs with descriptions are included in ``.toml`` files with the same base file name
 as the script. All scripts can be run using::
 

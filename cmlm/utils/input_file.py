@@ -7,12 +7,14 @@ import textwrap
 
 import tomlkit
 
+
 def scalar_to_list(val):
     """Leave lists as is, convert scalars to 1 element lists."""
     if not hasattr(val, "__getitem__"):
         return [val]
     else:
         return val
+
 
 def recursively_update_dict(base, new):
     """
