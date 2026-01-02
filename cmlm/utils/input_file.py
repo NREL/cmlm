@@ -8,6 +8,14 @@ import textwrap
 import tomlkit
 
 
+def scalar_to_list(val):
+    """Leave lists as is, convert scalars to 1 element lists."""
+    if not isinstance(val, (list, tuple)):
+        return [val]
+    else:
+        return val
+
+
 def recursively_update_dict(base, new):
     """
     Update items and subitems in one nested dict-like object based on another.
@@ -143,6 +151,9 @@ class TomlParmParse:
         self.base = base
         self.output = kwargs.get("output", None)
         if self.output is not None:
+            # if output ends with .toml, its a file, otherwise its a directory
+            if not self.output.endswith(".toml"):
+                self.output = os.path.join(self.output, "config.toml")
             self.output_dir = os.path.split(self.output)[0]
             if self.base is None:
                 if len(self.output_dir) > 0 and not os.path.exists(self.output_dir):
@@ -202,7 +213,7 @@ class TomlParmParse:
         return cls(data, name=name, base=None, **kwargs)
 
     @classmethod
-    def parse_args(cls, description=None, infile=None):
+    def parse_args(cls, description=None, infile=None, require_output=False):
         """
         Parse command line arguments specifying file and arguments to create a TPP.
 
@@ -212,6 +223,8 @@ class TomlParmParse:
               Short description of program for which config is being loaded
            infile: str, optional
               Default TOML input file to use
+           require_output: bool, optional
+              if true, the `-o` command line argument is required. Default False.
 
         Returns
         -------
@@ -235,7 +248,8 @@ class TomlParmParse:
             "-o",
             "--output",
             default=None,
-            help="File in which to write used inputs/outputs",
+            required=require_output,
+            help="File (.toml) or directory in which to write used inputs/outputs",
         )
         parser.add_argument(
             "-t",
@@ -346,7 +360,7 @@ class TomlParmParse:
                 self.data[prefix] = tomlkit.document()
             self[prefix][suffix] = value
 
-    def get(self, item_name, default=None, doc=None):
+    def get(self, item_name, default=None, doc=None, choices=None):
         """
         Retrieve a leaf or subtable form the TomlParmParse table.
 
@@ -363,6 +377,9 @@ class TomlParmParse:
                 value to use if item_name is not found in table
             doc: optional
                 string to add as a comment in the TOML file
+            choices: optional
+                list or tuple of allowable options for input parameter. If specified,
+                an error will be raised if the specified value is not in the list.
 
         Returns
         -------
@@ -381,9 +398,19 @@ class TomlParmParse:
                 )
         self[item_name] = retval
 
+        if choices is not None:
+            if retval not in choices:
+                raise ValueError(
+                    f"In TomlParmParse object {self.name}:\n"
+                    f"  Invalid value specified for item <{item_name}> (doc: {doc})\n"
+                    f"  Choices are: {choices}"
+                )
+
         if doc is not None and self.output_type == "doc":
             if default is not None:
                 doc += f"  | optional, default: {default}"
+            if choices is not None:
+                doc += f"  | choices are: {choices}"
             self[item_name].comment(doc)
 
         return retval

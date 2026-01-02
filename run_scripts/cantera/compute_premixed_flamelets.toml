@@ -1,0 +1,75 @@
+# ==================================================================================== #
+# Physical conditions for flames
+# ==================================================================================== #
+[conditions]
+
+# Single pressure or list, atm
+pressures = 1.0
+
+# Method of specifying compositions to run  | choices are: ['zmixs', 'phis', 'single']
+composition_type = "phis"
+
+# Fuel stream cantera composition, mass basis
+fuel_comp = "H2:1"
+
+# Oxidizer stream cantera composition, mass basis
+oxid_comp = "O2:1, N2:4"
+
+# Single temperature or list, K
+temperatures = [300.0, 400.0]
+
+# Single equivalence ratio or list
+phis = [1.0,1.1,1.2,1.3]
+
+# Domain width for flame simulations (m)  | optional, default: 0.1
+dom_width = 0.1
+
+
+
+# ==================================================================================== #
+# Physical models used by solver
+# ==================================================================================== #
+[models]
+
+# Chemical mechanism to use (Cantera yaml format)
+mechanism = 'h2o2.yaml'
+
+# Transport property model from Cantera to use, see Cantera documentation for more
+# information  | optional, default: mixture-averaged  | choices are: ['mixture-
+# averaged', 'unity-Lewis-number', 'multicomponent', 'high-pressure', 'high-pressure-
+# Chung']
+transport = 'unity-Lewis-number'
+
+# Equation of State, must be a phase option in your mechanism yaml file. If
+# unspecified, the default phase from the mechanism file is used  | optional, default:
+eos = ""
+
+
+
+# ==================================================================================== #
+# Numerics for premixed flame solve, see Cantera documentation for more information
+# ==================================================================================== #
+[numerics]
+
+loglevel = 0
+ratio = 2
+slope = 0.05
+curve = 0.05
+prune = 0.02
+max_points = 10000
+
+
+# ==================================================================================== #
+# Additional options for script
+# ==================================================================================== #
+[options]
+
+# Using MPI requires mpi4py  | optional, default: False
+use_mpi = true
+
+# If specified, save chemtable metadata to this file  | optional, default:
+metadata_file = ""
+
+# If specified, Cantera composition for fuel to compute cp_fuel in flame output, or
+# 'fuel_comp' to use that input if available  | optional, default:
+cp_fuel_species = ""

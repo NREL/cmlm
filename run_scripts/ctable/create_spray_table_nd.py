@@ -15,23 +15,9 @@ This script uses Cantera and the user must specify a Cantera yaml format chemica
 mechanism. The `liquid_fuels_nonreacting` mechanism that comes with PelePhysics
 is likely a good choice.
 
-Usage
------
+Uses TOML format input files (see example input file for more details)::
 
-Invoke on the command line::
-
-    python create_spray_table_nd.py <input_file.toml>
-
-To see additional runtime options you can run::
-
-    python create_spray_table_nd.py -h
-
-Input File
-----------
-
-The input file is a TOML format file with sections ``[phys]`` and ``[table]``,
-corresponding to physical/BC inputs and parameters for the table. See the
-sample input file for more details.
+    python create_spray_table_nd.py create_spray_table_nd.toml
 """
 
 if __name__ == "__main__":
@@ -58,7 +44,8 @@ if __name__ == "__main__":
     pressure = ppp.get("pressure", doc="ambient pressure, Pa")
     liq_temp_fuel = ppp.get("liq_temp_fuel", doc="liquid temps for each fuel, K")
     X_fuel = ppp.get("X_fuel", doc="Cantera composition string")
-    species_list = ["O2"] + [spec.split(":")[0] for spec in X_fuel]
+    fuel_species_list = [spec.split(":")[0] for spec in X_fuel]
+    species_list = ["O2"] + fuel_species_list
     delta_h_vap = ppp.get("delta_h_vap", doc="Latent heats for each fuel, J/kg")
 
     ox = ct.Solution(mechanism)
@@ -157,7 +144,7 @@ if __name__ == "__main__":
             ", ".join(
                 [
                     f"{spec}:{max(mixture.Y[mixture.species_index(spec)],eps)}"
-                    for spec in species_list
+                    for spec in fuel_species_list
                 ]
             ),
         )
