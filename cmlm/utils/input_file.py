@@ -10,7 +10,7 @@ import tomlkit
 
 def scalar_to_list(val):
     """Leave lists as is, convert scalars to 1 element lists."""
-    if not hasattr(val, "__getitem__"):
+    if not isinstance(val, (list, tuple)):
         return [val]
     else:
         return val
@@ -401,7 +401,7 @@ class TomlParmParse:
         if choices is not None:
             if retval not in choices:
                 raise ValueError(
-                    f"In TomlParmPArse object {self.name}:\n"
+                    f"In TomlParmParse object {self.name}:\n"
                     f"  Invalid value specified for item <{item_name}> (doc: {doc})\n"
                     f"  Choices are: {choices}"
                 )

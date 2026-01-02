@@ -17,12 +17,12 @@ if __name__ == "__main__":
     import itertools
     import os
 
+    import cantera as ct
     import numpy as np
     import pandas as pd
+
     from cmlm.utils import TomlParmParse
     from cmlm.utils.input_file import scalar_to_list
-
-    import cantera as ct
 
     # ------------------ Parse relevant inputs ----------------------------#
     pp = TomlParmParse.parse_args(
@@ -62,9 +62,7 @@ if __name__ == "__main__":
         temperatures = scalar_to_list(
             ppc.get("temperatures", doc="Single temperature or list, K")
         )
-        phis = scalar_to_list(
-            ppc.get("phis", doc="Single equivalence ratio or list, K")
-        )
+        phis = scalar_to_list(ppc.get("phis", doc="Single equivalence ratio or list"))
         cond_labels = ["p{:.4f}", "T{:.1f}", "phi{:.4f}"]  # noqa : FS003
         cond_iterator_global = list(itertools.product(pressures, temperatures, phis))
     else:
@@ -105,7 +103,7 @@ if __name__ == "__main__":
 
     # Flame numerics
     ppf = pp["numerics"].doc(
-        "Numerics for nonpremixed flame solve, "
+        "Numerics for premixed flame solve, "
         "see Cantera documentation for more information"
     )
     loglevel = ppf.get("loglevel", default=0)
@@ -136,9 +134,9 @@ if __name__ == "__main__":
         "cp_fuel_species",
         default="",
         doc="If specified, Cantera composition for fuel to compute cp_fuel in "
-        "flame output, or 'fuel_comp' to use that input",
+        "flame output, or 'fuel_comp' to use that input if available",
     )
-    if cp_fuel_species == "fuel_comp":
+    if cp_fuel_species == "fuel_comp" and composition_type != "single":
         cp_fuel_species = fuel_comp
 
     # ------------------ Solve Flames ---------------------------- #
@@ -222,7 +220,10 @@ if __name__ == "__main__":
 
     # Collect data and save
     print(f"Rank {rank} - Completed all required tasks")
-    all_output = comm.gather(output)
+    if use_mpi:
+        all_output = comm.gather(output)
+    else:
+        all_output = [output]
     if rank == 0:
         all_output = pd.concat(all_output).sort_index()
         all_output.to_csv(os.path.join(outdir, "flamestats.csv"))
@@ -235,4 +236,4 @@ if __name__ == "__main__":
                     fi.write(f"manifold.{spec}_mw = {gas.molecular_weights[i]}\n")
                 if len(pressures) != 1:
                     raise RuntimeError("Can only save metadata for a single pressure")
-                fi.write("manifold.nominal_pressure_cgs = " + str(pressures[0] * 10.0))
+                fi.write(f"manifold.nominal_pressure_cgs = {pressures[0] * 10.0}\n")

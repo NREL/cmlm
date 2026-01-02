@@ -22,12 +22,12 @@ Uses TOML format input files (see example input file for more details)::
 
 if __name__ == "__main__":
 
+    import cantera as ct
     import numpy as np
     import pandas as pd
+
     from cmlm import ctable_tools
     from cmlm.utils import TomlParmParse
-
-    import cantera as ct
 
     # Load inputs
     pp = TomlParmParse.parse_args(
