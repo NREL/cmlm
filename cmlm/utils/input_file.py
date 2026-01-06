@@ -412,6 +412,8 @@ class TomlParmParse:
             if choices is not None:
                 doc += f"  | choices are: {choices}"
             self[item_name].comment(doc)
+            if self.live_update and self.output is not None:
+                self.dump()
 
         return retval
 

@@ -187,7 +187,7 @@ if __name__ == "__main__":
         dx_min = np.min(np.diff(flame.grid))
         output.loc[cond] = flame_speed, flame_temp, flame_thickness, flame_grid, dx_min
 
-        # We're finished with this flame - save in default Canter MKS units
+        # We're finished with this flame - save in default Cantera MKS units
         save_flame_csv(
             flame, os.path.join(outdir, f"prem_{label}.csv"), cp_fuel_species
         )

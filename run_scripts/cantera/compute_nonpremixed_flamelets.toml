@@ -82,23 +82,28 @@ delta_T_extinction = 50
 # default: 1.0
 delta_alpha_initial = 1.0 
 
-#   | optional, default: 0.0025
+# Minimum relative change in strain rate when approaching extinction  | optional,
+# default: 0.0025
 delta_alpha_min = 0.0025 
 
-#   | optional, default: 3.0
+# Maximum relative change in strain rate when approaching extinction  | optional,
+# default: 3.0
 delta_alpha_max = 3.0 
 
-#   | optional, default: 3.0
+# Maximum change in (change in strain rate) when approaching extinction  | optional,
+# default: 3.0
 delta_alpha_max_change_factor = 3.0 
 
-#   | optional, default: 1.0
+# Minimum temperature change to determine convergence when approaching equilibrium  |
+# optional, default: 1.0
 delta_temp_min = 1.0 
 
-#   | optional, default: 20.0
+# Maximum change in maximum temperature when approaching extinction  | optional,
+# default: 20.0
 delta_temp_max = 20.0 
 
 # s, Flames will be treated as unconverged if solve not completed in this time  |
-# optional, default: 60
+# optional, default: 300
 max_solve_time = 30 
 
 
@@ -114,4 +119,7 @@ use_mpi = false
 # If specified, save chemtable metadata to this file  | optional, default:
 metadata_file = "" 
 
-cp_fuel_species = ""
+# If specified, Cantera composition for fuel to compute cp_fuel in flame output, or
+# fuel_comp to use that input  | optional, default:
+cp_fuel_species = "" 
+

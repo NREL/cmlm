@@ -139,16 +139,34 @@ if __name__ == "__main__":
         default=1.0,
         doc="Initial change in strain rate factor between successive flamelets",
     )
-    delta_alpha_min = pps.get("delta_alpha_min", default=0.0025, doc="")
-    delta_alpha_max = pps.get("delta_alpha_max", default=3.0, doc="")
-    delta_alpha_max_change_factor = pps.get(
-        "delta_alpha_max_change_factor", default=3.0, doc=""
+    delta_alpha_min = pps.get(
+        "delta_alpha_min",
+        default=0.0025,
+        doc="Minimum relative change in strain rate when approaching extinction",
     )
-    delta_temp_min = pps.get("delta_temp_min", default=1.0, doc="")
-    delta_temp_max_initial = pps.get("delta_temp_max", default=20.0, doc="")
+    delta_alpha_max = pps.get(
+        "delta_alpha_max",
+        default=3.0,
+        doc="Maximum relative change in strain rate when approaching extinction",
+    )
+    delta_alpha_max_change_factor = pps.get(
+        "delta_alpha_max_change_factor",
+        default=3.0,
+        doc="Maximum change in (change in strain rate) when approaching extinction",
+    )
+    delta_temp_min = pps.get(
+        "delta_temp_min",
+        default=1.0,
+        doc="Minimum temperature change to determine convergence when approaching equilibrium",
+    )
+    delta_temp_max_initial = pps.get(
+        "delta_temp_max",
+        default=20.0,
+        doc="Maximum change in maximum temperature when approaching extinction",
+    )
     max_solve_time = pps.get(
         "max_solve_time",
-        default=60,
+        default=300,
         doc="s, Flames will be treated as unconverged if solve not completed in this time",
     )
 
@@ -173,7 +191,7 @@ if __name__ == "__main__":
         "cp_fuel_species",
         default="",
         doc="If specified, Cantera composition for fuel to compute cp_fuel in "
-        "flame output, or 'fuel_comp' to use that input",
+        "flame output, or fuel_comp to use that input",
     )
     if cp_fuel_species == "fuel_comp":
         cp_fuel_species = fuel_comp
@@ -196,7 +214,6 @@ if __name__ == "__main__":
 
         # Set up mixtures and flames
         press = cond[0] * ct.one_atm
-        dilfact = cond[1]
         oxid = ct.Solution(mechanism, name=eos)
         oxid.TPY = oxid_temp, press, oxid_comp
         oxidstream = ct.Quantity(oxid, constant="HP")
@@ -204,6 +221,7 @@ if __name__ == "__main__":
         fuel.TPY = fuel_temp, press, fuel_comp
         fuelstream = ct.Quantity(fuel, constant="HP")
         if stream_to_dilute != "none":
+            dilfact = cond[1]
             dilu = ct.Solution(mechanism, name=eos)
             dilu.TPY = dilu_temp, press, dilu_comp
             dilustream = ct.Quantity(dilu, constant="HP")
@@ -219,9 +237,10 @@ if __name__ == "__main__":
 
         # Create and Solve initial flame
         gas = ct.Solution(mechanism, eos)
-        if metadata_file != "":
+        if metadata_file != "" and rank == 0:
             gas.P = press
             save_table_metadata(gas, os.path.join(outdir, metadata_file))
+            metadata_file = ""
         flame = ct.CounterflowDiffusionFlame(gas, width=flame_width)
         flame.P = press
         flame.fuel_inlet.Y = fumix.Y
@@ -237,7 +256,6 @@ if __name__ == "__main__":
         flame.set_refine_criteria(ratio=ratio, slope=slope, curve=curve, prune=prune)
         flame.flame.set_steady_tolerances(default=tols)
         flame.transport_model = transport
-        flame.solve(loglevel=loglevel, auto=True)
 
         print(f"Rank {rank}: Creating the initial solution", flush=True)
         flame.solve(loglevel=loglevel, auto=True)
@@ -343,7 +361,7 @@ if __name__ == "__main__":
                 )
                 file_name = os.path.join(outdir, f"nonp_{label}_final_{n:04d}")
                 flame.save(f"{file_name}.yaml", name=f"solution_{label}")
-                save_flame_csv(flame, f"{file_name}.csv")
+                save_flame_csv(flame, f"{file_name}.csv", cp_fuel_species)
                 print(
                     f"rank {rank}: Flame extinguished at alpha = {alpha[-1]:8.4F}, "
                     "Stopping criteria satisfied.",
@@ -410,7 +428,7 @@ if __name__ == "__main__":
 
             file_name = os.path.join(outdir, f"nonp_{label}_{n:04d}")
             flame.save(f"{file_name}.yaml", name=f"solution_{label}")
-            save_flame_csv(flame, f"{file_name}.csv")
+            save_flame_csv(flame, f"{file_name}.csv", cp_fuel_species)
 
             T_max[n] = np.max(flame.T)
             a_max[n] = np.max(
