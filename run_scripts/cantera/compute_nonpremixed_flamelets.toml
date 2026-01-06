@@ -1,23 +1,117 @@
-[conditions]
+# ==================================================================================== #
+# Physical conditions for flames
+# ==================================================================================== #
+[conditions] 
+
 pressure = 2.0 # atm
 fuel_temp = 343.15 # K
-fuel_comp = "CH4:1" # mass basis
+
+# Fuel stream cantera composition, mass basis
+fuel_comp = "CH4:1" 
+
 oxid_temp = 300.0 # K
-oxid_comp = "O2:0.2, CO2:0.8" # mass basis
-stream_to_dilute = "oxid"
+
+# Oxidizer stream cantera composition, mass basis
+oxid_comp = "O2:0.2, CO2:0.8" 
+
+# Add dilution to fuel stream, oxid stream, or none  | optional, default: none  |
+# choices are: ['none', 'fuel', 'oxid']
+stream_to_dilute = "oxid" 
+
 dilu_temp = 300.0 # K
-dilu_comp = "CO2:1.0" # mass basis
-mdot_initial = 0.1
-dom_width_initial = 1.0
 
-[models]
-mechanism = "~/Software/PelePhysics/Mechanisms/sCO2/mechanism.yaml"
-transport = "unity-Lewis-number" # 'unity-Lewis-number' or 'mixture-averaged'
-eos = "" # 'Peng-Robinson' or 'Redlich-Kwong' or '' (for 'ideal-gas')
+# Dilution stream cantera composition, mass basis
+dilu_comp = "CO2:1.0" 
 
-[numerics]
+# Array with upper and lower dilution values  | optional, default: [0, 1]
+dilu_fraction_bounds = [0, 1] 
+
+# Number of dilution values to use  | optional, default: 21
+dilu_n_grid = 21 
+
+# Initial mass flow rate for counterflow configuration  | optional, default: 0.1
+mdot_initial = 0.1 
+
+# Initial domain width for counterflow configuration (m)  | optional, default: 1.0
+dom_width_initial = 1.0 
+
+
+
+# ==================================================================================== #
+# Physical models used by solver
+# ==================================================================================== #
+[models] 
+
+# Chemical mechanism to use (Cantera yaml format)
+mechanism = "~/Software/PelePhysics/Mechanisms/sCO2/mechanism.yaml" 
+
+# Transport property model from Cantera to use, see Cantera documentation for more
+# information  | optional, default: mixture-averaged  | choices are: ['mixture-
+# averaged', 'unity-Lewis-number', 'multicomponent', 'high-pressure', 'high-pressure-
+# Chung']
+transport = "unity-Lewis-number" 
+
+# Equation of State, must be a phase option in your mechanism yaml file. If
+# unspecified, the default phase from the mechanism file is used  | optional, default:
+eos = "" 
+
+
+
+# ==================================================================================== #
+# Numerics for nonpremixed flame solve, see Cantera documentation for more information
+# ==================================================================================== #
+[numerics] 
+
 loglevel = 0
+ratio = 2
+slope = 0.2
+curve = 0.2
+prune = 0.1
+tols = [1e-06, 1e-12]
 
-[scurve]
 
-[options]
+# ==================================================================================== #
+# Options for traversing S-curves
+# ==================================================================================== #
+[scurve] 
+
+# Minimum T rise (K) for flamelet to be considered burning  | optional, default: 50
+delta_T_extinction = 50 
+
+# Initial change in strain rate factor between successive flamelets  | optional,
+# default: 1.0
+delta_alpha_initial = 1.0 
+
+#   | optional, default: 0.0025
+delta_alpha_min = 0.0025 
+
+#   | optional, default: 3.0
+delta_alpha_max = 3.0 
+
+#   | optional, default: 3.0
+delta_alpha_max_change_factor = 3.0 
+
+#   | optional, default: 1.0
+delta_temp_min = 1.0 
+
+#   | optional, default: 20.0
+delta_temp_max = 20.0 
+
+# s, Flames will be treated as unconverged if solve not completed in this time  |
+# optional, default: 60
+max_solve_time = 30 
+
+
+
+# ==================================================================================== #
+# Additional options for script
+# ==================================================================================== #
+[options] 
+
+# Using MPI requires mpi4py  | optional, default: False
+use_mpi = false 
+
+# If specified, save chemtable metadata to this file  | optional, default:
+metadata_file = "" 
+
+cp_fuel_species = ""
