@@ -18,14 +18,14 @@ if __name__ == "__main__":
     import itertools
     import os
 
+    import cantera as ct
     import numpy as np
     import pandas as pd
+    from func_timeout import FunctionTimedOut, func_timeout
+
     from cmlm.utils import TomlParmParse
     from cmlm.utils.cantera_helpers import save_flame_csv, save_table_metadata
     from cmlm.utils.input_file import scalar_to_list
-    from func_timeout import FunctionTimedOut, func_timeout
-
-    import cantera as ct
 
     def update_flame(flame, strain_factor):
         """Create inital guess for flame after chainging strain rate."""
@@ -181,10 +181,10 @@ if __name__ == "__main__":
     # ------------------ Set up flames to run ---------------------------- #
     cond_labels = ["p{:.4f}"]  # noqa : FS003
     if stream_to_dilute == "fuel":
-        cond_labels += ["F{:.4f}"] # noqa : FS003
+        cond_labels += ["F{:.4f}"]  # noqa : FS003
         cond_iterator_global = list(itertools.product(pressures, dilu_grid))
     elif stream_to_dilute == "oxid":
-        cond_labels += ["W{:.4f}"] # noqa : FS003
+        cond_labels += ["W{:.4f}"]  # noqa : FS003
         cond_iterator_global = list(itertools.product(pressures, dilu_grid))
     else:
         cond_iterator_global = list(itertools.product(pressures))
@@ -355,7 +355,9 @@ if __name__ == "__main__":
                 # Procedure if flame extinguished but abortion criterion is not satisfied
                 # Reduce relative strain rate increase
                 delta_alpha = max(delta_alpha / delta_alpha_factor, delta_alpha_min)
-                delta_temp_max = max(delta_temp_max / delta_alpha_factor, delta_temp_min)
+                delta_temp_max = max(
+                    delta_temp_max / delta_alpha_factor, delta_temp_min
+                )
                 print(
                     f"rank {rank}: Flame extinguished at alpha = {alpha[-1]:8.4F}. "
                     f"Restoring alpha = {alpha[n_last_burning]:8.4F} and "
@@ -369,7 +371,7 @@ if __name__ == "__main__":
                 flame.restore(file_name, name=f"solution_{label}")
 
         # Save data for S curve
-        pd.DataFrame({"a_max": a_max, "T_max": T_max}).dropna(how='all').to_csv(
+        pd.DataFrame({"a_max": a_max, "T_max": T_max}).dropna(how="all").to_csv(
             os.path.join(outdir, f"scurve_info_{label}.csv")
         )
 
@@ -420,11 +422,11 @@ if __name__ == "__main__":
                 f"Proceeding to the next iteration, delta_alpha = {delta_alpha}",
                 flush=True,
             )
-            if T_max[n] - T_max[n + 1] < delta_temp_min :
+            if T_max[n] - T_max[n + 1] < delta_temp_min:
                 print(f"rank {rank}: Reached Equilibrium - Stopping.")
                 break
 
         # Save data for S curve
-        pd.DataFrame({"a_max": a_max, "T_max": T_max}).dropna(how='all').to_csv(
+        pd.DataFrame({"a_max": a_max, "T_max": T_max}).dropna(how="all").to_csv(
             os.path.join(outdir, f"scurve_info_{label}.csv")
         )
