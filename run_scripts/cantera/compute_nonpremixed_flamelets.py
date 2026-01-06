@@ -28,7 +28,7 @@ if __name__ == "__main__":
     from cmlm.utils.input_file import scalar_to_list
 
     def update_flame(flame, strain_factor):
-        """Create inital guess for flame after chainging strain rate."""
+        """Create initial guess for flame after changing strain rate."""
         # Exponents for the initial solution variation with changes in strain rate
         # Taken from Fiala and Sattelmayer (2014)
         exp_d_a = -1.0 / 2.0
