@@ -1,0 +1,23 @@
+[conditions]
+pressure = 2.0 # atm
+fuel_temp = 343.15 # K
+fuel_comp = "CH4:1" # mass basis
+oxid_temp = 300.0 # K
+oxid_comp = "O2:0.2, CO2:0.8" # mass basis
+stream_to_dilute = "oxid"
+dilu_temp = 300.0 # K
+dilu_comp = "CO2:1.0" # mass basis
+mdot_initial = 0.1
+dom_width_initial = 1.0
+
+[models]
+mechanism = "~/Software/PelePhysics/Mechanisms/sCO2/mechanism.yaml"
+transport = "unity-Lewis-number" # 'unity-Lewis-number' or 'mixture-averaged'
+eos = "" # 'Peng-Robinson' or 'Redlich-Kwong' or '' (for 'ideal-gas')
+
+[numerics]
+loglevel = 0
+
+[scurve]
+
+[options]

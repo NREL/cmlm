@@ -23,6 +23,7 @@ if __name__ == "__main__":
 
     from cmlm.utils import TomlParmParse
     from cmlm.utils.input_file import scalar_to_list
+    from cmlm.utils.cantera_helpers import save_flame_csv, save_table_metadata
 
     # ------------------ Parse relevant inputs ----------------------------#
     pp = TomlParmParse.parse_args(
@@ -186,31 +187,8 @@ if __name__ == "__main__":
         dx_min = np.min(np.diff(flame.grid))
         output.loc[cond] = flame_speed, flame_temp, flame_thickness, flame_grid, dx_min
 
-        # Save flame solution - default Cantera MKS units
-        data = pd.DataFrame()
-        data["X"] = flame.grid
-        data["T"] = flame.T
-        data["VEL"] = flame.velocity
-        data["RHO"] = flame.density_mass
-        data["DIFF"] = flame.thermal_conductivity / flame.cp_mass
-        data["VISC"] = flame.viscosity
-        data["LAMBDA"] = flame.thermal_conductivity
-        data["CP"] = flame.cp_mass
-        data["MW"] = flame.mean_molecular_weight
-        if cp_fuel_species != "":
-            sa = flame.to_array()
-            sa.TPY = sa.T, sa.P, cp_fuel_species
-            data["CP_FUEL"] = sa.cp_mass
-        spec_names = [f"Y-{spec}" for spec in gas.species_names]
-        spec_y_data = pd.DataFrame(flame.Y.T, columns=spec_names)
-        rr_names = [f"SRC_{spec}" for spec in gas.species_names]
-        spec_rr_data = pd.DataFrame(
-            flame.net_production_rates.T * list(gas.molecular_weights), columns=rr_names
-        )
-        data = pd.concat([data, spec_y_data, spec_rr_data], axis=1)
-        data.to_csv(os.path.join(outdir, f"flame_{label}.csv"))
-
-        # We're finished with this flame
+        # We're finished with this flame - save in default Canter MKS units
+        save_flame_csv(flame, os.path.join(outdir, f"prem_{label}.csv"), cp_fuel_species)
         print(
             f"Rank {rank} - Finished  flame: {label}. "
             f"sL={flame_speed:7.4f} Tad={flame_temp:7.1f} l_f={flame_thickness:10.3e} "
@@ -230,10 +208,7 @@ if __name__ == "__main__":
         print("All Ranks Completed.")
         print(all_output)
         if metadata_file != "":
-            with open(metadata_file, "w") as fi:
-                fi.write("manifold.has_species_mw = true\n")
-                for i, spec in enumerate(gas.species_names):
-                    fi.write(f"manifold.{spec}_mw = {gas.molecular_weights[i]}\n")
-                if len(pressures) != 1:
-                    raise RuntimeError("Can only save metadata for a single pressure")
-                fi.write(f"manifold.nominal_pressure_cgs = {pressures[0] * 10.0}\n")
+            if len(pressures) != 1:
+                raise RuntimeError("Can only save metadata for a single pressure")
+            gas.TPY = gas.T, pressures[0] * ct.one_atm, gas.Y
+            save_table_metadata(gas, os.path.join(outdir, metadata_file))
