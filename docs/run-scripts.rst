@@ -48,6 +48,18 @@ compute_premixed_flamelets.py
 
 ----
 
+compute_nonpremixed_flamelets.py
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. automodule::
+   compute_nonpremixed_flamelets
+
+----
+
+.
+
+----
+
 ctable
 ------
 
