@@ -24,3 +24,4 @@ General Utilities
 
    cmlm.utils.input_file
    cmlm.utils.timer
+   cmlm.utils.cantera_helpers
