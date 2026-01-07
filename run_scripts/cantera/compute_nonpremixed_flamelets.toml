@@ -1,66 +1,66 @@
 # ==================================================================================== #
 # Physical conditions for flames
 # ==================================================================================== #
-[conditions] 
+[conditions]
 
 pressure = 2.0 # atm
 fuel_temp = 343.15 # K
 
 # Fuel stream cantera composition, mass basis
-fuel_comp = "CH4:1" 
+fuel_comp = "CH4:1"
 
 oxid_temp = 300.0 # K
 
 # Oxidizer stream cantera composition, mass basis
-oxid_comp = "O2:0.2, CO2:0.8" 
+oxid_comp = "O2:0.233, N2:0.767"
 
 # Add dilution to fuel stream, oxid stream, or none  | optional, default: none  |
 # choices are: ['none', 'fuel', 'oxid']
-stream_to_dilute = "oxid" 
+stream_to_dilute = "none"
 
 dilu_temp = 300.0 # K
 
 # Dilution stream cantera composition, mass basis
-dilu_comp = "CO2:1.0" 
+dilu_comp = "CO2:1.0"
 
 # Array with upper and lower dilution values  | optional, default: [0, 1]
-dilu_fraction_bounds = [0, 1] 
+dilu_fraction_bounds = [0, 1]
 
 # Number of dilution values to use  | optional, default: 21
-dilu_n_grid = 21 
+dilu_n_grid = 21
 
 # Initial mass flow rate for counterflow configuration  | optional, default: 0.1
-mdot_initial = 0.1 
+mdot_initial = 0.2
 
 # Initial domain width for counterflow configuration (m)  | optional, default: 1.0
-dom_width_initial = 1.0 
+dom_width_initial = 1.0
 
 
 
 # ==================================================================================== #
 # Physical models used by solver
 # ==================================================================================== #
-[models] 
+[models]
 
 # Chemical mechanism to use (Cantera yaml format)
-mechanism = "~/Software/PelePhysics/Mechanisms/sCO2/mechanism.yaml" 
+mechanism = "gri30.yaml"
 
 # Transport property model from Cantera to use, see Cantera documentation for more
 # information  | optional, default: mixture-averaged  | choices are: ['mixture-
 # averaged', 'unity-Lewis-number', 'multicomponent', 'high-pressure', 'high-pressure-
 # Chung']
-transport = "unity-Lewis-number" 
+transport = "unity-Lewis-number"
 
 # Equation of State, must be a phase option in your mechanism yaml file. If
 # unspecified, the default phase from the mechanism file is used  | optional, default:
-eos = "" 
+eos = ""
 
 
 
 # ==================================================================================== #
 # Numerics for nonpremixed flame solve, see Cantera documentation for more information
 # ==================================================================================== #
-[numerics] 
+[numerics]
 
 loglevel = 0
 ratio = 2
@@ -73,53 +73,52 @@ tols = [1e-06, 1e-12]
 # ==================================================================================== #
 # Options for traversing S-curves
 # ==================================================================================== #
-[scurve] 
+[scurve]
 
 # Minimum T rise (K) for flamelet to be considered burning  | optional, default: 50
-delta_T_extinction = 50 
+delta_T_extinction = 50
 
 # Initial change in strain rate factor between successive flamelets  | optional,
 # default: 1.0
-delta_alpha_initial = 1.0 
+delta_alpha_initial = 1.0
 
 # Minimum relative change in strain rate when approaching extinction  | optional,
 # default: 0.0025
-delta_alpha_min = 0.0025 
+delta_alpha_min = 0.0025
 
 # Maximum relative change in strain rate when approaching extinction  | optional,
 # default: 3.0
-delta_alpha_max = 3.0 
+delta_alpha_max = 3.0
 
 # Maximum change in (change in strain rate) when approaching extinction  | optional,
 # default: 3.0
-delta_alpha_max_change_factor = 3.0 
+delta_alpha_max_change_factor = 3.0
 
 # Minimum temperature change to determine convergence when approaching equilibrium  |
 # optional, default: 1.0
-delta_temp_min = 1.0 
+delta_temp_min = 1.0
 
 # Maximum change in maximum temperature when approaching extinction  | optional,
 # default: 20.0
-delta_temp_max = 20.0 
+delta_temp_max = 20.0
 
 # s, Flames will be treated as unconverged if solve not completed in this time  |
 # optional, default: 300
-max_solve_time = 30 
+max_solve_time = 30
 
 
 
 # ==================================================================================== #
 # Additional options for script
 # ==================================================================================== #
-[options] 
+[options]
 
 # Using MPI requires mpi4py  | optional, default: False
-use_mpi = false 
+use_mpi = false
 
 # If specified, save chemtable metadata to this file  | optional, default:
-metadata_file = "" 
+metadata_file = ""
 
 # If specified, Cantera composition for fuel to compute cp_fuel in flame output, or
 # fuel_comp to use that input  | optional, default:
-cp_fuel_species = "" 
-
+cp_fuel_species = ""
