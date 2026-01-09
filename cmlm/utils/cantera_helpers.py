@@ -17,6 +17,8 @@ def save_flame_csv(flame, filename, cp_fuel_species=""):
             Save heat capacity for this species in the csv (optional)
     """
     data = pd.DataFrame()
+    if hasattr(flame, "mixture_fraction"):
+        data["Zmix"] = flame.mixture_fraction(m="N")
     data["X"] = flame.grid
     data["T"] = flame.T
     data["VEL"] = flame.velocity
