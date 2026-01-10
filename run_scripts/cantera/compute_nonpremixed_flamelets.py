@@ -401,6 +401,8 @@ if __name__ == "__main__":
                     flush=True,
                 )
                 # Restore last burning solution
+                if solve_failed:
+                    flame = get_new_flame()
                 file_name = os.path.join(
                     outdir, f"nonp_{label}_{n_last_burning:04d}.yaml"
                 )
