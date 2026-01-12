@@ -234,6 +234,9 @@ if __name__ == "__main__":
         elif stream_to_dilute == "oxid":
             oxidstream.mass = 1.0 - dilfact
             oxmix = oxidstream + dilustream
+        temperature_limit_extinction = (
+            max(fumix.T, oxmix.T) + delta_temperature_limit_extinction
+        )
 
         # Create and Solve initial flame
         gas = ct.Solution(mechanism, eos)
@@ -241,25 +244,27 @@ if __name__ == "__main__":
             gas.P = press
             save_table_metadata(gas, os.path.join(outdir, metadata_file))
             metadata_file = ""
-        flame = ct.CounterflowDiffusionFlame(gas, width=flame_width)
-        flame.P = press
-        flame.fuel_inlet.Y = fumix.Y
-        flame.fuel_inlet.T = fumix.T
-        flame.fuel_inlet.mdot = mdot_initial
-        flame.oxidizer_inlet.Y = oxmix.Y
-        flame.oxidizer_inlet.T = oxmix.T
-        flame.oxidizer_inlet.mdot = mdot_initial
 
-        temperature_limit_extinction = (
-            max(fumix.T, oxmix.T) + delta_temperature_limit_extinction
-        )
-        flame.set_refine_criteria(ratio=ratio, slope=slope, curve=curve, prune=prune)
-        flame.flame.set_steady_tolerances(default=tols)
-        flame.transport_model = transport
+        def get_new_flame():
+            flame = ct.CounterflowDiffusionFlame(gas, width=flame_width)  # noqa : B023
+            flame.P = press  # noqa : B023
+            flame.fuel_inlet.Y = fumix.Y  # noqa : B023
+            flame.fuel_inlet.T = fumix.T  # noqa : B023
+            flame.fuel_inlet.mdot = mdot_initial
+            flame.oxidizer_inlet.Y = oxmix.Y  # noqa : B023
+            flame.oxidizer_inlet.T = oxmix.T  # noqa : B023
+            flame.oxidizer_inlet.mdot = mdot_initial
+            flame.set_refine_criteria(
+                ratio=ratio, slope=slope, curve=curve, prune=prune
+            )
+            flame.flame.set_steady_tolerances(default=tols)
+            flame.transport_model = transport
+            return flame
+
+        flame = get_new_flame()
 
         print(f"Rank {rank}: Creating the initial solution", flush=True)
         flame.solve(loglevel=loglevel, auto=True)
-
         n_init = 1000
         n = n_init
         n_last_burning = n
@@ -353,12 +358,25 @@ if __name__ == "__main__":
                 # If the temperature difference is too small and the minimum relative
                 # strain rate increase is reached, save the last, non-burning, solution
                 # to the output file and break the loop
+
+                # if last solve failed, recompute with vhigh strain to get extinct flame
+                if solve_failed:
+                    ext_alpha = 5.0 * alpha[n_last_burning]
+                    alpha[-1] = ext_alpha
+                    print(
+                        f"rank {rank}: Solving for an extinct flame with alpha = {ext_alpha}"
+                    )
+                    flame = get_new_flame()
+                    update_flame(flame, ext_alpha)
+                    flame.solve()
+
                 T_max.append(np.max(flame.T))
                 a_max.append(
                     np.max(
                         np.abs(np.gradient(flame.velocity) / np.gradient(flame.grid))
                     )
                 )
+
                 file_name = os.path.join(outdir, f"nonp_{label}_final_{n:04d}")
                 flame.save(f"{file_name}.yaml", name=f"solution_{label}")
                 save_flame_csv(flame, f"{file_name}.csv", cp_fuel_species)
@@ -383,6 +401,8 @@ if __name__ == "__main__":
                     flush=True,
                 )
                 # Restore last burning solution
+                if solve_failed:
+                    flame = get_new_flame()
                 file_name = os.path.join(
                     outdir, f"nonp_{label}_{n_last_burning:04d}.yaml"
                 )
@@ -395,6 +415,7 @@ if __name__ == "__main__":
 
         # Simulate counterflow flames at decreasing strain rates toward equilibrium
         # Reload initial flame to start
+        flame = get_new_flame()
         file_name = os.path.join(outdir, f"nonp_{label}_{n_init:04d}.yaml")
         flame.restore(file_name, name=f"solution_{label}")
         n = n_init
