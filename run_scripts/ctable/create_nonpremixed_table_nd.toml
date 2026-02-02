@@ -1,0 +1,14 @@
+[options]
+use_mpi = true
+flamelet_files = 'nonpremixed_flames/extinction*csv'
+
+[model]
+prog_definition = {H2O=1, CO2=1, H2=1, CO=1}
+table_vars = ["ZMIX", "ZVAR", "WMIX"]
+keep_vars = ["Y_O2"]
+ZMIX_grid = {type="array", grid=[6,11]}
+
+[model.ZVAR_grid]
+type = "linear"
+bounds = [0,0.05,0.25]
+ngrid = [6,11]

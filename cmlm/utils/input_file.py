@@ -31,8 +31,8 @@ def recursively_update_dict(base, new):
         new: dict-like
             (Nested) dictionary entries to update in base
     """
-    for key in new:
-        if key not in base:
+    for key in new.keys():
+        if key not in base.keys():
             base[key] = new[key]
         else:
             if hasattr(new[key], "keys"):
@@ -396,7 +396,7 @@ class TomlParmParse:
                     f"Required item <{item_name}> (doc: {doc}) not found in"
                     f"TomlParmParse object {self.name}."
                 )
-        self[item_name] = retval
+            self[item_name] = retval
 
         if choices is not None:
             if retval not in choices:
@@ -452,6 +452,33 @@ class TomlParmParse:
             self.data.comment(doc)
             self.accessed_data.comment(doc)
         return self
+
+    def comment(self, doc):
+        """
+        Add a high level comment to the TOML document.
+
+        Parameters
+        ----------
+            doc: optional
+                string to add as a comment in the TOML file
+        """
+        if self.output_type == "doc":
+            self.data.comment(doc)
+            self.accessed_data.comment(doc)
+
+    def to_dict(self):
+        """
+        Return a (nested) dict containing contents.
+        """
+        new_dict = {}
+        recursively_update_dict(new_dict, self)
+        return new_dict
+
+    def keys(self):
+        """
+        Return the keys available at this level.
+        """
+        return self.data.keys()
 
     def dump(self, outfile=None):
         """
