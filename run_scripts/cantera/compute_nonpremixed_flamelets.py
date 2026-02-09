@@ -241,7 +241,7 @@ if __name__ == "__main__":
         # Create and Solve initial flame
         gas = ct.Solution(mechanism, eos)
         if metadata_file != "" and rank == 0:
-            gas.TP = oxmix.T, press     # putting a dummy temperature
+            gas.TP = oxmix.T, press  # putting a dummy temperature
             save_table_metadata(gas, os.path.join(outdir, metadata_file))
             metadata_file = ""
 
