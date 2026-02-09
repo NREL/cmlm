@@ -1,0 +1,199 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Getting Started &mdash; CMLM 2025 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=cb975c41"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Library/API" href="library-api.html" />
+    <link rel="prev" title="Welcome to the documentation for Co-optimized Machine-Learned Manifolds (CMLM)!" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CMLM
+              <img src="_static/cmlm-net.pdf" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dependencies-installation">Dependencies &amp; Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-cmlm">Using CMLM</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="library-api.html">Library/API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="library-api.html#neural-network-models">Neural Network Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library-api.html#tabulated-models">Tabulated Models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/cmlm.ctable_tools.html">cmlm.ctable_tools</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="library-api.html#general-utilities">General Utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/cmlm.utils.input_file.html">cmlm.utils.input_file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cmlm.utils.timer.html">cmlm.utils.timer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cmlm.utils.cantera_helpers.html">cmlm.utils.cantera_helpers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="command-line-tools.html">Command Line Tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="command-line-tools.html#ctable-tools">ctable_tools</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="run-scripts.html">Run Scripts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="run-scripts.html#cantera">cantera</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="run-scripts.html#module-compute_premixed_flamelets">compute_premixed_flamelets.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="run-scripts.html#module-compute_nonpremixed_flamelets">compute_nonpremixed_flamelets.py</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="run-scripts.html#ctable">ctable</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="run-scripts.html#module-create_dummy_table_nd">create_dummy_table_nd.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="run-scripts.html#module-create_spray_table_nd">create_spray_table_nd.py</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Questions &amp; Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#discussions">Discussions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#contributions">Contributions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#formatting-guidelines">Formatting Guidelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#building-the-documentation">Building the Documentation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="citation.html">Citation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="citation.html#software">Software</a></li>
+<li class="toctree-l2"><a class="reference internal" href="citation.html#model">Model</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CMLM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Getting Started</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/getting-started.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="getting-started">
+<span id="id1"></span><h1>Getting Started<a class="headerlink" href="#getting-started" title="Link to this heading"></a></h1>
+<p>CMLM is just a python package and a collection of scripts that utilize that package. It depends on many standard python libraries and the workflow for installing and using it resembles many python codes for scientific computing.</p>
+<section id="dependencies-installation">
+<h2>Dependencies &amp; Installation<a class="headerlink" href="#dependencies-installation" title="Link to this heading"></a></h2>
+<p>First, it is a good idea to use a tool like <code class="docutils literal notranslate"><span class="pre">conda</span></code> to create and activate an environment for your install, but that isn’t strictly required:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ conda create -n cmlm python=3.11
+$ conda activate cmlm
+</pre></div>
+</div>
+<p>Dependencies for CMLM are primarily managed through <a class="reference external" href="https://python-poetry.org/docs/#installation">poetry</a>. Poetry is therefore recommended to use CMLM and can be installed in a variety of ways. Most recommended would be to install it within the environment you just created (<code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">conda</span> <span class="pre">install</span> <span class="pre">poetry</span></code>) but it may also be installed through system package managers (e.g. HomeBrew) or following the instructions in poetry’s documentation.</p>
+<p>To install all CMLM dependencies, from the base directory of the CMLM repository, simply run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ poetry install --all-extras
+</pre></div>
+</div>
+<p>Then, run any python script (replace <code class="docutils literal notranslate"><span class="pre">script_name.py</span></code> with the desired script) using:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ poetry run python script_name.py
+</pre></div>
+</div>
+<p>Many users will not require or desire all dependencies. A base install with limited functionality can be achieved by omitting the <code class="docutils literal notranslate"><span class="pre">--all-extras</span></code>. Available
+dependency groups include <code class="docutils literal notranslate"><span class="pre">ml</span></code>, <code class="docutils literal notranslate"><span class="pre">parallel</span></code>, and <code class="docutils literal notranslate"><span class="pre">dev</span></code> and can be specified using, for example <code class="docutils literal notranslate"><span class="pre">poetry</span> <span class="pre">install</span> <span class="pre">--extras</span> <span class="pre">ml</span></code>. The <code class="docutils literal notranslate"><span class="pre">parallel</span></code> group should only be included if you have a valid MPI installation.</p>
+<p>If you prefer, you can review the required dependencies in the <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code> file and manually install with your favorite package manager, then run the python scripts as normal. We also support installation through pip (using the  <code class="docutils literal notranslate"><span class="pre">[]</span></code> to chose which sets of optional dependencies to include):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ pip install -e .[ml,parallel,dev]
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Currently only dependencies for the tabulated chemistry portion of CMLM are managed properly. Adding this support for the ML part of CMLM is a work in progress.</p>
+</div>
+</section>
+<section id="using-cmlm">
+<h2>Using CMLM<a class="headerlink" href="#using-cmlm" title="Link to this heading"></a></h2>
+<p>CMLM contains three components:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="library-api.html#library-api"><span class="std std-ref">Library/API</span></a>: The core of CMLM is a python package that contains classes and functions associated with generating tabulated models and training neural network models. Corresponds to the <code class="docutils literal notranslate"><span class="pre">cmlm/</span></code> subdirectory in the repository.</p></li>
+<li><p><a class="reference internal" href="command-line-tools.html#command-line-tools"><span class="std std-ref">Command Line Tools</span></a>: Runable utilities installed as part of the CMLM package for interacting with the tabulated and neural network models. Also comes from the <code class="docutils literal notranslate"><span class="pre">cmlm/</span></code> subdirectory in the repository.</p></li>
+<li><p><a class="reference internal" href="run-scripts.html#run-scripts"><span class="std std-ref">Run Scripts</span></a>: A set of sample scripts that utilize the API above for various aspects of the model generation workflow, including data generation, data processing, and synthesizing data into a model. Corresponds to the <code class="docutils literal notranslate"><span class="pre">run-scripts</span></code> subdirectory in the repository.</p></li>
+</ul>
+<p>Most users will begin by running the contained example scripts (supplemented by the command line tools) to generate models, then incorporate these models into simulations performed with the Pele suite. Advanced users will create their own scripts utilizing the CMLM package through the documented API to create new types of models.</p>
+<p>Head to the <a class="reference internal" href="tutorials.html#tutorials"><span class="std std-ref">Tutorials</span></a> section for example workflows that leverage CMLM to generate reduced-order manifold turbulent combustion models and then apply these in Pele simulations.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to the documentation for Co-optimized Machine-Learned Manifolds (CMLM)!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="library-api.html" class="btn btn-neutral float-right" title="Library/API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025 Alliance for Sustainable Energy, LLC.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

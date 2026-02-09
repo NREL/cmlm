@@ -1,0 +1,377 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cmlm.utils.input_file &mdash; CMLM 2025 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=cb975c41"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="cmlm.utils.timer" href="cmlm.utils.timer.html" />
+    <link rel="prev" title="cmlm.ctable_tools" href="cmlm.ctable_tools.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            CMLM
+              <img src="../_static/cmlm-net.pdf" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting-started.html#dependencies-installation">Dependencies &amp; Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting-started.html#using-cmlm">Using CMLM</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../library-api.html">Library/API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../library-api.html#neural-network-models">Neural Network Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../library-api.html#tabulated-models">Tabulated Models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cmlm.ctable_tools.html">cmlm.ctable_tools</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="../library-api.html#general-utilities">General Utilities</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">cmlm.utils.input_file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cmlm.utils.timer.html">cmlm.utils.timer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cmlm.utils.cantera_helpers.html">cmlm.utils.cantera_helpers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../command-line-tools.html">Command Line Tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../command-line-tools.html#ctable-tools">ctable_tools</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../run-scripts.html">Run Scripts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../run-scripts.html#cantera">cantera</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../run-scripts.html#module-compute_premixed_flamelets">compute_premixed_flamelets.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../run-scripts.html#module-compute_nonpremixed_flamelets">compute_nonpremixed_flamelets.py</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../run-scripts.html#ctable">ctable</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../run-scripts.html#module-create_dummy_table_nd">create_dummy_table_nd.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../run-scripts.html#module-create_spray_table_nd">create_spray_table_nd.py</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Questions &amp; Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#discussions">Discussions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#contributions">Contributions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../contributing.html#formatting-guidelines">Formatting Guidelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contributing.html#building-the-documentation">Building the Documentation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../citation.html">Citation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../citation.html#software">Software</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../citation.html#model">Model</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CMLM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../library-api.html">Library/API</a></li>
+      <li class="breadcrumb-item active">cmlm.utils.input_file</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/generated/cmlm.utils.input_file.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-cmlm.utils.input_file">
+<span id="cmlm-utils-input-file"></span><h1>cmlm.utils.input_file<a class="headerlink" href="#module-cmlm.utils.input_file" title="Link to this heading"></a></h1>
+<p>A module for interacting with TOML format input files based on tomlkit.</p>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cmlm.utils.input_file.beautify_document" title="cmlm.utils.input_file.beautify_document"><code class="xref py py-obj docutils literal notranslate"><span class="pre">beautify_document</span></code></a>(doc[, max_inline_length, ...])</p></td>
+<td><p>Move inline comments top line above item in TOML string.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cmlm.utils.input_file.recursively_update_dict" title="cmlm.utils.input_file.recursively_update_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">recursively_update_dict</span></code></a>(base, new)</p></td>
+<td><p>Update items and subitems in one nested dict-like object based on another.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cmlm.utils.input_file.scalar_to_list" title="cmlm.utils.input_file.scalar_to_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scalar_to_list</span></code></a>(val)</p></td>
+<td><p>Leave lists as is, convert scalars to 1 element lists.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Classes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cmlm.utils.input_file.TomlParmParse" title="cmlm.utils.input_file.TomlParmParse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TomlParmParse</span></code></a>(datadict[, accessed_data, ...])</p></td>
+<td><p>Wrapper for tomlkit document class.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="cmlm.utils.input_file.TomlParmParse">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">cmlm.utils.input_file.</span></span><span class="sig-name descname"><span class="pre">TomlParmParse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datadict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accessed_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'&lt;base&gt;'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cmlm.utils.input_file.TomlParmParse" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Wrapper for tomlkit document class.</p>
+<p>Enables a few new features:
+- Easier access to nested parameters
+- Autodocumentation of inputs
+- Combining inputs from the command line and an input file
+- Saving the config that was actually used
+- Optionally raise errors for unused inputs</p>
+<p>Inspired by the ParmParse class from AMReX, but quite different.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datadict</strong> (<em>tomlkit.TOMLDocument</em>) – input TOMLDocument that has been read in</p></li>
+<li><p><strong>accessed_data</strong> (<em>tomlkit.TOMLDocument</em><em>, </em><em>optional</em>) – shows which entries from data_dict have already been accessed
+Default None.</p></li>
+<li><p><strong>base</strong> (<a class="reference internal" href="#cmlm.utils.input_file.TomlParmParse" title="cmlm.utils.input_file.TomlParmParse"><em>TomlParmParse</em></a><em>, </em><em>optional</em>) – Parent TomlParmParse object. If None, this is a base TomlParmParse
+object and output will occur during garbage collecting if requested.
+Default None.</p></li>
+<li><p><strong>output</strong> (<em>string</em><em>, </em><em>optional kwarg</em>) – Directory in which to save output. Default None (no output saved).</p></li>
+<li><p><strong>output_type</strong> (<em>str</em><em>, </em><em>optional kwarg</em>) – Type of output to save: “clean” will save only inputs used with no comments.
+“doc” will save only inputs used with comments generated based on doc info
+provided when accessing variables. “original” keeps all variables, comments,
+and formatting from the provided input file. Default “clean”.</p></li>
+<li><p><strong>no_overwrite</strong> (<em>bool</em><em>, </em><em>optional kwarg</em>) – Raise an error if multiple different values are set/accessed for a variable.
+Default False.</p></li>
+<li><p><strong>error_unused</strong> (<em>bool</em><em>, </em><em>optional kwarg</em>) – Raise an error for unused variables in input file. Default False.</p></li>
+<li><p><strong>live_update</strong> (<em>bool</em><em>, </em><em>optional kwarg</em>) – Continuously update output file as code runs. Default False.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="cmlm.utils.input_file.TomlParmParse.check_unused_inputs">
+<span class="sig-name descname"><span class="pre">check_unused_inputs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#cmlm.utils.input_file.TomlParmParse.check_unused_inputs" title="Link to this definition"></a></dt>
+<dd><p>Return any keys in table that have not been used.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cmlm.utils.input_file.TomlParmParse.doc">
+<span class="sig-name descname"><span class="pre">doc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cmlm.utils.input_file.TomlParmParse.doc" title="Link to this definition"></a></dt>
+<dd><p>Add a high level comment to the TOML document.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>doc</strong> (<em>optional</em>) – string to add as a comment in the TOML file</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>self</strong> – The updated TomlParmParse object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cmlm.utils.input_file.TomlParmParse" title="cmlm.utils.input_file.TomlParmParse">TomlParmParse</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cmlm.utils.input_file.TomlParmParse.dump">
+<span class="sig-name descname"><span class="pre">dump</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outfile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cmlm.utils.input_file.TomlParmParse.dump" title="Link to this definition"></a></dt>
+<dd><p>Output TomlParmParse data to file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>outfile</strong> (<em>str</em><em>, </em><em>optional</em>) – file name to save to</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cmlm.utils.input_file.TomlParmParse.get">
+<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">choices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cmlm.utils.input_file.TomlParmParse.get" title="Link to this definition"></a></dt>
+<dd><p>Retrieve a leaf or subtable form the TomlParmParse table.</p>
+<p>Can optionally specify a default, otherwise an error will be raised if
+not found. Can also optionally specify a doc string to add to the
+TOML file for the input being retrieved.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>item_name</strong> (<em>str</em>) – key to lookup in table. May parse through multiple levels in hierarchy
+by separating different levels with periods, e.g. lev1name.level2name.lev3name</p></li>
+<li><p><strong>default</strong> (<em>optional</em>) – value to use if item_name is not found in table</p></li>
+<li><p><strong>doc</strong> (<em>optional</em>) – string to add as a comment in the TOML file</p></li>
+<li><p><strong>choices</strong> (<em>optional</em>) – list or tuple of allowable options for input parameter. If specified,
+an error will be raised if the specified value is not in the list.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>retval</strong> – If item_name is not a leaf, a subtable of the TomlParmParse object, otherwise
+the leaf (which may be a string, int, list, etc.)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cmlm.utils.input_file.TomlParmParse" title="cmlm.utils.input_file.TomlParmParse">TomlParmParse</a> or any</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cmlm.utils.input_file.TomlParmParse.parse_args">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">parse_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">infile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">require_output</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cmlm.utils.input_file.TomlParmParse.parse_args" title="Link to this definition"></a></dt>
+<dd><p>Parse command line arguments specifying file and arguments to create a TPP.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>description</strong> (<em>str</em><em>, </em><em>optional</em>) – Short description of program for which config is being loaded</p></li>
+<li><p><strong>infile</strong> (<em>str</em><em>, </em><em>optional</em>) – Default TOML input file to use</p></li>
+<li><p><strong>require_output</strong> (<em>bool</em><em>, </em><em>optional</em>) – if true, the <cite>-o</cite> command line argument is required. Default False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>tpp</strong> – A TOML ParmParser</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cmlm.utils.input_file.TomlParmParse" title="cmlm.utils.input_file.TomlParmParse">TomlParmParse</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cmlm.utils.input_file.TomlParmParse.parse_file">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">parse_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">additional_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cmlm.utils.input_file.TomlParmParse.parse_file" title="Link to this definition"></a></dt>
+<dd><p>Parse a file and/or string into a TomlParmParse object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_name</strong> (<em>str</em><em> (</em><em>path-like</em><em>)</em><em>, </em><em>optional</em>) – File to load as a tomlkit Document</p></li>
+<li><p><strong>additional_args</strong> (<em>str</em><em> (</em><em>toml</em><em>)</em><em>, </em><em>optional</em>) – TOML format string of parameters to add to the file</p></li>
+<li><p><strong>kwargs</strong> (<em>optional</em>) – Passed to TomlParmParse constructor</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>tpp</strong> – A TOML ParmParser</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cmlm.utils.input_file.TomlParmParse" title="cmlm.utils.input_file.TomlParmParse">TomlParmParse</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cmlm.utils.input_file.TomlParmParse.set">
+<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cmlm.utils.input_file.TomlParmParse.set" title="Link to this definition"></a></dt>
+<dd><p>Set value for a leaf in the table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>item_name</strong> (<em>str</em>) – key for the item being added</p></li>
+<li><p><strong>value</strong> (<em>int</em><em>, </em><em>str</em><em>, </em><em>list</em><em>, </em><em>etc.</em>) – value for the item being added (must be TOML format compatible type)</p></li>
+<li><p><strong>doc</strong> (<em>str</em>) – comment to add for item in TOML file</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cmlm.utils.input_file.beautify_document">
+<span class="sig-prename descclassname"><span class="pre">cmlm.utils.input_file.</span></span><span class="sig-name descname"><span class="pre">beautify_document</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_inline_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_line_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">88</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cmlm.utils.input_file.beautify_document" title="Link to this definition"></a></dt>
+<dd><p>Move inline comments top line above item in TOML string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>doc</strong> (<em>str</em><em> (</em><em>TOML format</em><em>)</em>) – string representation of document being updated</p></li>
+<li><p><strong>max_inline_length</strong> (<em>int</em><em>, </em><em>default 20</em>) – Maximum length of comment to leave as inline, but total line
+length must still be less than max_line_length or comment will be moved</p></li>
+<li><p><strong>max_line_length</strong> (<em>int</em><em>, </em><em>default 88</em>) – Maximum line length for wrapping comment text</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cmlm.utils.input_file.recursively_update_dict">
+<span class="sig-prename descclassname"><span class="pre">cmlm.utils.input_file.</span></span><span class="sig-name descname"><span class="pre">recursively_update_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">base</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cmlm.utils.input_file.recursively_update_dict" title="Link to this definition"></a></dt>
+<dd><p>Update items and subitems in one nested dict-like object based on another.</p>
+<p>For each key in new.keys(), replace base[key] with new[key], unless
+new[key] also has a .keys() attribute, in which case this function
+is recursively called to update the sub-dict-like.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>base</strong> (<em>dict-like</em>) – Input (nested) dictionary to update</p></li>
+<li><p><strong>new</strong> (<em>dict-like</em>) – (Nested) dictionary entries to update in base</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cmlm.utils.input_file.scalar_to_list">
+<span class="sig-prename descclassname"><span class="pre">cmlm.utils.input_file.</span></span><span class="sig-name descname"><span class="pre">scalar_to_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cmlm.utils.input_file.scalar_to_list" title="Link to this definition"></a></dt>
+<dd><p>Leave lists as is, convert scalars to 1 element lists.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cmlm.ctable_tools.html" class="btn btn-neutral float-left" title="cmlm.ctable_tools" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cmlm.utils.timer.html" class="btn btn-neutral float-right" title="cmlm.utils.timer" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025 Alliance for Sustainable Energy, LLC.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

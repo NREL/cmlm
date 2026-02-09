@@ -1,0 +1,204 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cmlm.utils.cantera_helpers &mdash; CMLM 2025 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=cb975c41"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Command Line Tools" href="../command-line-tools.html" />
+    <link rel="prev" title="cmlm.utils.timer" href="cmlm.utils.timer.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            CMLM
+              <img src="../_static/cmlm-net.pdf" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting-started.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting-started.html#dependencies-installation">Dependencies &amp; Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting-started.html#using-cmlm">Using CMLM</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../library-api.html">Library/API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../library-api.html#neural-network-models">Neural Network Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../library-api.html#tabulated-models">Tabulated Models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="cmlm.ctable_tools.html">cmlm.ctable_tools</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="../library-api.html#general-utilities">General Utilities</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="cmlm.utils.input_file.html">cmlm.utils.input_file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cmlm.utils.timer.html">cmlm.utils.timer</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">cmlm.utils.cantera_helpers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../command-line-tools.html">Command Line Tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../command-line-tools.html#ctable-tools">ctable_tools</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../run-scripts.html">Run Scripts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../run-scripts.html#cantera">cantera</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../run-scripts.html#module-compute_premixed_flamelets">compute_premixed_flamelets.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../run-scripts.html#module-compute_nonpremixed_flamelets">compute_nonpremixed_flamelets.py</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../run-scripts.html#ctable">ctable</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../run-scripts.html#module-create_dummy_table_nd">create_dummy_table_nd.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../run-scripts.html#module-create_spray_table_nd">create_spray_table_nd.py</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Questions &amp; Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#discussions">Discussions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing.html#contributions">Contributions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../contributing.html#formatting-guidelines">Formatting Guidelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../contributing.html#building-the-documentation">Building the Documentation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../citation.html">Citation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../citation.html#software">Software</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../citation.html#model">Model</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CMLM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../library-api.html">Library/API</a></li>
+      <li class="breadcrumb-item active">cmlm.utils.cantera_helpers</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/generated/cmlm.utils.cantera_helpers.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-cmlm.utils.cantera_helpers">
+<span id="cmlm-utils-cantera-helpers"></span><h1>cmlm.utils.cantera_helpers<a class="headerlink" href="#module-cmlm.utils.cantera_helpers" title="Link to this heading"></a></h1>
+<p>Helper functions for using Cantera.</p>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#cmlm.utils.cantera_helpers.save_flame_csv" title="cmlm.utils.cantera_helpers.save_flame_csv"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_flame_csv</span></code></a>(flame, filename[, ...])</p></td>
+<td><p>Save a csv file with data from a Cantera 1D flame.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#cmlm.utils.cantera_helpers.save_table_metadata" title="cmlm.utils.cantera_helpers.save_table_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_table_metadata</span></code></a>(gas, filename)</p></td>
+<td><p>Save metadata file from Cantera solution object.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="cmlm.utils.cantera_helpers.save_flame_csv">
+<span class="sig-prename descclassname"><span class="pre">cmlm.utils.cantera_helpers.</span></span><span class="sig-name descname"><span class="pre">save_flame_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">flame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cp_fuel_species</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cmlm.utils.cantera_helpers.save_flame_csv" title="Link to this definition"></a></dt>
+<dd><p>Save a csv file with data from a Cantera 1D flame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>flame</strong> (<em>cantera 1D flame</em>) – Flame object with data to be saved</p></li>
+<li><p><strong>filename</strong> (<em>str</em><em>, </em><em>path-like</em>) – csv file to save data to</p></li>
+<li><p><strong>cp_fuel_species</strong> (<em>str</em>) – Save heat capacity for this species in the csv (optional)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cmlm.utils.cantera_helpers.save_table_metadata">
+<span class="sig-prename descclassname"><span class="pre">cmlm.utils.cantera_helpers.</span></span><span class="sig-name descname"><span class="pre">save_table_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#cmlm.utils.cantera_helpers.save_table_metadata" title="Link to this definition"></a></dt>
+<dd><p>Save metadata file from Cantera solution object.</p>
+<p>The metadata file will have AMReX ParmParse format and contain necessary data to
+run Spray simulations with tabulated chemistry in PeleLMeX.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gas</strong> (<em>Cantera Solution object</em>) – Must have pressure defined</p></li>
+<li><p><strong>filename</strong> (<em>str</em><em>, </em><em>path-like</em>) – Where data will be saved</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cmlm.utils.timer.html" class="btn btn-neutral float-left" title="cmlm.utils.timer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../command-line-tools.html" class="btn btn-neutral float-right" title="Command Line Tools" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025 Alliance for Sustainable Energy, LLC.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

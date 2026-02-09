@@ -1,0 +1,258 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Run Scripts &mdash; CMLM 2025 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=cb975c41"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Tutorials" href="tutorials.html" />
+    <link rel="prev" title="Command Line Tools" href="command-line-tools.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CMLM
+              <img src="_static/cmlm-net.pdf" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="getting-started.html#dependencies-installation">Dependencies &amp; Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting-started.html#using-cmlm">Using CMLM</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="library-api.html">Library/API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="library-api.html#neural-network-models">Neural Network Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library-api.html#tabulated-models">Tabulated Models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/cmlm.ctable_tools.html">cmlm.ctable_tools</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="library-api.html#general-utilities">General Utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/cmlm.utils.input_file.html">cmlm.utils.input_file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cmlm.utils.timer.html">cmlm.utils.timer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cmlm.utils.cantera_helpers.html">cmlm.utils.cantera_helpers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="command-line-tools.html">Command Line Tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="command-line-tools.html#ctable-tools">ctable_tools</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Run Scripts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cantera">cantera</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-compute_premixed_flamelets">compute_premixed_flamelets.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-compute_nonpremixed_flamelets">compute_nonpremixed_flamelets.py</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#ctable">ctable</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-create_dummy_table_nd">create_dummy_table_nd.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-create_spray_table_nd">create_spray_table_nd.py</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Questions &amp; Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#discussions">Discussions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#contributions">Contributions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#formatting-guidelines">Formatting Guidelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#building-the-documentation">Building the Documentation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="citation.html">Citation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="citation.html#software">Software</a></li>
+<li class="toctree-l2"><a class="reference internal" href="citation.html#model">Model</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CMLM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Run Scripts</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/run-scripts.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="run-scripts">
+<span id="id1"></span><h1>Run Scripts<a class="headerlink" href="#run-scripts" title="Link to this heading"></a></h1>
+<p>These scripts all use the TomlParmParse utility to manage configuration/inputs. Sample
+inputs with descriptions are included in <code class="docutils literal notranslate"><span class="pre">.toml</span></code> files with the same base file name
+as the script. All scripts can be run using:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">script_name</span><span class="o">.</span><span class="n">py</span> <span class="n">script_name</span><span class="o">.</span><span class="n">toml</span>
+</pre></div>
+</div>
+<p>Adding the <code class="docutils literal notranslate"><span class="pre">-h</span></code> flag will give the additional command line inputs that are associated
+with the TomlParmParse utility:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">positional</span> <span class="n">arguments</span><span class="p">:</span>
+  <span class="n">infile</span>                <span class="n">Input</span> <span class="n">file</span> <span class="n">to</span> <span class="n">parse</span> <span class="n">inputs</span> <span class="kn">from</span>
+
+<span class="nn">options</span><span class="p">:</span>
+  <span class="o">-</span><span class="n">h</span><span class="p">,</span> <span class="o">--</span><span class="n">help</span>            <span class="n">show</span> <span class="n">this</span> <span class="n">help</span> <span class="n">message</span> <span class="ow">and</span> <span class="n">exit</span>
+  <span class="o">-</span><span class="n">o</span> <span class="n">OUTPUT</span><span class="p">,</span> <span class="o">--</span><span class="n">output</span> <span class="n">OUTPUT</span>
+                        <span class="n">File</span> <span class="p">(</span><span class="o">.</span><span class="n">toml</span><span class="p">)</span> <span class="ow">or</span> <span class="n">directory</span> <span class="ow">in</span> <span class="n">which</span> <span class="n">to</span> <span class="n">write</span> <span class="n">used</span> <span class="n">inputs</span><span class="o">/</span><span class="n">outputs</span>
+  <span class="o">-</span><span class="n">t</span> <span class="n">OUTPUT_TYPE</span><span class="p">,</span> <span class="o">--</span><span class="n">output_type</span> <span class="n">OUTPUT_TYPE</span>
+                        <span class="n">Type</span> <span class="n">of</span> <span class="n">output</span> <span class="n">file</span><span class="p">:</span> <span class="o">*</span><span class="n">doc</span><span class="o">*</span><span class="p">:</span> <span class="n">include</span> <span class="n">comments</span> <span class="n">documenting</span> <span class="n">used</span> <span class="n">inputs</span> <span class="o">*</span><span class="n">clean</span><span class="o">*</span><span class="p">:</span> <span class="n">no</span> <span class="n">comments</span><span class="p">,</span> <span class="n">only</span> <span class="n">used</span> <span class="n">inputs</span> <span class="o">*</span><span class="n">original</span><span class="o">*</span><span class="p">:</span> <span class="nb">input</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">original</span> <span class="n">formatting</span>
+  <span class="o">-</span><span class="n">a</span> <span class="n">ARGS</span><span class="p">,</span> <span class="o">--</span><span class="n">args</span> <span class="n">ARGS</span>  <span class="n">Override</span> <span class="n">arguments</span><span class="p">,</span> <span class="k">as</span> <span class="n">a</span> <span class="n">toml</span> <span class="n">string</span>
+  <span class="o">-</span><span class="n">w</span><span class="p">,</span> <span class="o">--</span><span class="n">no_overwrite</span>    <span class="n">Disallow</span> <span class="n">overwriting</span> <span class="n">entries</span> <span class="n">once</span> <span class="n">they</span> <span class="n">have</span> <span class="n">been</span> <span class="n">used</span> <span class="ow">or</span> <span class="nb">set</span>
+  <span class="o">-</span><span class="n">e</span><span class="p">,</span> <span class="o">--</span><span class="n">error_unused</span>    <span class="n">Raise</span> <span class="n">error</span> <span class="k">if</span> <span class="n">there</span> <span class="n">are</span> <span class="n">unused</span> <span class="n">inputs</span>
+  <span class="o">-</span><span class="n">l</span><span class="p">,</span> <span class="o">--</span><span class="n">live_update</span>     <span class="n">Update</span> <span class="n">output</span> <span class="n">file</span> <span class="n">continuously</span> <span class="k">as</span> <span class="n">code</span> <span class="n">runs</span>
+</pre></div>
+</div>
+<p>Notably, specifying <code class="docutils literal notranslate"><span class="pre">-o</span></code> will result in a new toml file with the configuration that
+was used, including documentation for each input by default, and <code class="docutils literal notranslate"><span class="pre">-a</span></code> allows inputs
+that are usually specified in the input file to be specified on the command line.</p>
+<hr class="docutils" />
+<section id="cantera">
+<h2>cantera<a class="headerlink" href="#cantera" title="Link to this heading"></a></h2>
+<p>These python scripts use Cantera to generate 1D flame solutions that will then be
+compiled into tabulated chemistry tables.</p>
+<hr class="docutils" />
+<section id="module-compute_premixed_flamelets">
+<span id="compute-premixed-flamelets-py"></span><h3>compute_premixed_flamelets.py<a class="headerlink" href="#module-compute_premixed_flamelets" title="Link to this heading"></a></h3>
+<p>Compute 1D unstrained premixed flamelets using Cantera.</p>
+<p>Flames can be computed across a range of conditions including
+pressures, temperatures, and compositions. Three methods are
+possible for specifying composition sweeps: equivalence ratio,
+mixture fraction, and directly specifying a composition.</p>
+<p>Uses TOML format input files (see example input file for more details)
+and requires specification of an output directory on the command line:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">compute_premixed_flamelets</span><span class="o">.</span><span class="n">py</span> <span class="n">compute_premixed_flamelets</span><span class="o">.</span><span class="n">toml</span> <span class="o">-</span><span class="n">o</span> <span class="n">output</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="module-compute_nonpremixed_flamelets">
+<span id="compute-nonpremixed-flamelets-py"></span><h3>compute_nonpremixed_flamelets.py<a class="headerlink" href="#module-compute_nonpremixed_flamelets" title="Link to this heading"></a></h3>
+<p>Script to solve 1D nonpremixed flames at varied conditions using Cantera.</p>
+<p>The user specified physical conditions including pressure (constant) and
+the temperature and composition of up to three streams: fuel, oxidizer,
+and a dilution stream that is mixed with one of these streams prior
+to reaction. Supports computations with varied mechanisms, transport
+models, and equations of state (all handled through Cantera).</p>
+<p>Uses TOML format input files (see example input file for more details)
+and requires specification of an output directory on the command line:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">compute_nonpremixed_flamelets</span><span class="o">.</span><span class="n">py</span> <span class="n">compute_nonpremixed_flamelets</span><span class="o">.</span><span class="n">toml</span> <span class="o">-</span><span class="n">o</span> <span class="n">output</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+<p>.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="ctable">
+<h2>ctable<a class="headerlink" href="#ctable" title="Link to this heading"></a></h2>
+<p>These python scripts use the CMLM package to generate tabulated chemistry data.</p>
+<hr class="docutils" />
+<section id="module-create_dummy_table_nd">
+<span id="create-dummy-table-nd-py"></span><h3>create_dummy_table_nd.py<a class="headerlink" href="#module-create_dummy_table_nd" title="Link to this heading"></a></h3>
+<p>Create sample chemtables with dummy data for testing purposes.</p>
+<p>Uses TOML format input files (see example input file for more details):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">create_dummy_table_nd</span><span class="o">.</span><span class="n">py</span> <span class="n">create_dummy_table_nd</span><span class="o">.</span><span class="n">toml</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="module-create_spray_table_nd">
+<span id="create-spray-table-nd-py"></span><h3>create_spray_table_nd.py<a class="headerlink" href="#module-create_spray_table_nd" title="Link to this heading"></a></h3>
+<p>Create chemtable for nonreacting multicomponent spray evaporation problems.</p>
+<p>The table will have a number of dimensions (mixture fractions) equal to the number
+of spray components, because mixing with oxidizer is also considered. If the
+<code class="docutils literal notranslate"><span class="pre">use_fmix</span></code> option is specified, instead of standard mixture fractions (sum to 1,
+state space is the unit simplex), the table is populated in terms of normalized
+mixture fractions (each goes from 0 to 1, state space is a unit cube). Liquid
+fuel temperatures and latent heats are specified for each fuel; it is assumed
+that the gas phase temperature adjacent to the droplet is temperature that conserves
+enthalpy (i.e., it is lower than the liquid temperature due to the vaporization
+process).</p>
+<p>This script uses Cantera and the user must specify a Cantera yaml format chemical
+mechanism. The <cite>liquid_fuels_nonreacting</cite> mechanism that comes with PelePhysics
+is likely a good choice.</p>
+<p>Uses TOML format input files (see example input file for more details):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">create_spray_table_nd</span><span class="o">.</span><span class="n">py</span> <span class="n">create_spray_table_nd</span><span class="o">.</span><span class="n">toml</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="command-line-tools.html" class="btn btn-neutral float-left" title="Command Line Tools" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tutorials.html" class="btn btn-neutral float-right" title="Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025 Alliance for Sustainable Energy, LLC.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

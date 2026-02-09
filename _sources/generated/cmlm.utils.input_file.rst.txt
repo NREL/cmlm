@@ -1,0 +1,20 @@
+﻿cmlm.utils.input\_file
+======================
+
+.. automodule:: cmlm.utils.input_file
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      beautify_document
+      recursively_update_dict
+      scalar_to_list
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      TomlParmParse
+   

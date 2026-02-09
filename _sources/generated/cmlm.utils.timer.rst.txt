@@ -1,0 +1,13 @@
+﻿cmlm.utils.timer
+================
+
+.. automodule:: cmlm.utils.timer
+
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Timer
+      TrackerBar
+   

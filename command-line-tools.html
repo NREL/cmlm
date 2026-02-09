@@ -1,0 +1,209 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Command Line Tools &mdash; CMLM 2025 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=cb975c41"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Run Scripts" href="run-scripts.html" />
+    <link rel="prev" title="cmlm.utils.cantera_helpers" href="generated/cmlm.utils.cantera_helpers.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CMLM
+              <img src="_static/cmlm-net.pdf" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="getting-started.html">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="getting-started.html#dependencies-installation">Dependencies &amp; Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="getting-started.html#using-cmlm">Using CMLM</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="library-api.html">Library/API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="library-api.html#neural-network-models">Neural Network Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="library-api.html#tabulated-models">Tabulated Models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/cmlm.ctable_tools.html">cmlm.ctable_tools</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="library-api.html#general-utilities">General Utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="generated/cmlm.utils.input_file.html">cmlm.utils.input_file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cmlm.utils.timer.html">cmlm.utils.timer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="generated/cmlm.utils.cantera_helpers.html">cmlm.utils.cantera_helpers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Command Line Tools</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#ctable-tools">ctable_tools</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="run-scripts.html">Run Scripts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="run-scripts.html#cantera">cantera</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="run-scripts.html#module-compute_premixed_flamelets">compute_premixed_flamelets.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="run-scripts.html#module-compute_nonpremixed_flamelets">compute_nonpremixed_flamelets.py</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="run-scripts.html#ctable">ctable</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="run-scripts.html#module-create_dummy_table_nd">create_dummy_table_nd.py</a></li>
+<li class="toctree-l3"><a class="reference internal" href="run-scripts.html#module-create_spray_table_nd">create_spray_table_nd.py</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Questions &amp; Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#discussions">Discussions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#contributions">Contributions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#formatting-guidelines">Formatting Guidelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#building-the-documentation">Building the Documentation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="citation.html">Citation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="citation.html#software">Software</a></li>
+<li class="toctree-l2"><a class="reference internal" href="citation.html#model">Model</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CMLM</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Command Line Tools</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/command-line-tools.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="command-line-tools">
+<span id="id1"></span><h1>Command Line Tools<a class="headerlink" href="#command-line-tools" title="Link to this heading"></a></h1>
+<section id="ctable-tools">
+<h2>ctable_tools<a class="headerlink" href="#ctable-tools" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">ctable_tools</span></code> script that gets installed as part of cmlm has several features for plotting, printing, slicing, etc. To see what the available features are and how to use them, run:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">poetry</span> <span class="n">run</span> <span class="n">ctable_tools</span>
+</pre></div>
+</div>
+<p>assuming you have installed <code class="docutils literal notranslate"><span class="pre">cmlm</span></code> with poetry, which generates the following list
+of options</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="go">usage: ctable_tools [-h] [-f {NGA,Pele}] [-d DIMENSIONS]</span>
+<span class="go">                    [-dl DIMENSION_LABELS [DIMENSION_LABELS ...]] [-p] [-o OUTPUTFILE]</span>
+<span class="go">                    [-cf] [-cu {none,cgs2mks,mks2cgs}] [-sl SLICE [SLICE ...]]</span>
+<span class="go">                    [-sp SLICE_PLOT [SLICE_PLOT ...]] [-v VARIABLES [VARIABLES ...]]</span>
+<span class="go">                    inputfile</span>
+
+<span class="go">Useful tools for interacting with chemtable files</span>
+
+<span class="go">positional arguments:</span>
+<span class="go">  inputfile             Table file to read</span>
+
+<span class="go">options:</span>
+<span class="go">  -h, --help            show this help message and exit</span>
+<span class="go">  -f {NGA,Pele}, --format {NGA,Pele}</span>
+<span class="go">                        Table format, NGA or Pele</span>
+<span class="go">  -d DIMENSIONS, --dimensions DIMENSIONS</span>
+<span class="go">                        Number of dimensions in NGA table</span>
+<span class="go">  -dl DIMENSION_LABELS [DIMENSION_LABELS ...], --dimension_labels DIMENSION_LABELS [DIMENSION_LABELS ...]</span>
+<span class="go">                        List of dimension names in NGA table</span>
+<span class="go">  -p, --print           Flag to print extrema of table file</span>
+<span class="go">  -o OUTPUTFILE, --outputfile OUTPUTFILE</span>
+<span class="go">                        Output file to write, if needed</span>
+<span class="go">  -cf, --convert_format</span>
+<span class="go">                        Convert format from input format to other format</span>
+<span class="go">  -cu {none,cgs2mks,mks2cgs}, --convert_units {none,cgs2mks,mks2cgs}</span>
+<span class="go">                        Convert units and save new table</span>
+<span class="go">  -sl SLICE [SLICE ...], --slice SLICE [SLICE ...]</span>
+<span class="go">                        Create a table by slicing. Specify dimensions to slice and</span>
+<span class="go">                        values as a list of form dim_name1:value dim_name2:value</span>
+<span class="go">  -sp SLICE_PLOT [SLICE_PLOT ...], --slice_plot SLICE_PLOT [SLICE_PLOT ...]</span>
+<span class="go">                        Plot a slice of the table. Specify dimensions to slice and</span>
+<span class="go">                        values as a list of form dim_name1:value dim_name2:value, must</span>
+<span class="go">                        specify enough slice dims such that there are exactly one or</span>
+<span class="go">                        two slice dimensions. Alternatively, set as &#39;justplot&#39; to</span>
+<span class="go">                        directly plot a 1D or 2D table without slicing.</span>
+<span class="go">  -v VARIABLES [VARIABLES ...], --variables VARIABLES [VARIABLES ...]</span>
+<span class="go">                        variables to be plotted if unspecified, all variables in table</span>
+<span class="go">                        will be plotted</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="generated/cmlm.utils.cantera_helpers.html" class="btn btn-neutral float-left" title="cmlm.utils.cantera_helpers" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="run-scripts.html" class="btn btn-neutral float-right" title="Run Scripts" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025 Alliance for Sustainable Energy, LLC.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
