@@ -12,6 +12,7 @@ multi-stream systems ('Z2MIX', 'FMIX' (two streams mix to form fuel stream) or '
 if __name__ == "__main__":
 
     import numpy as np
+    import glob
 
     from cmlm.utils import TomlParmParse
     from cmlm.utils.input_file import scalar_to_list
@@ -147,4 +148,10 @@ if __name__ == "__main__":
     ).to_dict()
     keep_vars = ppm.get("keep_vars", doc="List of variables to include in output table")
 
+    # ---------------------------------------------------------#
+    #                    Start of Main                         #
+    # ---------------------------------------------------------#
+
     # Convolute/interpolate all flamelet files
+    files = sorted(glob.glob(flamelet_files))[::-1] # must be in increasing Lambda (generalized progvar) order
+    print(files)
